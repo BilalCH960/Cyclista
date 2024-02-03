@@ -92,6 +92,10 @@ class Product(models.Model):
     old_price = models.DecimalField(max_digits= 9, decimal_places=2, default = Decimal('2.99'))
 
     specification = models.TextField(null=True, blank= True)
+    stock_count = models.CharField(max_length=100, default="10")
+    warranty = models.CharField(max_length=100, default='6 months', null=True, blank= True)
+    mfd = models.DateTimeField(auto_now_add = False, null=True, blank= True)
+
     # tags = models.ForeignKey(Tags, on_delete=models.SET_NULL, null=True)
 
     product_status = models.CharField(choices = STATUS, max_length=10, default = 'in_review')
@@ -115,7 +119,7 @@ class Product(models.Model):
         return self.title
     
     def get_percentage(self):
-        new_price = (self.price / self.old_price) * 100
+        new_price = 100 - (self.price / self.old_price) * 100
         return new_price
     
     def save(self, *args, **kwargs):
@@ -132,7 +136,7 @@ class Product(models.Model):
 
 class ProductImages(models.Model):
     images = models.ImageField(upload_to='product-images', default='product.jpg')
-    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null = True)
+    product = models.ForeignKey(Product,related_name='p_images', on_delete=models.SET_NULL, null = True)
     date = models.DateTimeField(auto_now_add = True)
 
     class Meta:

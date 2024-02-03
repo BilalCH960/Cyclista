@@ -116,7 +116,7 @@
 
       <div id="otp" class="inputs d-flex flex-row justify-content-center mt-2">
     
-        <form id="otpForm" method="post" action="{% url 'authentication:otp_verify' %}">
+        <form id="otpForm" method="post" action="{% url 'userauths:otp_verify' %}">
         {% csrf_token %}
         <div class="mt-4">
         <input type="text" name="otp"  class="inputs" maxlength="6" pattern="[0-9]{6}" required>
@@ -127,7 +127,7 @@
         
     </form>
     
-    <form method="post" action="{% url 'authentication:otp_verify' %}">
+    <form method="post" action="{% url 'userauths:otp_verify' %}">
         {% csrf_token %}
         <div class="mt-4">
            

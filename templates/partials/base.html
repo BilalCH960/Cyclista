@@ -475,10 +475,7 @@
                                 <ul>
                                     <li><a class="active" href="index.html">Home <i class="fi-rs-angle-down"></i></a>
                                         <ul class="sub-menu">
-                                            <li><a href="index.html">Home 1</a></li>
-                                            <li><a href="index-2.html">Home 2</a></li>
-                                            <li><a href="index-3.html">Home 3</a></li>
-                                            <li><a href="index-4.html">Home 4</a></li>
+                                            <li><a href="{% url "product:index" %}">Home</a></li>
                                         </ul>
                                     </li>
                                     <li>
@@ -486,8 +483,8 @@
                                     </li>
                                     <li><a href="shop-grid-right.html">Shop <i class="fi-rs-angle-down"></i></a>
                                         <ul class="sub-menu">
-                                            <li><a href="shop-grid-right.html">Shop Grid – Right Sidebar</a></li>
-                                            <li><a href="shop-grid-left.html">Shop Grid – Left Sidebar</a></li>
+                                            {% comment %} <li><a href="shop-grid-right.html">Shop Grid – Right Sidebar</a></li> {% endcomment %}
+                                            <li><a href="{% url "product:product-list" %}">Shop Grid</a></li>
                                             <li><a href="shop-list-right.html">Shop List – Right Sidebar</a></li>
                                             <li><a href="shop-list-left.html">Shop List – Left Sidebar</a></li>
                                             <li><a href="shop-fullwidth.html">Shop - Wide</a></li>
