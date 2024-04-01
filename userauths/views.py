@@ -122,7 +122,7 @@ def register_view(request):
         try:
            if User.new_manager.get(username=username):
                 messages.warning(request, "Oops! The name is already in use.")
-                return redirect('userauths:User')
+                return redirect('userauths:sign-up')
         except User.DoesNotExist:
             pass
        
@@ -146,16 +146,21 @@ def login_view(request):
         try:
             user = User.objects.get(email = email)
             user = authenticate(request, email=email, password=password)
+            # if user.is_active == False:
        
             if user is not None:
-                login(request, user)
-                messages.success(request, "You are logged in.")
-                return redirect("product:index")
+                if user.is_active == True:
+                    login(request, user)
+                    messages.success(request, "You are logged in.")
+                    return redirect("product:index")
+            elif user is None and user.is_active == False:
+                    messages.warning(request, "User is Blocked, Your access is denied.")
+                    
             else:
                 messages.warning(request, "User does'nt Exist, Please create an account.")
     
         except:
-            messages.warning(request, f'User with {email} does not exists')
+            messages.warning(request, f'Access of {email} has been denied')
         
 
     
@@ -172,6 +177,10 @@ def logout_view(request):
     return redirect('userauths:sign-in')
 
 
+
+def dummy_view(request):
+    
+    return render(request, 'dummy_template.html')
 
 
 

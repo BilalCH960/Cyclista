@@ -35,7 +35,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'jazzmin',
+    'colorfield',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,6 +46,12 @@ INSTALLED_APPS = [
     'product',
     'userauths',
     'social_django',
+    'admin_side',
+    'ad_product',
+    'category_manage',
+    'account',
+    'cart',
+    'order',
 
 ]
 
@@ -72,6 +78,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'product.context_processor.default',
             ],
         },
     },
@@ -151,8 +158,8 @@ EMAIL_HOST='smtp.gmail.com'
 EMAIL_USE_SSL = True
 EMAIL_USE_TLS = False
 EMAIL_PORT = 465
-EMAIL_HOST_USER='yourseamlesslife@gmail.com'
-EMAIL_HOST_PASSWORD='bbndjdnoschakdwy'
+EMAIL_HOST_USER='mrtrooper023@gmail.com'
+EMAIL_HOST_PASSWORD='zhbcnnowolnrujjf'
 
 
 
@@ -160,12 +167,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '143906622382-am71phg35dgkkie7pvcaee196vdb0kc7.a
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
 
 
-JAZZMIN_SETTINGS = {
-  'site_header': "Cyklista",
-  'site_brand': "Cyklista",
-  'site_logo': "assets/logo/wix.jpg",
-  'copyright': "cyklista.com",
-}
+
 
 LOGIN_URL = '/userauth/sign-in/'
 LOGIN_REDIRECT_URL = '/landing/'

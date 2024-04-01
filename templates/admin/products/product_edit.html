@@ -1,0 +1,58 @@
+{% extends "admin/admin_base.html" %} 
+{% block title %}Edit Products{% endblock title %} 
+{%block content %}
+{% load static %}
+
+
+
+<section class="content-main">
+  {% for message in messages  %}
+  <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+    <strong>{{message}}</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endfor %}
+  <div class="row">
+      <div class="col-9">
+          <div class="content-header">
+              <h2 class="content-title">Edit Product</h2>
+          </div>
+      </div>
+{% if submitted %}
+      <p>it is submitted</p>
+      
+      <div class="col-lg-6">
+          <div class="card mb-4">
+              <div class="card-body">
+                  {% else %}
+         
+                  <form action="{% url 'ad_product:product_edit' id=pro.id %}" method="POST" enctype="multipart/form-data">
+                      
+                       {% csrf_token %}
+
+                       {{form.as_p}}
+                       <input type="submit" value="Submit" class="btn btn-button success" style="background-color: #4CAF50; /* Green */
+                       border: none;
+                       color: white;
+                       padding: 15px 32px;
+                       text-align: center;
+                       text-decoration: none;
+                       display: inline-block;
+                       font-size: 16px;
+                       margin: 4px 2px;
+                       cursor: pointer;
+                       border-radius: 8px;">
+                      
+
+              </div>
+          </div>
+      </div>
+      
+  </div>
+  {% endif %}
+</section>
+</div> 
+
+
+
+{% endblock content %} 

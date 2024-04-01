@@ -1,0 +1,84 @@
+{% extends "partials/base.html" %} 
+{%block content %}
+{% load static %} 
+{% load custom_filters %}
+
+
+
+<main>
+  <div class="container w-75">
+    <div class="row">
+      <div class="my-5">
+        <p class="h3">Order Summary</p>
+      </div>
+      <table class="table table-striped border">
+        <thead>
+          <tr>
+            <th scope="col" class="w-25" ></th>
+            <th scope="col" class="text-center" style="width: 5vw;">Product name</th>
+            <th scope="col" class="text-center" style="width: 5vw;">Price</th>
+            <th scope="col" class="text-center" style="width: 5vw;">Quantity</th>
+            <th scope="col" class="text-end" style="width: 5vw;padding-right: 2vw;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in order_items %}
+            <tr class="border">
+              <th scope="row" class="w-25">
+                <img src="{{ item.order_product.variantimage_set.first.images.url}}" class="img-fluid rounded-3" style="width: 120px;" alt="Book" />
+              </th>
+              <td class="text-center">{{ item.order_product.product }}</td>
+              <td class="text-center">₹ {{ item.order_product.sale_price }}</td>
+              <td class="text-center">{{ item.quantity }}</td>
+              <td class="text-end" style="padding-right: 2vw;">₹ {{ item.order_product.sale_price|mul:item.quantity }}</td>
+            </tr>
+          {% endfor %}
+
+          <tr class="border">
+            <th colspan="5" class="text-center">Shipping</th>
+            <td class="text-end" style="padding-right: 2vw;">₹ {{ new_order.order_shipping }}</td>
+          </tr>
+          <tr class="border">
+            <th colspan="5" class="text-center">Grand Total</th>
+            <td class="text-end" style="padding-right: 2vw;">₹ {{ new_order.order_total }}</td>
+          </tr>
+          <tr class="">
+            <td colspan="5" class="border">
+              <table class="table mb-0">
+                <tr>
+                  <td><center>Delivery Address</center></td>
+                </tr>
+                <tr>
+                  <td style="padding-left: 4vw;">
+                    {{ new_order.shipping_address.user|upper}} <br>
+                    {{ new_order.shipping_address.phone_number }} <br>
+                    {{ new_order.shipping_address.address }} <br>
+                    {{ new_order.shipping_address.city }}, {{ new_order.shipping_address.state }}, 
+                    <br>{{ new_order.shipping_address.country }}, {{ new_order.shipping_address.pincode }}
+                  </td>
+                </tr>
+              </table>
+            </td>
+            <td>
+              <table>
+                <tr>
+                  <td class="text-center align-top">
+                  
+                    Cash On Delivery
+                    
+                  </td>
+                </tr>
+                
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+
+
+
+{% endblock content %} 

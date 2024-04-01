@@ -1,0 +1,182 @@
+{% extends "admin/admin_base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content%}
+
+<section class="content-main">
+  <div class="content-header">
+      <div>
+          <h2 class="content-title card-title">Order detail</h2>
+          <p>Details for Order ID: #{{order.order_number}}</p>
+      </div>
+  </div>
+  <div class="card">
+      <header class="card-header">
+          <div class="row align-items-center">
+              <div class="col-lg-6 col-md-6 mb-lg-0 mb-15">
+                  <span>
+                      <i class="material-icons md-calendar_today"></i> <b>{{order.order_time}}</b>
+                  </span> <br>
+                  <small class="text-muted">Order ID: #{{order.order_number}}</small>
+              </div>
+              
+          </div>
+      </header> <!-- card-header end// -->
+      <div class="card-body">
+          <div class="row mb-50 mt-20 order-info-wrap">
+              <div class="col-md-4">
+                  <article class="icontext align-items-start">
+                      <span class="icon icon-sm rounded-circle bg-primary-light">
+                          <i class="text-primary material-icons md-person"></i>
+                      </span>
+                      <div class="text">
+                          <h6 class="mb-1">Customer</h6>
+                          <p class="mb-1">
+                              {{order.user.username}}<br>
+                               {% comment %} <template class="__cf_email__" data-cfemail="e2838e879aa2879a838f928e87cc818d8f"> {% endcomment %}
+                                {{order.user.email}}
+                              {% comment %} </template> {% endcomment %}
+                          </p>
+                          {% comment %} <a href="#">View profile</a> {% endcomment %}
+                      </div>
+                  </article>
+              </div> <!-- col// -->
+              <div class="col-md-4">
+                  <article class="icontext align-items-start">
+                      <span class="icon icon-sm rounded-circle bg-primary-light">
+                          <i class="text-primary material-icons md-local_shipping"></i>
+                      </span>
+                      <div class="text">
+                          <h6 class="mb-1">Order info</h6>
+                          <p class="mb-1">
+                              Payment: {{order.payment_details.payment_method}} <br> Status: {{order.payment_details.payment_status}}
+                          </p>
+                          {% comment %} <a href="#">Download info</a> {% endcomment %}
+                      </div>
+                  </article>
+              </div> <!-- col// -->
+              <div class="col-md-4">
+                  <article class="icontext align-items-start">
+                      <span class="icon icon-sm rounded-circle bg-primary-light">
+                          <i class="text-primary material-icons md-place"></i>
+                      </span>
+                      <div class="text">
+                          <h6 class="mb-1">Deliver to</h6>
+                          <p class="mb-1">
+                              City: {{order.shipping_address.city}}<br>{{order.shipping_address.address_one}} <br> Po Box {{order.shipping_address.pincode}} 
+                          </p>
+                          {% comment %} <a href="#">View profile</a> {% endcomment %}
+                      </div>
+                  </article>
+              </div> <!-- col// -->
+          </div> <!-- row // -->
+          <div class="row">
+              <div class="col-lg-12">
+                  <div class="table-responsive">
+                      <table class="table">
+                          <thead>
+                              <tr>
+                                  <th width="40%">Product</th>
+                                  <th width="15%">Unit Price</th>
+                                  <th width="15%">Quantity</th>
+                                  <th width="15%">Product Status</th>
+                                  <th width="15%" class="text-end">Total</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                            {% for o in order_item %}
+                            <tr>
+                              <td>
+                                <a class="itemside" href="#">
+                                  <div class="left">
+                                              <img src="{{ o.order_product.variantimage_set.first.images.url }}"  height="40vh"  alt="Item">
+                                          </div>
+                                          <div class="info"><h6> {{o.order_product.product}}</h6>{{o.order_product.color.Attribute_value}}   </div>
+                                      </a>
+                                  </td>
+                                  <td> Rs.{{o.product_price}} </td>
+                                  <td> {{o.quantity}} </td>
+                                  <td>
+                                    <form class="update-status-form">
+                                        <input type="hidden" class="order-id" value="{{ o.order_item_id }}">
+                                        <select class="form-select status-select d-inline-block mb-lg-0 mb-15 mw-200">
+                                            {% for status_code, status_label in o.ORDER_STATUS %}
+                                                <option value="{{ status_code }}" {% if status_code == o.order_status %} selected {% endif %}>{{ status_label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <button type="submit" class="btn btn-primary save-btn" {% if o.order_status == "CANCELLED" or o.order_status == "RETURNED" %}disabled{% endif %}>Save</button>
+                                    </form>
+                                </td>
+                                
+                                  <td class="text-end"> {{ o.product_price|mul:o.quantity }} </td>
+                            </tr>                              
+                            {% endfor %}
+                            <br><br>
+                                  <td colspan="5">
+                                      <article class="float-end">
+                                          <dl class="dlist">
+                                              <dt>Subtotal:</dt>
+                                              <dd>Rs.{{order.order_subtotal}}</dd>
+                                          </dl>
+                                          <dl class="dlist">
+                                              <dt>Shipping cost:</dt>
+                                              <dd>{{order.order_shipping}}</dd>
+                                          </dl>
+                                          <dl class="dlist">
+                                              <dt>Grand total:</dt>
+                                              <dd> <b class="h5">{{order.payment_details.amount_paid}}</b> </dd>
+                                          </dl>
+                                          <dl class="dlist">
+                                              <dt class="text-muted">Status:</dt>
+                                              <dd>
+                                                  <span class="badge rounded-pill alert-{% if order.payment_details.payment_status == 'SUCCESS' %}success{% elif order.payment_details.payment_status == 'FAILED' %}danger{% else %}warning{% endif %} text-{% if order.payment_details.payment_status == 'SUCCESS' %}success{% elif order.payment_details.payment_status == 'FAILED' %}danger{% else %}warning{% endif %}">{{order.payment_details.payment_status }}</span>
+                                              </dd>
+                                          </dl>
+                                      </article>
+                                  </td>
+                              </tr>
+                          </tbody>
+                      </table>
+                  </div> <!-- table-responsive// -->
+              </div> <!-- col// -->
+          </div>
+      </div> <!-- card-body end// -->
+  </div> <!-- card end// -->
+</section>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('.save-btn').click(function(e) {
+            e.preventDefault();
+            var order_id = $(this).closest('tr').find('.order-id').val();
+            var status = $(this).closest('tr').find('.status-select').val();
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url "order:admin_order_status" %}',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'order_id': order_id,
+                    'status': status
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert('Order status updated successfully!');
+                        // You can add more code here to update the UI if needed
+                    } else {
+                        alert('Failed to update order status.');
+                    }
+                },
+                error: function(xhr, errmsg, err) {
+                    alert('Error occurred while updating order status.');
+                    console.log(xhr.status + ": " + xhr.responseText);
+                }
+            });
+        });
+    });
+</script>
+
+
+{% endblock content%}

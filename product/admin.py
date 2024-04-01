@@ -1,5 +1,5 @@
 from django.contrib import admin
-from product.models import *
+from .models import *
 
 
 
@@ -20,12 +20,12 @@ class VendorAdmin(admin.ModelAdmin):
   list_display = ['title', 'vendor_image']
 
   
-class CartOrderAdmin(admin.ModelAdmin):
-  list_display = ['user', 'price', 'paid_status', 'order_date', 'product_status']
+# class CartOrderAdmin(admin.ModelAdmin):
+#   list_display = ['user', 'price', 'paid_status', 'order_date', 'product_status']
 
 
-class CartOrderItemsAdmin(admin.ModelAdmin):
-  list_display = ['order', 'invoice_no', 'item', 'image', 'qty', 'price', 'total']
+# class CartOrderItemsAdmin(admin.ModelAdmin):
+#   list_display = ['order', 'invoice_no', 'item', 'image', 'qty', 'price', 'total']
 
 
 class ProductReviewAdmin(admin.ModelAdmin):
@@ -43,9 +43,9 @@ class AddressAdmin(admin.ModelAdmin):
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Vendor, VendorAdmin)
-admin.site.register(CartOrder, CartOrderAdmin)
-admin.site.register(CartOrderItems, CartOrderItemsAdmin)
+# admin.site.register(CartOrder, CartOrderAdmin)
+# admin.site.register(CartOrderItems, CartOrderItemsAdmin)
 admin.site.register(ProductReview, ProductReviewAdmin)
 admin.site.register(Wishlist, WishlistAdmin)
-admin.site.register(Address, AddressAdmin)
+# admin.site.register(Address, AddressAdmin)
 

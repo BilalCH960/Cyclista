@@ -4,6 +4,38 @@
 
 {% block content%}
 
+<head>
+    <style>
+        input[type="range"]{
+            -webkit-appearance: none;
+            margin-right: 15px;
+            height: 7px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 5px;
+            background-image: linear-gradient(#3bb77e, #3bb77e);
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height:20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #3bb77e;
+            cursor: ew-resize;
+            box-shadow: 0 0 2px 0 #555;
+            transition: background .3s ease-in-out;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            -webkit-appearance: none;
+            box-shadow: none;
+            border: none;
+            background: transparent;
+        }
+    </style>
+</head>
 
     <div class="mobile-header-active mobile-header-wrapper-style">
         <div class="mobile-header-wrapper-inner">
@@ -169,21 +201,137 @@
         <div class="page-header breadcrumb-wrap">
             <div class="container">
                 <div class="breadcrumb">
-                    <a href="index.html" rel="nofollow">Home</a>
-                    <span></span> Shop
+                    <a href="{% url "product:index" %}" rel="nofollow">Home</a>
+                    <span></span> Products
                 </div>
             </div>
         </div>
         <section class="mt-50 mb-50">
             <div class="container">
                 <div class="row flex-row-reverse">
+                    {% comment %} <div class="col-lg-12">
+                        <a class="shop-filter-toogle" href="#">
+                            <span class="fi-rs-filter mr-5"></span>
+                            Filters
+                            <i class="fi-rs-angle-small-down angle-down"></i>
+                            <i class="fi-rs-angle-small-up angle-up"></i>
+                        </a>
+                        <div class="shop-product-fillter-header">
+                            <div class="row">
+                                <div class="col-lg-2 col-md-4 mb-lg-0 mb-md-5 mb-sm-5">
+                                    <h5 class="mb-20">Categories</h5>
+                                    <ul class="categor-list">
+                                        {% for i in category %}
+                                        <li class="cat-item text-muted">
+                                        <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox1" value="">&nbsp;&nbsp;
+                                        <a href="{% url "product:category-product-list" i.id %} ">{{i}}</a></li>
+                                        {% endfor %}
+                                        
+                                    </ul>
+                                </div>
+                                {% comment %} <div class="col-lg-2 col-md-4 mb-lg-0 mb-md-5 mb-sm-5">
+                                    <h5 class="mb-20">Manufacturers</h5>
+                                    <ul class="categor-list">
+                                        <li class="cat-item text-muted"><a href="shop-grid-right.html">Adidas</a>(125)</li>
+                                        <li class="cat-item text-muted"><a href="shop-grid-right.html">Armani</a>(68)</li>
+                                        <li class="cat-item text-muted"><a href="shop-grid-right.html">Burberry</a>(274)</li>
+                                        <li class="cat-item text-muted"><a href="shop-grid-right.html">Chanel</a>(152)</li>
+                                        <li class="cat-item text-muted"><a href="shop-grid-right.html">Prada</a>(302)</li>
+                                        <li class="cat-item text-muted"><a href="shop-grid-right.html">Bootstrap</a>(32)</li>
+                                        <li class="cat-item text-muted"><a href="shop-grid-right.html">Helixx</a>(312)</li>
+                                    </ul>
+                                </div> {% endcomment %}
+                                {% comment %} <div class="col-lg-2 col-md-4 mb-lg-0 mb-md-5 mb-sm-5">
+                                    <h5 class="mb-20">Price range</h5>
+                                    <ul class="categor-list">
+                                        <li class="cat-item text-muted"><a href="shop-grid-right.html">All</a></li>
+                                        <li class="cat-item text-muted"><a href="shop-grid-right.html">$0.00 - $20.00 </a></li>
+                                        <li class="cat-item text-muted"><a href="shop-grid-right.html">$20.00 - $40.00 </a></li>
+                                        <li class="cat-item text-muted"><a href="shop-grid-right.html">$40.00 - $60.00 </a></li>
+                                        <li class="cat-item text-muted"><a href="shop-grid-right.html">$60.00 - $80.00 </a></li>
+                                        <li class="cat-item text-muted"><a href="shop-grid-right.html">$80.00 - $100.00 </a></li>
+                                        <li class="cat-item text-muted"><a href="shop-grid-right.html">$100.00 - $200.00 </a></li>
+                                    </ul>
+                                </div> {% endcomment %}
+                                {% comment %} <div class="col-lg-2 col-md-4 mb-lg-0 mb-md-5 mb-sm-5">
+                                    <h5 class="mb-20">By Tags</h5>
+                                    <ul class="categor-list">
+                                        <li class="cat-item text-muted"><a href="shop-grid-right.html">Cloth</a>(124)</li>
+                                        <li class="cat-item text-muted"><a href="shop-grid-right.html">Apple</a>(234)</li>
+                                        <li class="cat-item text-muted"><a href="shop-grid-right.html">Headphone</a>(657)</li>
+                                        <li class="cat-item text-muted"><a href="shop-grid-right.html">Music</a>(1221)</li>
+                                        <li class="cat-item text-muted"><a href="shop-grid-right.html">Dress</a>(455)</li>
+                                        <li class="cat-item text-muted"><a href="shop-grid-right.html">Trending</a>(1553)</li>
+                                    </ul>
+                                </div> {% endcomment %}
+                                {% comment %} <div class="col-lg-2 col-md-4 mb-lg-0 mb-md-5 mb-sm-5">
+                                    <h5 class="mb-20">By Color</h5>
+                                    <ul class="list-filter color-filter">
+
+                                        {% for c in colors %}
+                                        <input class="form-check-input" data-filter="color" type="checkbox" name="checkbox" id="exampleCheckbox1" value="">&nbsp;&nbsp;
+                                        <li><a href="#" data-color="Red">{{ c.Attribute_value }}</a></li><br>
+                                        {% endfor %}
+                                        
+                                    </ul>
+                                    {% comment %} <h5 class="mb-15 mt-20">By Size</h5>
+                                    <ul class="list-filter size-filter font-small">
+                                        <li><a href="#">S</a></li>
+                                        <li class="active"><a href="#">M</a></li>
+                                        <li><a href="#">L</a></li>
+                                        <li><a href="#">XL</a></li>
+                                        <li><a href="#">XXL</a></li>
+                                    </ul> 
+                                </div> {% endcomment %}
+                                {% comment %} <div class="col-lg-2 col-md-4 mb-lg-0 mb-md-5 mb-sm-5">
+                                    <h5 class="mb-20">By Review</h5>
+                                    <div class="product-rate-cover">
+                                        <div class="product-rate d-inline-block">
+                                            <div class="product-rating" style="width:100%">
+                                            </div>
+                                        </div>
+                                        <span class="font-small ml-5 text-muted"> (25)</span>
+                                    </div>
+                                    <div class="product-rate-cover">
+                                        <div class="product-rate d-inline-block">
+                                            <div class="product-rating" style="width:80%">
+                                            </div>
+                                        </div>
+                                        <span class="font-small ml-5 text-muted"> (25)</span>
+                                    </div>
+                                    <div class="product-rate-cover">
+                                        <div class="product-rate d-inline-block">
+                                            <div class="product-rating" style="width:60%">
+                                            </div>
+                                        </div>
+                                        <span class="font-small ml-5 text-muted"> (25)</span>
+                                    </div>
+                                    <div class="product-rate-cover">
+                                        <div class="product-rate d-inline-block">
+                                            <div class="product-rating" style="width:40%">
+                                            </div>
+                                        </div>
+                                        <span class="font-small ml-5 text-muted"> (25)</span>
+                                    </div>
+                                    <div class="product-rate-cover">
+                                        <div class="product-rate d-inline-block">
+                                            <div class="product-rating" style="width:20%">
+                                            </div>
+                                        </div>
+                                        <span class="font-small ml-5 text-muted"> (25)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>  {% endcomment %}
                     <div class="col-lg-9">
                         <div class="shop-product-fillter">
+                            
                             <div class="totall-product">
-                                <p> We found <strong class="text-brand">688</strong> items for you!</p>
+                                <p> We found <strong class="text-brand">{{count}}</strong> items for you!</p>
                             </div>
                             <div class="sort-by-product-area">
-                                <div class="sort-by-cover mr-10">
+                                {% comment %} <div class="sort-by-cover mr-10">
                                     <div class="sort-by-product-wrap">
                                         <div class="sort-by">
                                             <span><i class="fi-rs-apps"></i>Show:</span>
@@ -201,7 +349,7 @@
                                             <li><a href="#">All</a></li>
                                         </ul>
                                     </div>
-                                </div>
+                                </div> {% endcomment %}
                                 <div class="sort-by-cover">
                                     <div class="sort-by-product-wrap">
                                         <div class="sort-by">
@@ -223,22 +371,22 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row product-grid-3">
+                        <div class="row product-grid-3" id = "filtered-product">
 
                             {% for p in products %}
                                 <div class="col-lg-4 col-md-4 col-12 col-sm-6">
                                     <div class="product-cart-wrap mb-30">
                                         <div class="product-img-action-wrap">
                                             <div class="product-img product-img-zoom">
-                                                <a href="{% url "product:product-detail" p.pid %}">
-                                                    <img size="100px" class="default-img" src="{{ p.image.url }}" alt="">
-                                                    <img class="hover-img" src="{{ p.image.url }}" alt="">
+                                                <a href="{% url "product:product-detail" p.id p.product.product_catg.id %}">
+                                                    <img size="100px" class="default-img" src="{{ p.variantimage_set.first.images.url }}" alt="">
+                                                    <img class="hover-img" src="{{ p.variantimage_set.first.images.url }}" alt="">
                                                 </a>
                                             </div>
                                             <div class="product-action-1">
-                                                <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
+                                                {% comment %} <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a> {% endcomment %}
                                                 <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                                <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
+                                                {% comment %} <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> {% endcomment %}
                                             </div>
                                             <div class="product-badges product-badges-position product-badges-mrg">
                                                 <span class="hot">-{{p.get_percentage|floatformat:0}}%</span>
@@ -246,20 +394,31 @@
                                         </div>
                                         <div class="product-content-wrap">
                                             <div class="product-category">
-                                                <a href="shop-grid-right.html">{{p.category}}</a>
+                                                <a href="shop-grid-right.html">{{p.color}}</a>
                                             </div>
-                                            <h2><a href="shop-product-right.html">{{p.title}}</a></h2>
-                                            <div class="rating-result" title="90%">
+                                            <h2><a href="shop-product-right.html">{{p.product}}</a></h2>
+                                            <br>
+                                            {% comment %} <div class="rating-result" title="90%">
                                                 <span>
                                                     <span>90%</span>
                                                 </span>
-                                            </div>
+                                            </div> {% endcomment %}
                                             <div class="product-price">
-                                                <span> Rs.{{ p.price }}</span>
-                                                <span class="old-price">Rs.{{p.old_price}}</span>
+                                                <span> Rs.<span class="current-product-price-{{p.id}}" id="current-product-price">{{p.sale_price}}</span></span>
+                                                <span class="old-price">Rs.{{p.max_price}}</span>
                                             </div>
-                                            <div class="product-action-1 show">
-                                                <a aria-label="Add To Cart" class="action-btn hover-up" href="shop-cart.html"><i class="fi-rs-shopping-bag-add"></i></a>
+                                            <div class="add-cart">
+                                                <div class="product-action-1 show"> 
+                                                    <input type="hidden" value="1" id="product-quantity" class="product-quantity-{{p.id}}">
+                                                    <input type="hidden" value="{{p.model_id}}" class="product-pid-{{p.id}}">
+                                                    <input type="hidden" value="{{ p.variantimage_set.first.images.url }}" class="product-image-{{p.id}}">
+                                                    <input type="hidden" value="{{p.id}}" class="product-id-{{p.id}}">
+                                                    <input type="hidden" value="{{p.product}}" class="product-title-{{p.id}}">
+                                                    <span class="action-btn">
+                                                        <button aria-label="Add To Cart" data-index="{{ p.id }}" id="add-to-cart-btn" class="add add-to-cart-btn hover-up" href="#" ><i class="fi-rs-shopping-bag-add"></i></button>
+                                                    </span>
+
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -282,61 +441,49 @@
                         </div> {% endcomment %}
                     </div>
                     <div class="col-lg-3 primary-sidebar sticky-sidebar">
-                        <div class="widget-category mb-30">
-                            <h5 class="section-title style-1 mb-30 wow fadeIn animated">Category</h5>
-                            <ul class="categories">
-                                <li><a href="shop-grid-right.html">Shoes & Bags</a></li>
-                                <li><a href="shop-grid-right.html">Blouses & Shirts</a></li>
-                                <li><a href="shop-grid-right.html">Dresses</a></li>
-                                <li><a href="shop-grid-right.html">Swimwear</a></li>
-                                <li><a href="shop-grid-right.html">Beauty</a></li>
-                                <li><a href="shop-grid-right.html">Jewelry & Watch</a></li>
-                                <li><a href="shop-grid-right.html">Accessories</a></li>
-                            </ul>
-                        </div>
+                
                         <!-- Fillter By Price -->
                         <div class="sidebar-widget price_range range mb-30">
                             <div class="widget-header position-relative mb-20 pb-10">
-                                <h5 class="widget-title mb-10">Fill by price</h5>
+                                <h5 class="widget-title mb-10">Filter</h5>
                                 <div class="bt-1 border-color-1"></div>
                             </div>
-                            <div class="price-filter">
+                            {% comment %} <div class="price-filter">
                                 <div class="price-filter-inner">
-                                    <div id="slider-range"></div>
+                                    
+                                    <input type="range" name="range" class="slider-range" id="range" min="0" max="200">
                                     <div class="price_slider_amount">
                                         <div class="label-input">
                                             <span>Range:</span><input type="text" id="amount" name="price" placeholder="Add Your Price" />
                                         </div>
                                     </div>
+                                    <button class="btn mt-20 w-100">Filter</button>
                                 </div>
-                            </div>
+                            </div> {% endcomment %}
                             <div class="list-group">
                                 <div class="list-group-item mb-10 mt-10">
                                     <label class="fw-900">Color</label>
                                     <div class="custome-checkbox">
-                                        <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox1" value="">
-                                        <label class="form-check-label" for="exampleCheckbox1"><span>Red (56)</span></label>
+                                        {% for c in colors %}
+                                        <input class="form-check-input filter-checkbox" type="checkbox" data-filter="color" name="checkbox" id="{{ c.Attribute_value }}" value="{{c.id}}">
+                                        <label class="form-check-label" for="{{ c.Attribute_value }}"><span>{{ c.Attribute_value }}</span></label>
                                         <br>
-                                        <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox2" value="">
-                                        <label class="form-check-label" for="exampleCheckbox2"><span>Green (78)</span></label>
-                                        <br>
-                                        <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox3" value="">
-                                        <label class="form-check-label" for="exampleCheckbox3"><span>Blue (54)</span></label>
+                                        {% endfor %}
                                     </div>
-                                    <label class="fw-900 mt-15">Item Condition</label>
+                                    <label class="fw-900 mt-15">Category</label>
                                     <div class="custome-checkbox">
-                                        <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox11" value="">
-                                        <label class="form-check-label" for="exampleCheckbox11"><span>New (1506)</span></label>
+                                        {% for i in category %}
+                                        <div>
+
+                                            <input class="form-check-input filter-checkbox" type="checkbox" data-filter="category" name="checkbox" id="{{i.category_name}}" value="{{i.id}}">
+                                                <label class="form-check-label" for="{{i.category_name}}"><span>{{i.category_name}}</span></label>
+                                        </div>
+                                        {% endfor %}
                                         <br>
-                                        <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox21" value="">
-                                        <label class="form-check-label" for="exampleCheckbox21"><span>Refurbished (27)</span></label>
-                                        <br>
-                                        <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox31" value="">
-                                        <label class="form-check-label" for="exampleCheckbox31"><span>Used (45)</span></label>
                                     </div>
                                 </div>
                             </div>
-                            <a href="shop-grid-right.html" class="btn btn-sm btn-default"><i class="fi-rs-filter mr-5"></i> Fillter</a>
+                            {% comment %} <a href="shop-grid-right.html" class="btn btn-sm btn-default"><i class="fi-rs-filter mr-5"></i> Fillter</a> {% endcomment %}
                         </div>
                         <!-- Product sidebar Widget -->
                         <div class="sidebar-widget product-sidebar  mb-30 p-30 bg-grey border-radius-10">
@@ -344,51 +491,29 @@
                                 <h5 class="widget-title mb-10">New products</h5>
                                 <div class="bt-1 border-color-1"></div>
                             </div>
+
+                            {% for n in new %}
                             <div class="single-post clearfix">
                                 <div class="image">
-                                    <img src="assets/imgs/shop/thumbnail-3.jpg" alt="#">
+                                    <img src="{{ n.variantimage_set.first.images.url }}" alt="#">
                                 </div>
                                 <div class="content pt-10">
-                                    <h5><a href="shop-product-detail.html">Chen Cardigan</a></h5>
-                                    <p class="price mb-0 mt-5">$99.50</p>
-                                    <div class="product-rate">
-                                        <div class="product-rating" style="width:90%"></div>
-                                    </div>
+                                    <h5><a href="shop-product-detail.html">{{n.product}}</a></h5>
+                                    <p class="price mb-0 mt-5">Rs. {{n.sale_price}}</p>
                                 </div>
                             </div>
-                            <div class="single-post clearfix">
-                                <div class="image">
-                                    <img src="assets/imgs/shop/thumbnail-4.jpg" alt="#">
-                                </div>
-                                <div class="content pt-10">
-                                    <h6><a href="shop-product-detail.html">Chen Sweater</a></h6>
-                                    <p class="price mb-0 mt-5">$89.50</p>
-                                    <div class="product-rate">
-                                        <div class="product-rating" style="width:80%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="single-post clearfix">
-                                <div class="image">
-                                    <img src="assets/imgs/shop/thumbnail-5.jpg" alt="#">
-                                </div>
-                                <div class="content pt-10">
-                                    <h6><a href="shop-product-detail.html">Colorful Jacket</a></h6>
-                                    <p class="price mb-0 mt-5">$25</p>
-                                    <div class="product-rate">
-                                        <div class="product-rating" style="width:60%"></div>
-                                    </div>
-                                </div>
-                            </div>
+                            {% endfor %}
+
                         </div>
-                        <div class="banner-img wow fadeIn mb-45 animated d-lg-block d-none">
+                        {% comment %} <div class="banner-img wow fadeIn mb-45 animated d-lg-block d-none">
                             <img src="assets/imgs/banner/banner-11.jpg" alt="">
                             <div class="banner-text">
+                                <br>
                                 <span>Women Zone</span>
                                 <h4>Save 17% on <br>Office Dress</h4>
                                 <a href="shop-grid-right.html">Shop Now <i class="fi-rs-arrow-right"></i></a>
                             </div>
-                        </div>
+                        </div> {% endcomment %}
                     </div>
                 </div>
             </div>

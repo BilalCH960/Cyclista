@@ -1,0 +1,140 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Products{% endblock title %} 
+
+{% load static %}
+
+{% block content%}
+
+<section class="content-main">
+    {% for message in messages  %}
+  <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+    <strong>{{message}}</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endfor %}
+  <div class="content-header">
+      <div>
+          <h2 class="content-title card-title">Products List</h2>
+          <p>Edit or Delete products</p>
+      </div>
+  </div>
+  <div class="card mb-4">
+      <header class="card-header">
+          <div class="row align-items-center">
+              <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
+                  <select class="form-select">
+                      <option selected>All category</option>
+                      <option>Electronics</option>
+                      <option>Clothes</option>
+                      <option>Automobile</option>
+                  </select>
+              </div>
+              <div class="col-md-2 col-6">
+                  <input type="date" value="02.05.2021" class="form-control">
+              </div>
+              <div class="col-md-2 col-6">
+                  <select class="form-select">
+                      <option selected>Status</option>
+                      <option>Active</option>
+                      <option>Disabled</option>
+                      <option>Show all</option>
+                  </select>
+              </div>
+          </div>
+      </header> <!-- card-header end// -->
+      <header class="card-header">
+        <div class="row align-items-center">
+            <div class="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
+                <a class="itemside" href="#">
+                    <div class="left">
+                    </div>
+                    <div class="info">
+                        <h6 class="mb-0">Product</h6>
+                    </div>
+                </a>
+            </div>
+            <div class="col-lg-1 col-sm-2 col-4 col-date">
+                <h6 class="mb-0">Category</h6>
+            </div>
+            <div class="col-lg-1 col-sm-2 col-4 col-date">
+                <h6 class="mb-0">Mfg</h6>
+            </div>
+            <div class="col-lg-1 col-sm-2 col-4 col-date">
+                <h6 class="mb-0">Stock</h6>
+            </div>
+            <div class="col-lg-1 col-sm-2 col-4 col-date">
+                <h6 class="mb-0">Standing</h6>
+            </div>
+            <div class="col-lg-2 col-sm-2 col-4 col-status">
+                <h6 class="mb-0">Status</h6>
+            </div>
+            <div class="col-lg-2 col-sm-2 col-4 col-action text-end">
+                <h6 class="mb-0">Action</h6>
+            </div>
+            
+        </div> <!-- row .// -->
+    </header> <!-- card-header end// -->
+      <div class="card-body">
+        {% for p in pro %}
+        <article class="itemlist">
+            <div class="row align-items-center">
+                <div class="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
+                    <a class="itemside" href="#">
+                        <div class="left">
+                            <img src='{{ p.product_img.url }}' class="img-sm img-thumbnail" alt="Item">
+                        </div>
+                        <div class="info">
+                            <h6 class="mb-0">{{ p.product_name }}</h6>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-1 col-sm-2 col-4 col-date">
+                    <span>{{ p.product_catg }}</span>
+                </div>
+                <div class="col-lg-1 col-sm-2 col-4 col-date">
+                    <span>{{ p.created_at }}</span>
+                </div>
+                <div class="col-lg-1 col-sm-2 col-4 col-date">
+                    <span>{{ p.stock_count }}</span>
+                </div>
+                <div class="col-lg-1 col-sm-2 col-4 col-date">
+                    <span>{{ p.product_status }}</span>
+                </div>
+                <div class="col-lg-2 col-sm-2 col-4 col-status">
+                    <form action="#" method='POST'>
+                        {% csrf_token %}
+                        {% if p.is_active%}
+                        <button style='border: 2px solid #04AA6D;' class="btn" type="submit">Active</button>
+                        {% else %}
+                        <button style='border: 2px solid red;' class="btn" type="submit">Inactive</button>
+                        {% endif %}
+                    </form>
+                </div>
+                <div class="col-lg-2 col-sm-2 col-4 col-action text-end">
+                    <a href="{% url 'ad_product:product_edit' id=p.id %}" class="btn btn-sm font-sm rounded btn-brand">
+                        <i class="material-icons md-edit"></i> Edit
+                    </a>
+                    <a href="{% url 'ad_product:product_delete' id=p.id %}" class="btn btn-sm font-sm btn-light rounded">
+                        <i class="material-icons md-delete_forever"></i> Delete
+                    </a>
+                </div>
+            </div> <!-- row .// -->
+        </article>
+        {% endfor %}
+      </div> <!-- card-body end// -->
+  </div> <!-- card end// -->
+  <div class="pagination-area mt-30 mb-50">
+      <nav aria-label="Page navigation example">
+          <ul class="pagination justify-content-start">
+              <li class="page-item active"><a class="page-link" href="#">01</a></li>
+              <li class="page-item"><a class="page-link" href="#">02</a></li>
+              <li class="page-item"><a class="page-link" href="#">03</a></li>
+              <li class="page-item"><a class="page-link dot" href="#">...</a></li>
+              <li class="page-item"><a class="page-link" href="#">16</a></li>
+              <li class="page-item"><a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a></li>
+          </ul>
+      </nav>
+  </div>
+</section> <!-- content-main end// -->
+
+{% endblock content %}

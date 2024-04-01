@@ -1,0 +1,456 @@
+{% extends "partials/base.html" %} 
+{% block title %}Cart{% endblock title %} 
+{%block content %}
+{% load custom_filters %}
+{% load static %}
+
+
+<style>
+    /* Add a class for the disabled anchor tag */
+    .disabled-link {
+      pointer-events: none; /* Disable pointer events, making it unclickable */
+      color: gray; /* Change the color to indicate it's disabled */
+      text-decoration: none; /* Remove underline */
+    }
+  </style>
+
+
+
+<main class="main">
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="{% url "product:index" %}" rel="nofollow">Home</a>
+                <span></span>Cart
+            </div>
+        </div>
+    </div>
+    <section class="mt-50 mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="table shopping-summery text-center clean">
+                            <thead>
+                                <tr class="main-heading">
+                                    <th scope="col">Image</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Availability</th>
+                                    <th scope="col">Quantity</th>
+                                    <th scope="col">Item total</th>
+                                    <th scope="col">Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if item|default:""|length > 0 %} 
+                                    {% for cart in item %}
+                                        <tr>
+                                            <td class="image"><img width="60px" height="80px" src="{{cart.product.variantimage_set.first.images.url}}" alt="#"></td>
+                                            <td class="product-des">
+                                                <h5 class="product-name"><a href="">{{cart.product.product}}</a></h5>
+                                                <p class="font-xs">{{cart.product.color}}<br></p>
+                                                <p class="font-xs">{{cart.product.model_id}}<br></p>
+                                            </td>
+                                            <td class="price" data-title="Price"><span id="prodsaleprice{{cart.id}}" value="{{cart.product.sale_price}}">{{cart.product.sale_price}}</span></td>
+                                            <td id='img'>{{cart.product.stock}}</td>
+                                            <td class="text-center"  data-title="Stock">    
+                                                <div class="detail-qty border radius m-auto">
+                                                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                                                    <input type="hidden" name="itemtotal" value="{{ cart.product.sale_price|mul:cart.quantity }}">
+
+                                                    <a href="#" class="qty-down" onclick="decreaseQuantity('{{cart.id}}')"><i class="fi-rs-angle-small-down"></i></a>
+                                                    <span id="quantitySpan{{cart.id}}" data-stock="{{cart.product.stock}}" data-value="{{cart.quantity}}" name="c_count" class="qty-val">{{cart.quantity}}</span>
+                                                    <input type="hidden" id="quantityInput{{cart.id}}" min="1" name="quantity" value="{{cart.quantity}}" max="{{cart.product.stock}}">
+                                                    <a href="#" class="qty-up" onclick="increaseQuantity('{{cart.id}}')" ><i class="fi-rs-angle-small-up"></i></a>
+                                                </div>
+                                                
+                                            </td> 
+                                            <td class="price" data-title="Price">
+                                                <p><span id="totalAmountSpan{{cart.id}}">{{ cart.product.sale_price|mul:cart.quantity }}</span></p>
+                                                </td>
+                                            
+                                            <td class="action" data-title="Remove"><a href="{% url "cart:delete_cart" id=cart.id %}" class="text-muted"><i class="fi-rs-trash"></i></a></td>
+                                        </tr>
+                                    {% endfor %}
+                                    <tr>
+                                        <td colspan="6" class="text-end">
+                                            <a href="{% url "cart:clear_cart" %}" class="text-muted"> <i class="fi-rs-cross-small"></i> Clear Cart</a>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                <tr>
+                                    <td><img width="80" height="80" src="https://img.icons8.com/dotty/80/nothing-found.png" alt="nothing-found"/></td>
+                                    <td><img width="80" height="80" src="https://img.icons8.com/dotty/80/nothing-found.png" alt="nothing-found"/></td>
+                                    <td><img width="80" height="80" src="https://img.icons8.com/dotty/80/nothing-found.png" alt="nothing-found"/></td>
+                                    <td><img width="80" height="80" src="https://img.icons8.com/dotty/80/nothing-found.png" alt="nothing-found"/></td>
+                                    <td><img width="80" height="80" src="https://img.icons8.com/dotty/80/nothing-found.png" alt="nothing-found"/></td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div  class="cart-action text-end">
+                        <a href="{% url "product:index" %}" class="btn "><i class="fi-rs-shopping-bag mr-10"></i>Continue Shopping</a>
+                    </div>
+                    <div class="divider center_icon mt-50 mb-50"><i class="fi-rs-fingerprint"></i></div>
+                    <div class="row mb-50">
+                        <div class="col-lg-6 col-md-12">
+                            <div class="border p-md-4 p-30 border-radius cart-totals">
+                                {% for cart in cart %}
+                                <div class="mb-30 mt-30">
+                                    
+                                    <div class="total-amount">
+                                        <div class="left">
+                                            {% comment %} <div class="coupon">
+                                                <form action="{% url "cart:view_cart" %}" method="post">
+                                                    {% csrf_token %}
+                                                    <div class="form-row row justify-content-center">
+                                                        <div class="form-group col-lg-6">
+                                                            {% if cart.coupon is None %}
+                                                            <input class="font-medium" name="user_coupon" placeholder="Enter Your Coupon" >
+                                                            {% else %}
+                                                            <input class="font-medium" name="user_coupon" placeholder="Enter Your Coupon" value='{{cart.coupon}}' readonly>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="form-group col-lg-6">
+                                                            <button Type='Submit' class="btn  btn-sm"><i class="fi-rs-label mr-10"></i>Apply</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                                <a href="{% url "cart:remove_coupon"  %}"><button Type='Submit' class="btn  btn-sm"><i class="fi-rs-label mr-10"></i>Remove Coupon</button></a>
+                                            </div> {% endcomment %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="heading_s1 mb-3">
+                                    <h4>Cart Total</h4>
+                                    <h6>Free Delivery upto Purchase of 200000rs</h6>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <td class="cart_total_label">Cart Subtotal</td>
+                                            <td id='subtotal' class="cart_total_amount"><span class="font-lg fw-900 text-brand"> ₹ {{pro_subtotal}}</span></td>
+                                            </tr>
+                                        
+                                            <tr>
+                                                <td  class="cart_total_label">Shipping</td>
+                                                {% if shipping %}
+                                                <td id='shipping' class="cart_total_amount"> <i class="ti-gift mr-5"></i>  ₹ {{shipping|floatformat:2}}</td>
+                                                {%  else  %}
+
+                                                <td id='shipping' class="cart_total_amount"> <i class="ti-gift mr-5"></i>Free shipping</td>
+                                                {% endif %}
+                                            </tr>
+                                            <tr>
+                                                <td class="cart_total_label">Total</td>
+                                                <td id='total' class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand"></span></strong> ₹ {{total|floatformat:2}}</td>
+                                            </tr>
+                                        
+                                        </tbody>
+                                        
+                                    </table>
+                                    
+                                </div>
+                                {% if cart.total %}
+                                <a href="{% url "order:order_view" %}"   class="btn "> <i class="fi-rs-box-alt mr-10"></i> Proceed To CheckOut</a>
+                                {% else %}
+                                <a href="{% url "order:order_view" %}"   class="btn disabled-link"> <i class="fi-rs-box-alt mr-10"></i> Proceed To CheckOut</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function plusCart(cart_id){ 
+        
+        var prodQty = $(`#quantitySpan${cart_id}`).text(); 
+        var csrfToken = $('input[name=csrfmiddlewaretoken]').val();
+        var itemtotal = $('input[name=itemtotal]').val();
+        var qtyInput = $(this).closest(`quantitySpan${cart_id}`);
+        var cart_id = cart_id
+        var price = $('#prodsaleprice' + cart_id).text();
+        var parsedQty = parseInt(prodQty);
+        var parsedPrice = parseFloat(price);
+        var totalAmount = parsedQty * parsedPrice;
+        
+        console.log('Total Amount:', totalAmount);
+        console.log('helloi the eror'+ prodQty)
+        console.log('helloi the eror'+ price)
+        console.log('helloiitem'+ price)
+
+        $.ajax({
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            url: "{% url 'cart:plus_item' %}", 
+            method: "POST",
+            dataType: 'json',
+            data: {
+                'prod_qty': prodQty,
+                'csrfmiddlewaretoken': csrfToken,
+                'cart_id': cart_id,
+            },
+            success: function (data) {
+                $(`#quantitySpan${cart_id}`).text(Number(prodQty)); 
+                $('#subtotal').text(data.subtotal);
+                $('#shipping').text(data.shipping);
+                $('#total').text(data.total);
+                $('#off').text(data.off);
+                $(`#totalAmountSpan${cart_id}`).text(totalAmount.toFixed(2));
+            },
+            error: function (error) {
+                console.error(error);
+                
+            }
+        });
+        
+    }
+    function minusCart(cart_id){ 
+        var prodQty = $(`#quantitySpan${cart_id}`).text(); 
+        var csrfToken = $('input[name=csrfmiddlewaretoken]').val();
+        var itemtotal = $('input[name=itemtotal]').val();
+        var qtyInput = $(this).closest(`quantitySpan${cart_id}`);
+        var cart_id = cart_id
+        var price = $('#prodsaleprice' + cart_id).text();
+        var parsedQty = parseInt(prodQty);
+        var parsedPrice = parseFloat(price);
+        var totalAmount = parsedQty * parsedPrice;
+
+
+        console.log(prodQty,cart_id);
+
+        $.ajax({
+            url: "{% url 'cart:minus_item'%}",  
+            method: "POST",
+            dataType: 'json',
+            data: {
+                'prod_qty': prodQty,
+                'csrfmiddlewaretoken': csrfToken,
+                'cart_id': cart_id,
+            },
+            success: function (data) {
+                $(`#quantitySpan${cart_id}`).text(Number(prodQty)); 
+                $('#subtotal').text(data.subtotal);
+                $('#shipping').text(data.shipping);
+                $('#total').text(data.total);
+                $('#off').text(data.off);
+                $(`#totalAmountSpan${cart_id}`).text(totalAmount.toFixed(2));
+            },
+            error: function (error) {
+                console.error(error);
+                // Handle errors, e.g., show an error message to the user
+            }
+        });
+        
+    }
+
+
+    function decreaseQuantity(cart_id) {
+        var quantityElement = $('#quantitySpan' + cart_id);
+        var quantityInput = $('#quantityInput' + cart_id);
+        var currentQuantity = parseInt(quantityElement.text());
+
+    console.log(quantityElement)
+        if (currentQuantity > 1) {
+
+            quantityElement.text(currentQuantity - 1);
+            quantityInput.val(currentQuantity - 1);
+
+        }
+        else{
+            Swal.fire({
+                icon: 'warning',
+                title: 'Minimum quantity',
+                text: 'Cart item need Atleat 1 quantity',
+            });
+        }
+        
+
+        minusCart(cart_id);
+    }
+    function increaseQuantity(cart_id) {
+        var quantityElement = $('#quantitySpan' + cart_id);
+        var quantityInput = $('#quantityInput' + cart_id);
+        var currentQuantity = parseInt(quantityElement.text());
+
+        var productStock = parseInt(quantityElement.data('stock'));
+
+        if (currentQuantity < productStock) {
+            quantityElement.text(currentQuantity + 1);
+            quantityInput.val(currentQuantity + 1);
+        }
+        else{
+            Swal.fire({
+                icon: 'warning',
+                title: 'Stock shortage',
+                text: 'Cant add more than Its stock',
+            });
+        }
+
+        plusCart(cart_id);
+    } 
+
+
+</script>
+
+
+
+
+
+
+{% endblock content %}
+
+
+
+
+
+
+
+
+
+
+
+{% comment %} <style>
+    /* Add a class for the disabled anchor tag */
+    .disabled-link {
+      pointer-events: none; /* Disable pointer events, making it unclickable */
+      color: gray; /* Change the color to indicate it's disabled */
+      text-decoration: none; /* Remove underline */
+    }
+  </style> {% endcomment %}
+
+{% comment %} <main class="main" id="cart-list">
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="{% url "product:index" %}" rel="nofollow">Home</a>
+                <span></span>Cart
+            </div>
+        </div>
+    </div>
+    <section class="mt-50 mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="table shopping-summery text-center clean">
+                            <thead>
+                                <tr class="main-heading">
+                                    <th scope="col">Image</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Unit Price</th>
+                                    <th scope="col">Quantity</th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Refresh</th>
+                                    <th scope="col">Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product_id, item in cart_data.items %}
+                                <tr>
+                                    <td class="image product-thumbnail"><img src="{{ item.image }}" alt="#"></td>
+                                    <td class="product-des product-name">
+                                        <h5 class="product-name">{{item.title}}</h5>
+                                       
+                                    </td>
+                                    <td class="price" data-title="Price"><span>Rs.<span>{{item.price|floatformat:2}}</span></span></td>
+                                    <td class="text-center detail-info" data-title="Stock">
+                                        <input type="number" min='1'  placeholder="Qty" value={{item.qty}} class="cart-items-count w-25 product-qty-{{product_id}} update-product" data-product="{{product_id}}" name="" id="" >
+                                    </td>
+                                    <td class="text-right" data-title="Cart">
+                                        <span>Rs. {% widthratio item.price 1 item.qty as total_price %}{{ total_price|floatformat:2 }}</span>
+                                    </td>
+                                    <td class="action" data-title="Refresh"><button style='border:none; background: #fff;' class="text-muted " data-product="{{product_id}}"><i class="fi-rs-refresh"></i></button></td>
+                                    <td class="action" data-title="Remove"><button style='border:none; background: #fff;' class="text-muted delete-product" data-product="{{product_id}}"><i class="fi-rs-trash"></i></button></td>
+                                </tr>
+                                    {% endfor %}
+                                    <tr>
+                                        <td colspan="7" class="text-end">
+                                            <a href="#" class="text-muted"> <i class="fi-rs-cross-small"></i> Clear Cart</a>
+                                        </td>
+                                    </tr>
+                                
+                                <tr>
+                                    <td><img width="80" height="80" src="https://img.icons8.com/dotty/80/nothing-found.png" alt="nothing-found"/></td>
+                                    <td><img width="80" height="80" src="https://img.icons8.com/dotty/80/nothing-found.png" alt="nothing-found"/></td>
+                                    <td><img width="80" height="80" src="https://img.icons8.com/dotty/80/nothing-found.png" alt="nothing-found"/></td>
+                                    <td><img width="80" height="80" src="https://img.icons8.com/dotty/80/nothing-found.png" alt="nothing-found"/></td>
+                                    <td><img width="80" height="80" src="https://img.icons8.com/dotty/80/nothing-found.png" alt="nothing-found"/></td>
+                                </tr>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                    <div  class="cart-action text-end">
+                        <a href="{% url "product:index" %}" class="btn "><i class="fi-rs-shopping-bag mr-10"></i>Continue Shopping</a>
+                    <br>
+                    <br>
+                    <br>
+                    </div>
+                    <div class="row mb-50">
+                        <div class="col-lg-6 col-md-12">
+                            <div class="mb-30 mt-50">
+                                <div class="heading_s1 mb-3">
+                                </div>
+                                <div class="total-amount">
+                                    <div class="left">
+                                        <div class="coupon">
+                                            <form action="#" target="_blank">
+                                                <div class="form-row row justify-content-center">
+                                                    <div class="form-group col-lg-6">
+                                                    </div>
+                                                    <div class="form-group col-lg-6">
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-12">
+                            <div class="border p-md-4 p-30 border-radius cart-totals">
+                                <div class="heading_s1 mb-3">
+                                    <h4>Cart Totals</h4>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <td class="cart_total_label">Cart Subtotal</td>
+                                                <td class="cart_total_amount"><span class="font-lg fw-900 text-brand">Rs.{{cart_total_amount|floatformat:2}}</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="cart_total_label">Shipping</td>
+                                                <td class="cart_total_amount"> <i class="ti-gift mr-5"></i> Free Shipping</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="cart_total_label">Total</td>
+                                                <td class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand">Rs.{{cart_total_amount|floatformat:2}}</span></strong></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% if totalCartItems %}
+                                <a href="{% url 'order:checkout' %}" class="btn "> <i class="fi-rs-box-alt mr-10"></i> Proceed To CheckOut</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main> {% endcomment %}

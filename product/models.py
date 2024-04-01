@@ -4,6 +4,7 @@ from django.utils.html import mark_safe
 from userauths.models import User
 from decimal import Decimal
 from PIL import Image
+from ad_product.models import *
 
 
 STATUS_CHOICE = (
@@ -21,11 +22,11 @@ STATUS = (
 )
 
 RATING = (
-    (1,"★☆☆☆☆"),
-    (2,"★★☆☆☆"),
-    (3,"★★★☆☆"),
-    (4,"★★★★☆"),
-    (5,"★★★★★"),
+    (1,"⭐"),
+    (2,"⭐⭐"),
+    (3,"⭐⭐⭐"),
+    (4,"⭐⭐⭐⭐"),
+    (5,"⭐⭐⭐⭐⭐"),
 )
 
 
@@ -151,31 +152,31 @@ class ProductImages(models.Model):
 
 
 
-class CartOrder(models.Model):
-    user = models.ForeignKey(User, on_delete= models.CASCADE)
-    price = models.DecimalField(max_digits= 9, decimal_places=2, default = Decimal('1.99'))
-    paid_status = models.BooleanField(default = False)
-    order_date = models.DateTimeField(auto_now_add=True)
-    product_status = models.CharField(choices = STATUS_CHOICE , max_length=30, default = 'processing')
+# class CartOrder(models.Model):
+#     user = models.ForeignKey(User, on_delete= models.CASCADE)
+#     price = models.DecimalField(max_digits= 9, decimal_places=2, default = Decimal('1.99'))
+#     paid_status = models.BooleanField(default = False)
+#     order_date = models.DateTimeField(auto_now_add=True)
+#     product_status = models.CharField(choices = STATUS_CHOICE , max_length=30, default = 'processing')
 
-    class Meta:
-        verbose_name_plural = 'Cart Order'
+#     class Meta:
+#         verbose_name_plural = 'Cart Order'
 
-class CartOrderItems(models.Model):
-    order = models.ForeignKey(CartOrder, on_delete= models.CASCADE)
-    invoice_no = models.CharField(max_length=200)
-    product_status = models.CharField(max_length=200)
-    item = models.CharField(max_length=200)
-    image = models.CharField(max_length=200)
-    qty = models.IntegerField(default = 0)
-    price = models.DecimalField(max_digits=9, decimal_places=2, default=Decimal('1.99'))
-    total = models.DecimalField(max_digits=9, decimal_places=2, default=Decimal('1.99'))
+# class CartOrderItems(models.Model):
+#     order = models.ForeignKey(CartOrder, on_delete= models.CASCADE)
+#     invoice_no = models.CharField(max_length=200)
+#     product_status = models.CharField(max_length=200)
+#     item = models.CharField(max_length=200)
+#     image = models.CharField(max_length=200)
+#     qty = models.IntegerField(default = 0)
+#     price = models.DecimalField(max_digits=9, decimal_places=2, default=Decimal('1.99'))
+#     total = models.DecimalField(max_digits=9, decimal_places=2, default=Decimal('1.99'))
 
-    class Meta:
-        verbose_name_plural = 'Cart Order Items'
+#     class Meta:
+#         verbose_name_plural = 'Cart Order Items'
 
-    def order_img(self):
-        return mark_safe('<img src="/media/%s" width="50" height="50" />' % (self.image))
+#     def order_img(self):
+#         return mark_safe('<img src="/media/%s" width="50" height="50" />' % (self.image))
  
 
 
@@ -188,8 +189,8 @@ class CartOrderItems(models.Model):
 
 class ProductReview(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
-    review = models.TextField()
+    product = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, null=True, related_name = "reviews")
+    review = models.TextField(default = None)
     rating = models.IntegerField(choices = RATING, default = None)
     date = models.DateTimeField(auto_now_add=True)
 
@@ -198,7 +199,7 @@ class ProductReview(models.Model):
     
 
     def __str__(self):
-        return self.product.title
+        return str(self.product.product)
     
     def get_rating(self):
         return self.rating
@@ -217,10 +218,10 @@ class Wishlist(models.Model):
         return self.product.title
 
 
-class Address(models.Model):
-    user = models.ForeignKey(User, on_delete= models.SET_NULL, null=True)
-    address = models.CharField(max_length=100, null = True)
-    status = models.BooleanField(default=False)
+# class Address(models.Model):
+#     user = models.ForeignKey(User, on_delete= models.SET_NULL, null=True)
+#     address = models.CharField(max_length=100, null = True)
+#     status = models.BooleanField(default=False)
 
-    class Meta:
-        verbose_name_plural = 'Addresses'
+#     class Meta:
+#         verbose_name_plural = 'Addresses'

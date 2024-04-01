@@ -1,0 +1,113 @@
+{% extends "partials/base.html" %} 
+{% block title %}MY DASHBOARD{% endblock title %} 
+{%block content %}
+{% load static %}
+{% load custom_filters %}
+
+<style>
+    #main_content{
+        position: absolute;
+        z-index: 1;
+        top:70px;
+        left:370px
+    }
+    
+
+    .disabled-link {
+        pointer-events: none; /* Disable click events */
+        color: gray; /* Change text color to indicate disabled state */
+        text-decoration: none; /* Remove underline */
+        opacity: 0.6; /* Reduce opacity to visually indicate disabled */
+        cursor: not-allowed; /* Show not-allowed cursor */
+    }
+</style>
+
+
+<div class="page-header breadcrumb-wrap">
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="{% url "product:index" %}" rel="nofollow">Home</a>
+            <span></span>My Account
+        </div>
+    </div>
+</div>
+
+<section class="pt-150 pb-150">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 m-auto">
+                <div class="row">
+                    <h1 class="text-brand">Order Details</h1>
+                    <br><br><br><br>
+                    <div class="col-md-12">
+                        <div class="tab-content dashboard-content">
+                            
+                           
+                            
+                            <div class="tab-pane active show" id="track-orders" role="tabpanel" aria-labelledby="track-orders-tab">
+                                <div class="card">
+                                    <div class="card-header">
+                                         <h5 class="mb-0">Orders tracking</h5>
+                                    </div>
+                                    <div class="card-body contact-from-area">
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Model No.</th> 
+                                                            <th>Image</th>
+                                                            <th>Title</th>
+                                                            <th>Status</th>
+                                                            <th>Price</th>
+                                                            <th>Qty</th>
+                                                            <th>Payment Status</th>
+                                                            <th>Total</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for o in order_item %}
+                                                        
+                                                            <tr>
+                                                                <td>{{o.order_product.model_id}}</td>
+                                                                <td><p><img src="{{ o.order_product.variantimage_set.first.images.url }}" style="width:60px; object-fit:cover;" alt=""></p></td>
+                                                                <td>{{o.order_product.product}}</td>
+                                                                <td>{{o.order_status}}</td>
+                                                                <td>{{o.product_price}}</td>
+                                                                <td>{{o.quantity}}</td>
+                                                                {% if o.order_status != "CANCELLED" %}
+                                                                <td>{{o.payment_details.payment_status}}</td>
+                                                                {% else %}
+                                                                <td>Order Cancelled</td>
+                                                                {% endif %}
+                                                                <td>{{ o.product_price|mul:o.quantity }}</td>
+                                                                {% if o.order_status != "CANCELLED" %}
+                                                                    <td><a href="{% url 'order:cancel_order_req' o.id %}" class="btn btn-primary">Cancel</a>
+                                                                {% else %}
+                                                                    <td><a href="#" class="btn btn-primary disabled-link">Cancel</a>
+                                                                {% endif %}
+                                                                </td>
+                                                            </tr>
+
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                                   
+                                   
+                        
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
