@@ -10,7 +10,7 @@
             <p>Whole data about your business here</p>
         </div>
         <div>
-            <a href="#" class="btn btn-primary"><i class="text-muted material-icons md-post_add"></i>Create report</a>
+            <a href="{% url 'admin_side:download_sales_report' %}" class="btn btn-primary"><i class="text-muted material-icons md-post_add"></i>Create report</a>
         </div>
     </div>
     <div class="row">
@@ -20,7 +20,7 @@
                     <span class="icon icon-sm rounded-circle bg-primary-light"><i class="text-primary material-icons md-monetization_on"></i></span>
                     <div class="text">
                         <h6 class="mb-1 card-title">Revenue</h6>
-                        <span>$13,456.5</span>
+                        <span>&#8377; {{overall_sales}}</span>
                         <span class="text-sm">
                             Shipping fees are not included
                         </span>
@@ -31,9 +31,22 @@
         <div class="col-lg-3">
             <div class="card card-body mb-4">
                 <article class="icontext">
+                    <span class="icon icon-sm rounded-circle bg-primary-light"><i class="text-primary material-icons md-monetization_on"></i></span>
+                    <div class="text">
+                        <h6 class="mb-1 card-title">Overall discount</h6>
+                        <span>&#8377; {{discount}}</span>
+                        <span class="text-sm">
+                        </span>
+                    </div>
+                </article>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="card card-body mb-4">
+                <article class="icontext">
                     <span class="icon icon-sm rounded-circle bg-success-light"><i class="text-success material-icons md-local_shipping"></i></span>
                     <div class="text">
-                        <h6 class="mb-1 card-title">Orders</h6> <span>53.668</span>
+                        <h6 class="mb-1 card-title">Orders</h6> <span>{{orders}}</span>
                         <span class="text-sm">
                             Excluding orders in transit
                         </span>
@@ -46,9 +59,9 @@
                 <article class="icontext">
                     <span class="icon icon-sm rounded-circle bg-warning-light"><i class="text-warning material-icons md-qr_code"></i></span>
                     <div class="text">
-                        <h6 class="mb-1 card-title">Products</h6> <span>9.856</span>
+                        <h6 class="mb-1 card-title">Products</h6> <span>{{products}}</span>
                         <span class="text-sm">
-                            In 19 Categories
+                            <p> In {{categ}} Categories</p>
                         </span>
                     </div>
                 </article>
@@ -59,9 +72,22 @@
                 <article class="icontext">
                     <span class="icon icon-sm rounded-circle bg-info-light"><i class="text-info material-icons md-shopping_basket"></i></span>
                     <div class="text">
-                        <h6 class="mb-1 card-title">Monthly Earning</h6> <span>$6,982</span>
+                        <h6 class="mb-1 card-title">Monthly Earning</h6> <span>&#8377; {{monthly_earnings}}</span>
                         <span class="text-sm">
                             Based in your local time.
+                        </span>
+                    </div>
+                </article>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="card card-body mb-4">
+                <article class="icontext">
+                    <span class="icon icon-sm rounded-circle bg-primary-light"><i class="text-primary material-icons md-monetization_on"></i></span>
+                    <div class="text">
+                        <h6 class="mb-1 card-title">Overall coupon deduction</h6>
+                        <span>&#8377; {{coupon_deduction}}</span>
+                        <span class="text-sm">
                         </span>
                     </div>
                 </article>
@@ -73,10 +99,28 @@
             <div class="card mb-4">
                 <article class="card-body">
                     <h5 class="card-title">Sale statistics</h5>
-                    <canvas id="myChart" height="120px"></canvas>
+                    {% comment %} <canvas id="myChart" height="120px"></canvas> {% endcomment %}
+                    <input type="hidden" value="{{ weekly_sales_data }}" id="weeklySalesArray" />
+                    <input type="hidden" value="{{ monthly_sales_data }}" id="monthlySalesArray" />
+                    <input type="hidden" value="{{ yearly_sales_data }}" id="yearlySalesArray" />
+                    {% comment %} <input type="hidden" value="{{ custom_sales_data }}" id="customSalesArray" /> {% endcomment %}
+                    <form id="customDateRangeForm">
+                        {% csrf_token %}
+                        <input type="date" id="startDate" name="start_date" required>
+                        <input type="date" id="endDate" name="end_date" required>
+                        <button class="btn btn-sm btn-light font-xs rounded" type="submit" onclick="displayChart('Custom', this)">Get Data</button>
+                    </form>
+                    <button class="btn btn-xs btn btn-sm btn-light font-xs rounded" onclick="displayChart('Weekly', this)">Weekly</button>
+                    <button class="btn btn-sm btn-light font-xs rounded" onclick="displayChart('Monthly', this)">Monthly</button>
+                    <button class="btn btn-sm btn-light font-xs rounded" onclick="displayChart('Yearly', this)">Yearly</button>
+                    {% comment %} <button class="btn btn-sm btn-light font-xs rounded" onclick="displayChart('Custom', this)">Custom Date Range</button> {% endcomment %}
+                    <canvas id="myChartWeekly" height="120px"></canvas>
+                    <canvas id="myChartMonthly" height="120px" style="display: none;"></canvas>
+                    <canvas id="myChartYearly" height="120px" style="display: none;"></canvas>
+                    <canvas id="myChartCustomDateRange" height="120px"></canvas>
                 </article>
             </div>
-            <div class="row">
+            {% comment %} <div class="row">
                 <div class="col-lg-5">
                     <div class="card mb-4">
                         <article class="card-body">
@@ -84,7 +128,7 @@
                             <div class="new-member-list">
                                 <div class="d-flex align-items-center justify-content-between mb-4">
                                     <div class="d-flex align-items-center">
-                                        <img src="{% static 'assets/imgs/people/avatar4.jpg' %}" alt="" class="avatar">
+                                        <img src="assets/imgs/people/avatar4.jpg" alt="" class="avatar">
                                         <div>
                                             <h6>Patric Adams</h6>
                                             <p class="text-muted font-xs">
@@ -94,30 +138,7 @@
                                     </div>
                                     <a href="#" class="btn btn-xs"><i class="material-icons md-add"></i> Add</a>
                                 </div>
-                                <div class="d-flex align-items-center justify-content-between mb-4">
-                                    <div class="d-flex align-items-center">
-                                        <img src="{% static 'assets/imgs/people/avatar2.jpg' %}" alt="" class="avatar">
-                                        <div>
-                                            <h6>Dilan Specter</h6>
-                                            <p class="text-muted font-xs">
-                                                Sanfrancisco
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <a href="#" class="btn btn-xs"><i class="material-icons md-add"></i> Add</a>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-between mb-4">
-                                    <div class="d-flex align-items-center">
-                                        <img src="{% static 'assets/imgs/people/avatar3.jpg' %}" alt="" class="avatar">
-                                        <div>
-                                            <h6>Tomas Baker</h6>
-                                            <p class="text-muted font-xs">
-                                                Sanfrancisco
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <a href="#" class="btn btn-xs"><i class="material-icons md-add"></i> Add</a>
-                                </div>
+                                
                             </div>
                         </article>
                     </div>
@@ -206,9 +227,9 @@
                         </article>
                     </div>
                 </div>
-            </div>
+            </div> {% endcomment %}
         </div>
-        <div class="col-xl-4 col-lg-12">
+        {% comment %} <div class="col-xl-4 col-lg-12">
             <div class="card mb-4">
                 <article class="card-body">
                     <h5 class="card-title">Revenue Base on Area</h5>
@@ -240,9 +261,9 @@
                     </div>
                 </article>
             </div>
-        </div>
+        </div> {% endcomment %}
     </div>
-    <div class="card mb-4">
+    {% comment %} <div class="card mb-4">
         <header class="card-header">
             <h4 class="card-title">Latest orders</h4>
             <div class="row align-items-center">
@@ -468,7 +489,231 @@
                 <li class="page-item"><a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a></li>
             </ul>
         </nav>
-    </div>
+    </div> {% endcomment %}
 </section> <!-- content-main end// -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    (function ($) {
+        "use strict";
+        let weeklySalesArray = document.getElementById("weeklySalesArray").value;
+        let monthlySalesArray = document.getElementById("monthlySalesArray").value;
+        let yearlySalesArray = document.getElementById("yearlySalesArray").value;
+        {% comment %} let customSalesArray = document.getElementById("customSalesArray").value; {% endcomment %}
+    
+        weeklySalesArray = weeklySalesArray.trim().split(",").map(item => Number(item));
+        monthlySalesArray = monthlySalesArray.trim().split(",").map(item => Number(item));
+        yearlySalesArray = yearlySalesArray.trim().split(",").map(item => Number(item));
+        {% comment %} customSalesArray = customSalesArray.trim().split(",").map(item => Number(item)); {% endcomment %}
+    
+        if ($('#myChartWeekly').length) {
+            var ctxWeekly = document.getElementById('myChartWeekly').getContext('2d');
+            var chartWeekly = new Chart(ctxWeekly, {
+                type: 'line',
+                data: {
+                    labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                    datasets: [{
+                        label: 'Weekly',
+                        tension: 0.3,
+                        fill: true,
+                        backgroundColor: 'rgba(44, 120, 220, 0.2)',
+                        borderColor: 'rgba(44, 120, 220)',
+                        data: weeklySalesArray
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            labels: {
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    
+        if ($('#myChartMonthly').length) {
+            var ctxMonthly = document.getElementById('myChartMonthly').getContext('2d');
+            var chartMonthly = new Chart(ctxMonthly, {
+                type: 'bar',
+                data: {
+                    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                    datasets: [{
+                        label: 'Monthly',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        data: monthlySalesArray
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            labels: {
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    
+        if ($('#myChartYearly').length) {
+            var ctxYearly = document.getElementById('myChartYearly').getContext('2d');
+            var chartYearly = new Chart(ctxYearly, {
+                type: 'bar',
+                data: {
+                    labels: ['2022', '2023', '2024'],  // Replace with your actual years
+                    datasets: [{
+                        label: 'Yearly',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1,
+                        data: yearlySalesArray
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            labels: {
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        {% comment %} if ($('#myChartCustom').length) {
+            var ctxCustom = document.getElementById('myChartCustom').getContext('2d');
+            var chartCustom = new Chart(ctxCustom, {
+                type: 'line',
+                data: {
+                    labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                    datasets: [{
+                        label: 'Custom',
+                        tension: 0.3,
+                        fill: true,
+                        backgroundColor: 'rgba(255, 205, 86, 0.2)',
+                        borderColor: 'rgba(255, 205, 86)',
+                        data: customSalesArray
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            labels: {
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        } {% endcomment %}
+    
+    })(jQuery);
+    
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('#customDateRangeForm').on('submit', function (e) {
+            e.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: '{% url "admin_side:custom_date_range_data" %}',
+                data: $(this).serialize(),
+                success: function (response) {
+                    // Update chart based on response data
+                    updateChart(response);
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        });
+
+        function updateChart(data) {
+            var ctxCustomDateRange = document.getElementById('myChartCustomDateRange').getContext('2d');
+            var chartCustomDateRange = new Chart(ctxCustomDateRange, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Custom Date Range',
+                        tension: 0.3,
+                        fill: true,
+                        backgroundColor: 'rgba(44, 120, 220, 0.2)',
+                        borderColor: 'rgba(44, 120, 220)',
+                        data: data.values
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            labels: {
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+<script>
+        // Functions to display respective charts
+        function displayChart(chartType, button) {
+        highlightButton(button);
+      
+        if (chartType === 'Weekly') {
+            showChart('myChartWeekly');
+            hideChart('myChartMonthly');
+            hideChart('myChartYearly');
+            hideChart('myChartCustomDateRange');
+        } else if (chartType === 'Monthly') {
+            hideChart('myChartWeekly');
+            showChart('myChartMonthly');
+            hideChart('myChartYearly');
+            hideChart('myChartCustomDateRange');
+        } else if (chartType === 'Yearly') {
+            hideChart('myChartWeekly');
+            hideChart('myChartMonthly');
+            showChart('myChartYearly');
+            hideChart('myChartCustomDateRange');
+        } else if (chartType === 'Custom') {
+            hideChart('myChartWeekly');
+            hideChart('myChartMonthly');
+            hideChart('myChartYearly');
+            showChart('myChartCustomDateRange');
+        }
+      }
+      
+      function showChart(chartId) {
+        document.getElementById(chartId).style.display = 'block';
+      }
+      
+      function hideChart(chartId) {
+        document.getElementById(chartId).style.display = 'none';
+      }
+      
+      function highlightButton(button) {
+      
+        const buttons = document.querySelectorAll('.btn');
+        buttons.forEach(btn => btn.classList.remove('btn-xs'));
+      
+        button.classList.add('btn-xs');
+      }
+      
+      
+</script>
 
 {% endblock content%}

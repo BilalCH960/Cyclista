@@ -9,7 +9,7 @@ class UserProfile(models.Model):
     phone_number = models.CharField(max_length=15, default='', blank=True, null=True)
     profile_pic = models.ImageField(upload_to="profile_pic/", blank=True, null=True, default='')
     nationality = models.CharField(max_length=50, null=True, blank=True)
-    DOB = models.DateField(blank=True, null=True)
+    # DOB = models.DateField(blank=True, null=True)
 
     def save(self,*args, **kwargs):
         # automatically adding user name and phone number is None is found

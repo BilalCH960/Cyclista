@@ -211,17 +211,17 @@
                                 <p class="m-b-10 f-w-600">Email</p>
                                 <h6 class="text-muted f-w-400">{{request.user.email}}</h6>
                             </div>
-                            <div class="col-sm-6">
+                            {% comment %} <div class="col-sm-6">
                                 <p class="m-b-10 f-w-600">Phone</p>
                                 <h6 class="text-muted f-w-400">{{myuser.phone_number}}</h6>
-                            </div>
+                            </div> {% endcomment %}
                         </div>
                         <h6 class="m-b-20 m-t-40 p-b-5 b-b-default f-w-600"></h6>
                         <div class="row">
-                            <div class="col-sm-6">
+                            {% comment %} <div class="col-sm-6">
                                 <p class="m-b-10 f-w-600">DOB</p>
                                 <h6 class="text-muted f-w-400">{{myuser.DOB}}</h6>
-                            </div>
+                            </div> {% endcomment %}
                             <div class="col-sm-6">
                                 <p class="m-b-10 f-w-600">Nationality</p>
                                 <h6 class="text-muted f-w-400">{{myuser.nationality}}</h6>
@@ -233,17 +233,17 @@
                                 <p class="m-b-10 f-w-600">Email</p>
                                 <h6 class="text-muted f-w-400">{{request.user.email}}</h6>
                             </div>
-                            <div class="col-sm-6">
+                            {% comment %} <div class="col-sm-6">
                                 <p class="m-b-10 f-w-600">Phone</p>
                                 <h6 class="text-muted f-w-400">None</h6>
-                            </div>
+                            </div> {% endcomment %}
                         </div>
                         <h6 class="m-b-20 m-t-40 p-b-5 b-b-default f-w-600"></h6>
                         <div class="row">
-                            <div class="col-sm-6">
+                            {% comment %} <div class="col-sm-6">
                                 <p class="m-b-10 f-w-600">DOB</p>
                                 <h6 class="text-muted f-w-400">Not Set</h6>
-                            </div>
+                            </div> {% endcomment %}
                             <div class="col-sm-6">
                                 <p class="m-b-10 f-w-600">Nationality</p>
                                 <h6 class="text-muted f-w-400">Not Set</h6>
@@ -284,10 +284,10 @@
                     <label>Email Address <span class="required"></span></label>
                     <input required value="{{request.user.email}}" class="form-control square" name="email" type="email" readonly>
                 </div>
-                <div class="form-group col-md-12">
+                {% comment %} <div class="form-group col-md-12">
                     <label>Phone number<span class="required"></span></label>
                     <input required readonly value="{{request.user.phone_number}}" class="form-control square" name="phnumber" type="text">
-                </div>
+                </div> {% endcomment %}
                 <div class="form-group col-md-12">
                     <label>profile image<span class="required"></span></label>
                     <input   class="form-control square" name="Profile_img" type="file">
@@ -297,7 +297,7 @@
                     <label>Nationality<span class="required"></span></label>
                     <input  value="{{myuser.nationality}}"  class="form-control square" name="nationality" type="text" required>
                 </div>
-                {% if myuser.DOB %}
+                {% comment %} {% if myuser.DOB %}
                 <div class="form-group col-md-12">
                     <label>Date OF Birth<span class="required"></span></label>
                     <input required value="{{myuser.DOB}}"  class="form-control square" name="DOB" type="text" readonly>
@@ -307,7 +307,7 @@
                     <label>Date OF Birth<span class="required"></span></label>
                     <input required value="{{myuser.DOB}}"  class="form-control square" name="DOB" type="date" >
                 </div>
-                {% endif %}
+                {% endif %} {% endcomment %}
                 <div class="col-md-12">
                     <button type="submit" class="btn btn-fill-out submit" name="submit" value="Submit">Save</button>
                 </div>

@@ -16,12 +16,20 @@ urlpatterns = [
     path('product-status/<int:id>/', views.product_status, name='product_status'),
     path('product-delete/<int:id>/', views.product_delete, name='product_delete'),
     path('product-edit/<int:id>/', views.product_edit, name='product_edit'),
-    path('product_variant/',views.product_variant,name='product_variant'),
+
+    path('product_offer', views.view_productoffer, name='product_offer'),
+    path('status_productoffer/<int:id>', views.status_productoffer, name='status_productoffer'),
+    path('add_productoffer', views.add_productoffer, name='add_productoffer'),
+    path('edit_productoffer/<int:id>/', views.edit_productoffer, name='edit_productoffer'),
+    path('delete_productoffer/<int:id>/', views.delete_productoffer, name='delete_productoffer'),
+
     path('add_attribute/',views.attribute,name='add_attribute'),
     path('attribute_value/',views.attribute_value,name='add_attribute_value'),
     path('view-all/',views.view_attribute,name='view_att'),
     path('attribute-status/<int:id>/', views.attribute_status, name='attribute_status'),
     path('attribute-delete/<int:id>/', views.attribute_delete, name='attribute_delete'),
+
+    path('product_variant/',views.product_variant,name='product_variant'),
     path('view-variant/',views.view_variant,name='view_variant'),
     path('variant-status/<int:id>/', views.variant_status, name='variant_status'),
     path('variant-delete/<int:id>/', views.variant_delete, name='variant_delete'),

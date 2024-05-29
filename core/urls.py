@@ -30,6 +30,9 @@ urlpatterns = [
     path("account/",include('account.urls')),
     path("cart/",include('cart.urls')),
     path("order/",include('order.urls')),
+    path("wallet/",include('wallet.urls')),
+    path("accounts/",include('django.contrib.auth.urls')),
+
 
     path('auth/', include('social_django.urls', namespace='social')),
 

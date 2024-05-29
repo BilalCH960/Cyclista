@@ -1,8 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required
-from .models import Category
+from .models import Category, CategoryOffer
 from django.contrib import messages
+from .forms import CategoryOfferForm
+from decimal import Decimal
+from ad_product.models import Product, ProductVariant
+
 
 
 
@@ -33,7 +37,13 @@ def add_category(request):
         return redirect('product:index')
     if request.method == 'POST':
         name = request.POST.get('category_name')
+        if name.strip() == "":
+            messages.error(request,'Category name is required')
+            return redirect('category_manage:category_handler')
         description = request.POST.get('description')
+        if description.strip() == "":
+            messages.error(request,'Category description is required')
+            return redirect('category_manage:category_handler')
         images = request.FILES.get('imgs')
         print(name)
         print(description)
@@ -108,3 +118,125 @@ def status_category(request, id):
             cat.save()
             messages.info(request,'The status has been changed active successfully')
         return redirect('category_manage:category_handler')
+    
+
+
+def view_categoryoffer(request):
+
+    context = {
+        'offers': CategoryOffer.objects.all(),
+    }
+
+    return render(request, 'admin/category/offer_management.html', context)
+
+def status_categoryoffer(request, id):
+    if request.user.is_authenticated and not request.user.is_superuser:
+        return redirect('product:index')
+    if request.method == "POST":
+        cat = get_object_or_404(CategoryOffer, id=id)
+        if cat.is_active == True:
+            cat.is_active = False
+            make_price_again(cat.category_name.pk, cat.discount)
+            cat.save()
+            messages.info(request,'The status has been changed to inactive successfully')
+        else:
+            cat.is_active =True
+            make_price(cat.category_name.pk, cat.discount)
+            cat.save()
+            messages.info(request,'The status has been changed active successfully')
+        return redirect('category_manage:view_categoryoffer') 
+
+
+def add_categoryoffer(request):
+    if not request.user.is_superuser:
+        return redirect('product:index')
+
+    if request.method == "POST":
+        form = CategoryOfferForm(request.POST)
+        if form.is_valid():
+            offer = form.save(commit=False)  # Use commit=False to modify before saving
+            offer.valid_to = form.cleaned_data['valid_to']
+            offer.save()  # Save the instance first
+            
+            category = form.cleaned_data['category_name']
+            discount = form.cleaned_data['discount']
+            
+            # Apply discount to all product variants within the selected category
+            products = Product.objects.filter(product_catg__category_name=category)
+            for product in products:
+                variants = ProductVariant.objects.filter(product=product)
+                for variant in variants:
+                    variant.sale_price = variant.sale_price - discount
+                    variant.save()  # Save each variant after adjusting price
+                    
+            messages.success(request, "The Category Offer has been created successfully.")
+            return redirect("category_manage:view_categoryoffer")
+        else:
+            messages.warning(request, "Please correct the form errors.")
+    else:
+        form = CategoryOfferForm()
+
+    return render(request, 'admin/category/add_category_offer.html', {'form': form})
+
+
+def delete_categoryoffer(request, id):
+    cate = CategoryOffer.objects.get(pk=id)
+    category = cate.category_name
+    product = Product.objects.filter(product_catg = category)
+    for p in product:
+        variants = ProductVariant.objects.filter(product = p)
+    
+        for variant in variants:
+            variant.sale_price = variant.sale_price + cate.discount
+            variant.save()  # Update the sale_price to max_price
+        
+    cate.delete()
+    messages.warning(request, 'The offer has been deleted')
+    return redirect('category_manage:view_categoryoffer')
+
+
+
+def edit_categoryoffer(request, id):
+    cate = CategoryOffer.objects.get(pk=id)
+    if request.method == "POST":
+        try:
+            amount = Decimal(request.POST.get('amount'))
+            dis = cate.discount
+            cate.discount = amount
+            cate.is_active = False
+            cate.save()
+            
+            # Calculate the new sale price for each product variant in the category
+            # This assumes that the discount should be applied similarly to the add_categoryoffer function
+            products = Product.objects.filter(product_catg__category_name=cate.category_name)
+            for product in products:
+                variants = ProductVariant.objects.filter(product=product)
+                for variant in variants:
+                    # Update the sale_price to reflect the new discount
+                    variant.sale_price = variant.sale_price + dis
+                    variant.sale_price = variant.sale_price - amount
+                    variant.save()  # Save each variant after adjusting price
+                    
+            messages.info(request, 'The changes have been saved.')
+            return redirect('category_manage:view_categoryoffer')
+        except Exception as e:
+            print(f'The error is {e}')
+            messages.error(request, f"An error occurred: {str(e)}")
+    else:
+        # Render the template with the existing category offer details
+        return render(request, 'admin/category/edit_category_offer.html', {'cate': cate})
+
+
+
+
+def make_price(id, discount):
+    for product in Product.objects.filter(product_catg = id):
+        for variant in ProductVariant.objects.filter(product = product):
+            variant.sale_price = variant.sale_price - discount
+            variant.save()
+
+def make_price_again(id, discount):
+    for product in Product.objects.filter(product_catg = id):
+        for variant in ProductVariant.objects.filter(product = product):
+            variant.sale_price = variant.sale_price + discount
+            variant.save()

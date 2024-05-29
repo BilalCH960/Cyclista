@@ -30,6 +30,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
+    soft_delete = models.BooleanField(default=False)
     # color = ColorField(default='black', blank = True)
 
 
@@ -49,6 +50,17 @@ class Product(models.Model):
 
         return f"{self.product_name}"
     
+    def soft_delete_instance(self):
+        self.soft_delete = True
+        self.save()
+
+    def restore_instance(self):
+        self.soft_delete = False
+        self.save()
+
+    def is_soft_deleted(self):
+        return self.soft_delete
+    
     # def get_percentage(self):
     #     new_price = 100 - (self.offer_price / self.price) * 100
     #     return new_price
@@ -61,6 +73,18 @@ class ProductImages(models.Model):
 
     class Meta:
         verbose_name_plural = 'Product Images'
+
+
+
+class ProductOffer(models.Model):
+    product_name = models.OneToOneField(Product, on_delete = models.CASCADE)
+    discount = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True, default=0.0)
+    valid_from = models.DateTimeField(auto_now_add=True)
+    valid_to = models.DateTimeField()
+    is_active = models.BooleanField(default= False)
+
+    def __str__(self):
+        return f'{self.product_name} - RS {self.discount}'
 
 
 
@@ -87,7 +111,6 @@ class ProductVariant(models.Model):
     product = models.ForeignKey(Product,on_delete=models.CASCADE ,related_name='product_variants')
     model_id = models.CharField(max_length=30, unique=True,null=False)
     color = models.ForeignKey(AttributeValue, on_delete=models.CASCADE)
-    # size = models.TextField(max_length=50,blank = True)
     max_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     sale_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     stock = models.IntegerField()
@@ -98,6 +121,7 @@ class ProductVariant(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     description = models.TextField(max_length=500, blank=True)
     featured = models.BooleanField(default = False)
+    soft_delete = models.BooleanField(default=False)
 
     def get_percentage(self):
         new_price = 100 - (self.sale_price / self.max_price) * 100
@@ -112,6 +136,17 @@ class ProductVariant(models.Model):
         ])
         self.product_varient_slug = slugify(base_slug)
         super(ProductVariant, self).save(*args, **kwargs)
+
+    def soft_delete_instance(self):
+        self.soft_delete = True
+        self.save()
+
+    def restore_instance(self):
+        self.soft_delete = False
+        self.save()
+
+    def is_soft_deleted(self):
+        return self.soft_delete
 
 
 

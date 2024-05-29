@@ -60,6 +60,7 @@
             <div class="card-body">
                 <div class="row gx-3">
                     {% for i in variant %}
+                    {% if i.soft_delete == False and i.product.soft_delete == False %}
                     <div class="col-xl-2 col-lg-3 col-md-4 col-6">
                         <figure class="card border-1">
                             <div class="card-header bg-white text-center"  >
@@ -69,10 +70,7 @@
                                 <h6 class="card-title m-0">{{i.product.product_name}}</h6>
                                 <a href="#"> {{i.color}} </a>
                                 <hr>
-                                <a href="#"> {{i.ram}} </a>
-                                <hr>
-                                <a href="#"> {{i.storage}} </a>
-                                <hr>
+                                
                                 <a href="#">STOCK : {{i.stock}} </a>
                             </figcaption>
                             <hr>
@@ -80,7 +78,7 @@
                                     <div>
                                     <form action="{% url "ad_product:variant_status" id=i.id %}" method='POST'>
                                         {% csrf_token %}
-                                        {% if i.is_active%}
+                                        {% if i.is_active %}
                                         <button style='border: 2px solid #04AA6D;' class="btn" type="submit">ACTIVE</button>
                                     
                                         {% else %}
@@ -98,6 +96,7 @@
                          
                         </figure>
                     </div> 
+                    {% endif %}
                     {% endfor %}
                 </div>
 

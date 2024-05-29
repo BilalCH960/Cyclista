@@ -9,6 +9,15 @@ from userauths.models import User
 from django.core.mail import send_mail
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+import uuid
+from wallet.models import Referral
+import random
+import string
+from wallet.models import Wallet, EasyPay, Referral
+from django.core.exceptions import ObjectDoesNotExist
+from django.views.decorators.csrf import csrf_protect
+
+
 
 # User = settings.AUTH_USER_MODEL
 
@@ -58,6 +67,37 @@ def otp_verify(request):
                     password = request.session.get('password'), 
                 )
                 user = authenticate(request, email=request.session['email'], password=request.session['password'])
+                code = request.session.get('code')
+                if code == "":
+                    code= None
+                print(f'code={code}')
+                print(f'user={user}')
+
+                my_referral = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))  # Generate a random code
+                Referral.objects.create(user=user, referral_self=my_referral)
+                if code is not None: 
+                    
+                    Referral.objects.filter(user=user).update(referral=code)
+                    wallet, created = EasyPay.objects.get_or_create(user = user)
+                    try:
+                        referral = Referral.objects.get(referral_self = code)
+                        userr = referral.user
+
+                        walletr = EasyPay.objects.get(user = userr)
+                        print(f'rb1={walletr.balance}')
+                        print(f'b1={wallet.balance}')
+                        walletr.balance += 10000
+                        wallet.balance += 5000
+                        wallet.save()
+                        walletr.save()
+                        print(f'rb={walletr.balance}')
+                        print(f'b={wallet.balance}')
+
+                        messages.success(request, 'The referral has been added')
+
+                    except Exception:
+                        messages.warning(request, 'The referral code is invalid')
+                    
                 login(request, user)
                 return redirect('product:index')            
         elif 'resend' in request.POST:
@@ -73,13 +113,13 @@ def otp_verify(request):
     return render(request, 'userauths/otp_login.html')
 
 
-
+@csrf_protect
 @cache_control(no_cache=True, must_revalidate=True, max_age=0,no_store = True)
 def register_view(request):
 
     if request.user.is_authenticated:
         if request.user.is_superuser:
-            return redirect('admin_side:admin_dash_handler')
+            return redirect('admin_side:dashboard')
         return redirect('product:index')
     
     if request.method == "POST":
@@ -87,12 +127,16 @@ def register_view(request):
         email = request.POST["email"]
         password = request.POST["password"]
         pass2 = request.POST.get("pass2")
+        code = request.POST.get('referral_code')
+        request.session['code'] = code
         request.session['username'] = username
         request.session['email'] = email
         request.session['password'] = password
         print(pass2)
 
-        if not username:
+        
+
+        if not username or username.strip() == '':
             messages.warning(request, "Enter a username")
             return redirect('userauths:sign-up')
         try:
@@ -100,8 +144,11 @@ def register_view(request):
         except ValidationError:
             messages.warning(request, "Invalid email or Field is empty")
             return redirect('userauths:sign-up')
-        if not password:
+        if not password :
             messages.warning(request, "Field for password 1 is not filled")
+            return redirect('userauths:sign-up')
+        elif password.strip() == "" or not any(char.isalnum() for char in password) or not any(char.isupper() for char in password) or not any(char.isdigit() for char in password):
+            messages.warning(request, "Your password must contain at least one special character, one uppercase letter, and one number.")
             return redirect('userauths:sign-up')
         if not pass2:
             messages.warning(request, "Field for password 2 is not filled")
@@ -125,8 +172,12 @@ def register_view(request):
                 return redirect('userauths:sign-up')
         except User.DoesNotExist:
             pass
+
+        # referral_code = str(uuid.uuid4())[:8]  # Generate a unique referral code
+        # Referral.objects.create(user=request.user, referral_code=referral_code)
        
         login_otp = random.randint(100000, 999999)
+        print(login_otp)
         request.session['otp_key'] = str(login_otp)
         email_send(request.session['email'], request.session['otp_key'])
         return redirect('userauths:otp_verify') 

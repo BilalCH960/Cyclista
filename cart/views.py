@@ -15,9 +15,10 @@ from django.template.loader import render_to_string
 
 def view_cart(request):
     if not request.user.is_authenticated:
-        if not request.user.is_superuser:
-            return redirect('admin_side:admin_login_handler')
-        return redirect('user_side:landing')
+        if request.user.is_superuser:
+            return redirect('admin_side:login')
+        messages.info(request,'Please log in to view cart')
+        return redirect('userauths:sign-in')
 
     cart, check_cart = Cart.objects.get_or_create(user=request.user)
     cart_items = Cart_Item.objects.filter(cart=cart).order_by('id')
@@ -47,6 +48,8 @@ def view_cart(request):
         cart.shipping = None
         cart.save()
         messages.info(request,'Cart is Running on Low')
+
+        
 
         
     context = {
@@ -232,128 +235,6 @@ def clear_cart(request):
     messages.info(request,'all the cart items have been deleted')
     return redirect('cart:view_cart')
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# def add_to_cart(request):
-#     cart_product = {}
-
-#     cart_product[str(request.GET['id'])] = {
-#         'title': request.GET['title'],
-#         'qty' : request.GET['qty'],
-#         'price' : request.GET['price'],
-#         'image' : request.GET['image'],
-#         'pid' : request.GET['pid'],
-#         'id' : request.GET['id'],
-#     }
-
-#     # ////
-#     product_qty = int(request.GET.get('qty'))
-#     product_id = int(request.GET.get('id'))
-#     product = get_object_or_404(ProductVariant, id = product_id)
-#     cart, check_cart = Cart.objects.get_or_create(user=request.user)
-    
-     
-        
-
-
-#     # ////
-
-#     if 'cart_data_obj' in request.session:
-#         if str(request.GET['id']) in request.session['cart_data_obj']:
-#             cart_data = request.session['cart_data_obj']
-#             cart_data[str(request.GET['id'])]['qty'] = int(cart_product[str(request.GET['id'])]['qty'])
-#             cart_data.update(cart_data)
-#             request.session['cart_data_obj'] = cart_data
-#         else:
-#             cart_data = request.session['cart_data_obj']
-#             cart_data.update(cart_product)
-#             request.session['cart_data_obj'] = cart_data
-
-#     else:
-#         request.session['cart_data_obj'] = cart_product
-#     return JsonResponse({"data":request.session['cart_data_obj'], 'totalCartItems':len(request.session['cart_data_obj'])})
-
-
-
-# def cart_view(request):
-#     context = {}
-#     if 'cart_data_obj' in request.session:
-#         cart_total_amount = 0
-#         cart_data = request.session['cart_data_obj']
-#         for pid, item in cart_data.items():
-#             product_variant = ProductVariant.objects.get(id=pid)
-#             cart_total_amount += int(item['qty']) * float(item['price'])
-#             item['stock'] = product_variant.stock
-        
-
-#         context = {
-#             "cart_data": cart_data,
-#             'totalCartItems': len(cart_data),
-#             'cart_total_amount': cart_total_amount,
-#         }
-#     else:
-#         messages.warning(request, "Your cart is empty")
-#         return redirect("product:index")
-
-#     return render(request, "user/cart.html", context)
-
-
-
-# def delete_item_from_cart(request):
-#     product_id = str(request.GET['id'])
-
-#     if 'cart_data_obj' in request.session:
-#         if product_id in request.session['cart_data_obj']:
-#             cart_data = request.session['cart_data_obj']
-#             del request.session['cart_data_obj'][product_id]
-#             request.session['cart_data_obj'] = cart_data
-
-#     cart_total_amount = 0
-#     if 'cart_data_obj' in request.session:
-#         for pid, item in request.session['cart_data_obj'].items():
-#             cart_total_amount += int(item['qty']) * float(item['price'])
-
-
-#     context = render_to_string("user/async/cart.html", {"cart_data":request.session['cart_data_obj'], 'totalCartItems':len(request.session['cart_data_obj']), 'cart_total_amount':cart_total_amount})
-#     return JsonResponse({"data": context, 'totalCartItems':len(request.session['cart_data_obj']), })
-
-
-
-# def update_cart(request):
-#     product_id = str(request.GET['id'])
-#     product_qty = request.GET['qty']
-#     print(f'hellooi {product_qty}')
-
-#     if 'cart_data_obj' in request.session:
-#         if product_id in request.session['cart_data_obj']:
-#             cart_data = request.session['cart_data_obj']
-#             cart_data[str(request.GET['id'])]['qty'] = product_qty
-#             request.session['cart_data_obj'] = cart_data
-
-#     cart_total_amount = 0
-#     if 'cart_data_obj' in request.session:
-#         for pid, item in request.session['cart_data_obj'].items():
-#             cart_total_amount += int(item['qty']) * float(item['price'])
-
-
-#     context = render_to_string("user/async/cart.html", {"cart_data":request.session['cart_data_obj'], 'totalCartItems':len(request.session['cart_data_obj']), 'cart_total_amount':cart_total_amount})
-#     return JsonResponse({"data": context, 'totalCartItems':len(request.session['cart_data_obj']), })
 
 
 

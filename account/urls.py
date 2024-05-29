@@ -11,8 +11,9 @@ urlpatterns = [
     path('edit_address/<int:id>', views.edit_address, name='edit_address'),
     path('del_address/<int:id>', views.del_address, name='del_address'),
     path('Account_details_edit/', views.account_edit, name='account_edit'),
-    path('change_password/', views.PasswordChangeView.as_view(template_name ='registration/change_password.html'), name='change_password'),  
+    # path('change_password/', views.PasswordChangeView.as_view(template_name ='registration/change_password.html'), name='change_password'),  
     path('dashboard/order/<int:id>', views.order_detail, name='order-detail'),  
+    path('change_password/', views.CustomPasswordChangeView.as_view(), name='change_password'),
 
 
 

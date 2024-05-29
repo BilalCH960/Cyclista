@@ -3,7 +3,16 @@
 {% load static %}
 
 {% block content%}
-
+<head>
+    <style>
+        .category-img {
+            display: block;
+            width: 300px; /* Set the desired width */
+            height: 250px; /* Set the desired height */
+            object-fit: cover; /* Crop the image to fit the specified dimensions */
+        }
+    </style>
+</head>
 <main class="main">
   <div class="page-header breadcrumb-wrap">
       <div class="container">
@@ -31,11 +40,11 @@
                             <article class="wow fadeIn animated hover-up mb-30">
                                 <div class="post-thumb img-hover-scale">
                                     <a href="{% url "product:category-product-list" i.id %}">
-                                        <img class="border-radius-15" src="{{ i.category_img.url }}" alt="">
+                                        <img class="border-radius-15 category-img" src="{{ i.category_img.url }}" alt="">
                                     </a>
-                                    <div class="entry-meta">
+                                    {% comment %} <div class="entry-meta">
                                         <a class="entry-meta meta-2" href="blog-category-grid.html">Global</a>
-                                    </div>
+                                    </div> {% endcomment %}
                                 </div>
                                 <div class="entry-content-2">
                                     <h4 class="post-title mb-15">
@@ -57,18 +66,7 @@
                       </div>
                   </div>
                   <!--post-grid-->
-                  <div class="pagination-area mt-15 mb-lg-0">
-                      <nav aria-label="Page navigation example">
-                          <ul class="pagination justify-content-start">
-                              <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                              <li class="page-item"><a class="page-link" href="#">02</a></li>
-                              <li class="page-item"><a class="page-link" href="#">03</a></li>
-                              <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                              <li class="page-item"><a class="page-link" href="#">16</a></li>
-                              <li class="page-item"><a class="page-link" href="#"><i class="fi-rs-angle-double-small-right"></i></a></li>
-                          </ul>
-                      </nav>
-                  </div>
+                  
               </div>
           </div>
       </div>

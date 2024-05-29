@@ -28,7 +28,7 @@
     <aside class="navbar-aside" id="offcanvas_aside">
         <div class="aside-top">
             <a href="index.html" class="brand-wrap">
-                <img src="{% static 'admin_assets/imgs/theme/logo.svg' %}" class="logo" alt="Evara Dashboard">
+                <img src="{% static 'assets/logo/cyklista_logo-removebg-preview.png' %}" class="logo" alt="Cyklista Dashboard">
             </a>
             <div>
                 <button class="btn btn-icon btn-aside-minimize"> <i class="text-muted material-icons md-menu_open"></i> </button>
@@ -43,24 +43,35 @@
                 </li>
                 <li class="menu-item has-submenu">
                     <a class="menu-link" href="#"> <i class="icon material-icons md-shopping_bag"></i>
-                        <span class="text">Products</span>
+                        <span class="text">View</span>
                     </a>
                     <div class="submenu">  
-                        <a class="dropdown-item" href="{% url "ad_product:view_product" %}">Product List</a>
-                        <a class="dropdown-item" href="{% url "ad_product:view_att" %}">Attribute List</a>
-                        <a class="dropdown-item" href="{% url "ad_product:view_variant" %}">Variant List</a>
+                        <a class="dropdown-item" href="{% url "ad_product:view_product" %}">Products</a>
+                        <a class="dropdown-item" href="{% url "ad_product:view_att" %}">Attributes</a>
+                        <a class="dropdown-item" href="{% url "ad_product:view_variant" %}">Variants</a>
+                        <a class="dropdown-item" href="{% url "admin_side:coupon" %}">Coupons</a>
                     </div>
                     
                 </li>
-                <li class="menu-item">
+                <li class="menu-item has-submenu">
                     <a class="menu-link" href="{% url 'category_manage:category_handler' %}"> <i class="icon material-icons md-store"></i>
                         <span class="text">Category Management</span>
                     </a>
-                    {% comment %} <div class="submenu"> 
-                        <a href="page-sellers-cards.html">Sellers cards</a>
-                        <a href="page-sellers-list.html">Sellers list</a>
-                        <a href="page-seller-detail.html">Seller profile</a>
-                    </div> {% endcomment %}
+                    <div class="submenu"> 
+                        <a class="dropdown-item" href="{% url 'category_manage:category_handler' %}">Category</a>
+                        <a class="dropdown-item" href="{% url "category_manage:view_categoryoffer" %}">Category Offer</a>
+                    </div>
+                </li>
+                <li class="menu-item has-submenu">
+                    <a class="menu-link" href="#"> <i class="icon material-icons md-shopping_bag"></i>
+                        <span class="text">Offers</span>
+                    </a>
+                    <div class="submenu">  
+                        <a class="dropdown-item" href="{% url "category_manage:view_categoryoffer" %}">Category Offer</a>
+                        <a class="dropdown-item" href="{% url "ad_product:product_offer" %}">Product Offers</a>
+                        
+                    </div>
+                    
                 </li>
                 <li class="menu-item">
                     <a class="menu-link" href="{% url 'order:admin_order_view' %}"> <i class="icon material-icons md-shopping_cart"></i>
@@ -77,6 +88,8 @@
                         <a class="dropdown-item" href="{% url "ad_product:product_variant" %}">Variant</a>
                         <a class="dropdown-item" href="{% url "ad_product:add_attribute" %}">Attribute</a>
                         <a class="dropdown-item" href="{% url "ad_product:add_attribute_value" %}">Attribute Value</a>
+                        <a class="dropdown-item" href="{% url "admin_side:create_coupon" %}">Coupon</a>
+                        
                     </div>
                 </li>
                 <li class="menu-item">
@@ -199,7 +212,7 @@
                 <div class="col-sm-6">
                     <script>
                     document.write(new Date().getFullYear())
-                    </script> ©, Evara - HTML Ecommerce Template .
+                    </script> ©, Cyklista - Ecommerce.
                 </div>
                 <div class="col-sm-6">
                     <div class="text-sm-end">

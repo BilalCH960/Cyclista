@@ -34,6 +34,9 @@
                                 </li>
                                 
                                 <li class="nav-item">
+                                    <a class="nav-link" id="orders-tab" data-bs-toggle="tab" href="#orders" role="tab" aria-controls="orders" aria-selected="false"><i class="fi-rs-shopping-bag mr-10"></i>My Wallet</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab" href="#track-orders" role="tab" aria-controls="track-orders" aria-selected="false"><i class="fi-rs-shopping-cart-check mr-10"></i>Your Orders</a>
                                 </li>
                                 <li class="nav-item">
@@ -56,13 +59,15 @@
                                             {% if user %}
                                             <p>Name :<strong> {{myuser.full_name}}</strong></p>
                                             <p>Username :<strong> {{request.user}}</strong></p>
-                                            <p>PH :<strong> {{myuser.phone_number}}</strong></p>
+                                            {% comment %} <p>PH :<strong> {{myuser.phone_number}}</strong></p> {% endcomment %}
                                             <p>Email :<strong> {{request.user.email}}</strong></p>
+                                            <p>Referral :<strong> {{referral_code.referral_code}}</strong></p>
                                             {% else %}
                                             <p>Name :<strong> No name Yet</strong></p>
                                             <p>Username :<strong> {{request.user}}</strong></p>
-                                            <p>PH :<strong> {{myuser.phone_number}}</strong></p>
+                                            {% comment %} <p>PH :<strong> {{myuser.phone_number}}</strong></p> {% endcomment %}
                                             <p>Email :<strong> {{request.user.email}}</strong></p>
+                                            <p>Referral :<strong> {{referral_code.referral_code}}</strong></p>
                                             {% endif %}
                                         </div>
                                         <h5 class="mb-0">Hello {{myuser.full_name}}! </h5>
@@ -86,7 +91,50 @@
                                         </div>
                                 </div>
                             </div>
-                           
+                            <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+                                <div class="card-header">
+                                    <h5 class="mb-1">My Wallet</h5>
+                                </div>
+                                <div class="table-responsive">
+                                    <table border="1">
+                                        <thead>
+                                            <tr>
+                                                <th>Available Balance</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                {% if easy.balance > 0 %}
+                                                <td>₹ {{easy.balance}}</td>
+                                                {% else %}
+                                                <td>₹ 0</td>
+                                                {% endif %}
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                   <a href="{% url "wallet:wallet_view" %}"><button type="button" class="button btn">Full Statement</button></a>
+                                </div>
+                                <div class="card-header" style="margin-top:30px;">
+                                    <h3>REFERRAL AND REDEEM</h3>
+                                    <div class="card-body">
+                                        <div>My Referral Code :  {{ref}}</div>
+                                        
+                                        {% comment %} {% if ref.referral_code is none %}
+                                        <hr>
+                                        <form action="{% url "wallet:get_refferal_code" %}" method="POST">
+                                            {% csrf_token %}
+                                            <input type="text" name="referral_code">
+                                            <br>
+                                            <br>
+                                            <div>
+                                                <button type="submit" class="btn button">GET REFERRAL</button>
+                                              </div>
+                                        </form>
+                                        {% endif %} {% endcomment %}
+                                    </div>
+                                </div>
+                            </div>
                             <div class="tab-pane fade" id="track-orders" role="tabpanel" aria-labelledby="track-orders-tab">
                                 <div class="card">
                                     <div class="card-header">
@@ -100,7 +148,7 @@
                                                 <table class="table">
                                                     <thead>
                                                         <tr>
-                                                            <th>Orders</th>
+                                                            {% comment %} <th>Orders</th> {% endcomment %}
                                                             <th>Date</th>
                                                             <th>Paid</th>
                                                             <th>Total</th>
@@ -111,13 +159,14 @@
                                                         {% for o in orders %}
                                                         
                                                             <tr>
-                                                                <td>INV.NO.{{o.order_number}}</td>
-                                                                <td>{{o.order_time}}</td>
-                                                                {% if o.payment_details.payment_status == "SUCCESS" %}
-                                                                <td><i class="fas fa-check-circle text-success"></td>
-                                                                {% else %}
-                                                                    <td><i class="fas fa-times text-danger"></i></td>
-                                                                {% endif %}
+                                                                {% comment %} <td>INV.NO.{{o.order_number}}</td> {% endcomment %}
+                                                                <td>{{o.order_time|date:"D d M Y"}}
+                                                                    {% for item in o.orderitem_set.all %}
+                                                                        <li>{{ item.order_product.product }} </li>
+                                                                    {% endfor %}
+                                                                </td>
+                                                                
+                                                                <td><span class="badge rounded-pill alert-{% if o.payment_details.payment_status == 'SUCCESS' %}success{% elif o.payment_details.payment_status == 'FAILED' %}danger{% else %}warning{% endif %}">{{o.payment_details.payment_status}}</span></td>
                                                                 <td>{{o.order_total}}</td>
                                                                 <td><a href="{% url 'order:view-orders' o.pk %}" class="btn-small d-block">View</a></td>
                                                             </tr>

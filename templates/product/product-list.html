@@ -34,6 +34,13 @@
             border: none;
             background: transparent;
         }
+        .product-img {
+            display: block;
+            width: 280px; /* Set the desired width */
+            height: 250px; /* Set the desired height */
+            object-fit: cover; /* Crop the image to fit the specified dimensions */
+        }
+        
     </style>
 </head>
 
@@ -328,7 +335,8 @@
                         <div class="shop-product-fillter">
                             
                             <div class="totall-product">
-                                <p> We found <strong class="text-brand">{{count}}</strong> items for you!</p>
+                                {% comment %} <p> We found <strong class="text-brand" id="count">{{count}}</strong> items for you!</p> {% endcomment %}
+
                             </div>
                             <div class="sort-by-product-area">
                                 {% comment %} <div class="sort-by-cover mr-10">
@@ -361,11 +369,11 @@
                                     </div>
                                     <div class="sort-by-dropdown">
                                         <ul>
-                                            <li><a class="active" href="#">Featured</a></li>
-                                            <li><a href="#">Price: Low to High</a></li>
-                                            <li><a href="#">Price: High to Low</a></li>
-                                            <li><a href="#">Release Date</a></li>
-                                            <li><a href="#">Avg. Rating</a></li>
+                                            <li><a class="active" href="{% url 'product:featured' %}">Featured</a></li>
+                                            <li><a href="{% url 'product:price_asc' %}">Price: Low to High</a></li>
+                                            <li><a href="{% url 'product:price_desc' %}">Price: High to Low</a></li>
+                                            <li><a href="{% url 'product:name_desc' %}">A-Z</a></li>
+                                            <li><a href="{% url 'product:name_asc' %}">Z-A</a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -374,22 +382,25 @@
                         <div class="row product-grid-3" id = "filtered-product">
 
                             {% for p in products %}
+                            {% if p.product.soft_delete == False %}
                                 <div class="col-lg-4 col-md-4 col-12 col-sm-6">
                                     <div class="product-cart-wrap mb-30">
                                         <div class="product-img-action-wrap">
                                             <div class="product-img product-img-zoom">
                                                 <a href="{% url "product:product-detail" p.id p.product.product_catg.id %}">
-                                                    <img size="100px" class="default-img" src="{{ p.variantimage_set.first.images.url }}" alt="">
-                                                    <img class="hover-img" src="{{ p.variantimage_set.first.images.url }}" alt="">
+                                                    <img size="100px" class="product-img" src="{{ p.variantimage_set.first.images.url }}" alt="">
+                                                    <img class="hover-img product-img" src="{{ p.variantimage_set.first.images.url }}" alt="">
                                                 </a>
                                             </div>
                                             <div class="product-action-1">
                                                 {% comment %} <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a> {% endcomment %}
-                                                <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
+                                                <a aria-label="Add To Wishlist" class="action-btn hover-up" href="{% url 'product:add_wishlist' p.id p.product.product_catg.id%}"><i class="fi-rs-heart"></i></a>
                                                 {% comment %} <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> {% endcomment %}
                                             </div>
                                             <div class="product-badges product-badges-position product-badges-mrg">
+                                                {% if  p.sale_price != p.max_price%}
                                                 <span class="hot">-{{p.get_percentage|floatformat:0}}%</span>
+                                                {% endif %}
                                             </div>
                                         </div>
                                         <div class="product-content-wrap">
@@ -397,15 +408,19 @@
                                                 <a href="shop-grid-right.html">{{p.color}}</a>
                                             </div>
                                             <h2><a href="shop-product-right.html">{{p.product}}</a></h2>
-                                            <br>
                                             {% comment %} <div class="rating-result" title="90%">
                                                 <span>
                                                     <span>90%</span>
                                                 </span>
                                             </div> {% endcomment %}
+                                            <div class="product-category">  
+                                                <a href="#">{{p.product.product_catg}}</a>
+                                            </div>
                                             <div class="product-price">
                                                 <span> Rs.<span class="current-product-price-{{p.id}}" id="current-product-price">{{p.sale_price}}</span></span>
-                                                <span class="old-price">Rs.{{p.max_price}}</span>
+                                                {% if  p.sale_price != p.max_price%}
+                                                    <span class="old-price">Rs.{{p.max_price}}</span>
+                                                {% endif %}
                                             </div>
                                             <div class="add-cart">
                                                 <div class="product-action-1 show"> 
@@ -415,7 +430,11 @@
                                                     <input type="hidden" value="{{p.id}}" class="product-id-{{p.id}}">
                                                     <input type="hidden" value="{{p.product}}" class="product-title-{{p.id}}">
                                                     <span class="action-btn">
-                                                        <button aria-label="Add To Cart" data-index="{{ p.id }}" id="add-to-cart-btn" class="add add-to-cart-btn hover-up" href="#" ><i class="fi-rs-shopping-bag-add"></i></button>
+                                                        <a href="{% url 'cart:add_cart' id=p.id %}"> <button aria-label="Add To Cart" data-index="{{ p.id }}" id="add-to-cart-btn" class="add add-to-cart-btn hover-up">
+                                                            
+                                                                <i class="fi-rs-shopping-bag-add"></i>
+                                                            </button>
+                                                        </a>
                                                     </span>
 
                                                 </div>
@@ -423,22 +442,33 @@
                                         </div>
                                     </div>
                                 </div>
+                                {% endif %}
                             {% endfor %}
 
+                            
                         </div>
                         <!--pagination-->
-                        {% comment %} <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
+                        <div class="pagination-area mt-15 mb-5">
                             <nav aria-label="Page navigation example">
                                 <ul class="pagination justify-content-start">
-                                    <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">02</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">03</a></li>
-                                    <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">16</a></li>
-                                    <li class="page-item"><a class="page-link" href="#"><i class="fi-rs-angle-double-small-right"></i></a></li>
+                                    {% if products.has_previous %}
+                                        <li class="page-item"><a class="page-link" href="?page=1">&laquo;</a></li>
+                                        <li class="page-item"><a class="page-link" href="?page={{ products.previous_page_number }}">{{ products.previous_page_number }}</a></li>
+                                    {% endif %}
+                        
+                                    <li class="page-item active"><a class="page-link" href="?page={{ products.number }}">{{ products.number }}</a></li>
+                        
+                                    {% if products.has_next %}
+                                        <li class="page-item"><a class="page-link" href="?page={{ products.next_page_number }}">{{ products.next_page_number }}</a></li>
+                                        <li class="page-item"><a class="page-link" href="?page={{ paginator.num_pages }}">&raquo;</a></li>
+                                    {% else %}
+                                        <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                                    {% endif %}
                                 </ul>
                             </nav>
-                        </div> {% endcomment %}
+                        </div>
+                        
+                        
                     </div>
                     <div class="col-lg-3 primary-sidebar sticky-sidebar">
                 
@@ -519,5 +549,47 @@
             </div>
         </section>
     </main>
+    {% csrf_token %}
+    <script>
+        function addCart(e) {
+            e.preventDefault();
+
+            function showSuccessMessage(message) {
+                $('#success-message').text(message);
+                $('#success-message').removeClass('hidden').addClass('visible');
+            }
+            function showErrorMessage(message) {
+                $('#error-message').text(message);
+                $('#error-message').removeClass('hidden').addClass('visible');
+
+            }
+
+            var prodQty = 1; 
+            var csrfToken = $('input[name=csrfmiddlewaretoken]').val();
+            var productId = $('.prod_id').val();  
+            $.ajax({
+                url: "{% url 'cart:add_cart'%}",  
+                method: "POST",
+                data: {
+                    'prod_qty': prodQty,
+                    'csrfmiddlewaretoken': csrfToken,
+                    'prod_id': productId,
+                },
+                success: function (response) {
+                    console.log(response);
+                    window.location.href = "{% url 'cart:view_cart' %}";
+                
+                },
+                error: function (error) {
+                    console.error(error);
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Stock shortage',
+                        text: 'Cant add that much due to stock insufficiant.',
+                    });
+                }
+            });
+        }
+    </script>
    
 {% endblock content %}

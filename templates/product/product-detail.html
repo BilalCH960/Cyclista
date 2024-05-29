@@ -39,6 +39,30 @@
         color: #f39c12; /* Change this color to your desired highlight color */
       }
   
+        
+    .size-filter {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .size-filter li {
+        display: inline-block;
+        margin-right: 2px;
+    }
+
+    .size-filter li a {
+        text-decoration: none;
+        padding: 5px 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        color: #333;
+    }
+
+    .size-filter li.active a {
+        background-color: #218066;
+        color: #fff;
+    }
+
   </style>
 <style>
     #message-container {
@@ -201,10 +225,10 @@
                                     {% else %}
                                     <div class="product-price primary-color float-left">
                                         <ins><span class="text-brand">Rs {{p.sale_price}}</span></ins>
-                                        {% if  p.sale_price != pro.max_price%}
+                                        {% if  p.sale_price != p.max_price%}
                                         <ins><span class="old-price font-md ml-15">{{p.max_price}}</span></ins>
-                                        {% endif %}
                                         {% if per != 0 %}
+                                        {% endif %}
                                         <span class="save-price  font-md color3 ml-15">{{p.get_percentage|floatformat:0}} % OFF</span>
                                         {% endif %}
                                     </div>
@@ -222,20 +246,22 @@
                                 </div>
                                 <div class="attr-detail attr-color mb-15">
                                     <strong class="mr-10">Color</strong>
-                                    <ul class="list-filter ">
-                                        <ul class="list-filter size-filter font-small">
+                                    {% comment %} <ul class="list-filter "> {% endcomment %}
+                                        <ul class="size-filter font-small">
                                             {% for v in var %}
                                             
                                             {% if p.color.id != v.id %}
-                                            <li>
-                                            {% else %}
-                                            <li class="active">
-                                            {% endif %}
-                                                    <a href="#" data-color="{{ v.Attribute_value }}">{{ v.Attribute_value }}</a>
+                                                <li>
+                                                    <a href="{% url 'product:varnts' pid=p.product.id avid=v.id %}" data-color="{{ v.Attribute_value }}">{{ v.Attribute_value }}</a>  
                                                 </li>
+                                            {% else %}
+                                                <li class="active">
+                                                    <a href="{% url 'product:varnts' pid=p.product.id avid=v.id %}" data-color="{{ v.Attribute_value }}">{{ v.Attribute_value }}</a>   
+                                                </li>
+                                            {% endif %}
                                             {% endfor %}
                                         </ul>
-                                    </ul>
+                                    {% comment %} </ul> {% endcomment %}
                                 </div>
                                
                                 <div class="bt-1 border-color-1 mt-30 mb-30"></div>
@@ -577,12 +603,12 @@
             var stockValue = parseInt($(".stock_val").attr("value"));
             var prodQty = $('#quantitySpan').text(); 
             // Check if the stock value is less than 1
-            if (stockValue < 1) {
+            if (stockValue < 0) {
                 // If it is, hide the button
                 $("#my_new_btn").hide();
             }
             else if
-            (prodQty >= stockValue){
+            (prodQty > stockValue){
                 $("#my_new_btn").hide();
             }
         });

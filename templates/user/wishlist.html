@@ -1,0 +1,81 @@
+{% extends "partials/base.html" %} 
+{% block title %}Wishlist{% endblock title %} 
+{%block content %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+
+
+<div class="page-header breadcrumb-wrap">
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="{% url "product:index" %}" rel="nofollow">Home</a>
+            <span></span> Wishlist
+        </div>
+    </div>
+</div>  
+
+
+<section class="mt-50 mb-50">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="table-responsive">
+                    <table class="table shopping-summery text-center">
+                        <thead>
+                            <tr class="main-heading">
+                                <th scope="col" colspan="2">Product</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Stock Status</th>
+                                <th scope="col">Action</th>
+                                <th scope="col">Remove</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                         {% if items|default:""|length > 0 %} 
+                         {% for item in items %}
+                            <tr>
+                                <td class="image product-thumbnail"><img height="90px" width="90px"  src='{{item.variantimage_set.first.images.url}}' alt="#"></td>
+                                <td class="product-des product-name">
+                                    <h5 class="product-name"><a href="{% url "product:product-detail" item.id item.product.product_catg.id %}">{{item.product}}</a></h5>
+                                    <p class="font-xs">{{item.color}}
+                                    </p>
+                                </td>
+                                <td class="price" data-title="Price"><span>{{item.sale_price}}</span></td>
+                                <td class="text-center" data-title="Stock">
+                                    <span class="color3 font-weight-bold">{{item.stock}}</span>
+                                </td>
+                                <td class="text-right" data-title="Cart">
+                                    {% if item.stock < 1 %}
+                                    <img width="64" height="64" src="https://img.icons8.com/external-victoruler-linear-colour-victoruler/64/external-out-of-stock-logistics-victoruler-linear-colour-victoruler.png" alt="external-out-of-stock-logistics-victoruler-linear-colour-victoruler"/>
+                                    {% else %}
+                                  
+                                  <a href="{% url 'cart:add_cart' id=item.id %}"><button class="btn btn-sm" aria-label="Add To Cart" data-index="{{ p.id }}" id="add-to-cart-btn"><i class="fi-rs-shopping-bag mr-5"></i>Add to cart</button></a>  
+                                    {% endif %}
+                                </td>
+                                <td class="action" data-title="Remove"><a href="{% url "product:delete_wishlist" prid=item.id%}"><i class="fi-rs-trash"></i></a></td>
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                            <tr>
+                                
+                                
+                                <td><img width="80" height="80" src="https://img.icons8.com/dotty/80/nothing-found.png" alt="nothing-found"/></td>
+                                <td><img width="80" height="80" src="https://img.icons8.com/dotty/80/nothing-found.png" alt="nothing-found"/></td>
+                                <td><img width="80" height="80" src="https://img.icons8.com/dotty/80/nothing-found.png" alt="nothing-found"/></td>
+                                <td><img width="80" height="80" src="https://img.icons8.com/dotty/80/nothing-found.png" alt="nothing-found"/></td>
+                                <td><img width="80" height="80" src="https://img.icons8.com/dotty/80/nothing-found.png" alt="nothing-found"/></td>
+                                <td><img width="80" height="80" src="https://img.icons8.com/dotty/80/nothing-found.png" alt="nothing-found"/></td>
+                            </tr>
+                            {% endif %}  
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+{% endblock content %}
+

@@ -63,6 +63,7 @@
                                                             <th>Price</th>
                                                             <th>Qty</th>
                                                             <th>Payment Status</th>
+                                                            <th>Shipping Address</th>
                                                             <th>Total</th>
                                                             <th>Action</th>
                                                         </tr>
@@ -73,20 +74,31 @@
                                                             <tr>
                                                                 <td>{{o.order_product.model_id}}</td>
                                                                 <td><p><img src="{{ o.order_product.variantimage_set.first.images.url }}" style="width:60px; object-fit:cover;" alt=""></p></td>
-                                                                <td>{{o.order_product.product}}</td>
+                                                                <td>{{o.order_product.product}}
+                                                                    <br>{{o.order_product.}}
+                                                                </td>
                                                                 <td>{{o.order_status}}</td>
-                                                                <td>{{o.product_price}}</td>
+                                                                <td>{{o.order_product.sale_price}}</td>
                                                                 <td>{{o.quantity}}</td>
-                                                                {% if o.order_status != "CANCELLED" %}
+                                                                {% if o.order_status == "RETURNED" %}
+                                                                <td>Order Returned</td>
+                                                                {% elif o.payment_details.payment_status == "FAILED"%}
+                                                                <td>{{o.payment_details.payment_status}}</td>
+                                                                {% elif o.order_status != "CANCELLED" %}
                                                                 <td>{{o.payment_details.payment_status}}</td>
                                                                 {% else %}
                                                                 <td>Order Cancelled</td>
                                                                 {% endif %}
-                                                                <td>{{ o.product_price|mul:o.quantity }}</td>
-                                                                {% if o.order_status != "CANCELLED" %}
-                                                                    <td><a href="{% url 'order:cancel_order_req' o.id %}" class="btn btn-primary">Cancel</a>
-                                                                {% else %}
+                                                                <td>{{ o.order.shipping_address }}</td>
+                                                                <td>{{ o.product_price}}</td>
+                                                                {% if o.order_status == "DELIVERED" %}
+                                                                    <td><a href="{% url 'order:return_order_req' o.id %}" class="btn btn-primary">Return</a>
+                                                                {% elif o.order_status == "CANCELLED" %}
                                                                     <td><a href="#" class="btn btn-primary disabled-link">Cancel</a>
+                                                                {% elif o.order_status == "RETURNED" %}
+                                                                    <td><a href="#" class="btn btn-primary disabled-link">Return</a>
+                                                                {% elif o.order_status != "CANCELLED" %}
+                                                                    <td><a href="{% url 'order:cancel_order_req' o.id %}" class="btn btn-primary">Cancel</a>
                                                                 {% endif %}
                                                                 </td>
                                                             </tr>

@@ -14,58 +14,68 @@
       <table class="table table-striped border">
         <thead>
           <tr>
-            <th scope="col" class="w-25" ></th>
-            <th scope="col" class="text-center" style="width: 5vw;">Product name</th>
-            <th scope="col" class="text-center" style="width: 5vw;">Price</th>
-            <th scope="col" class="text-center" style="width: 5vw;">Quantity</th>
-            <th scope="col" class="text-end" style="width: 5vw;padding-right: 2vw;">Total</th>
+            <th  scope="col"  class="w-10" ></th>
+            <th scope="col" colspan="2" class="text-center" style="width: 5vw;">Product name</th>
+            <th scope="col" colspan="2" class="text-center" style="width: 5vw;">Price</th>
+            <th scope="col" colspan="2" class="text-center" style="width: 5vw;">Quantity</th>
+            <th scope="col" colspan="2" class="text-end" style="width: 5vw;padding-right: 2vw;">Total</th>
           </tr>
         </thead>
         <tbody>
           {% for item in order_items %}
             <tr class="border">
-              <th scope="row" class="w-25">
+              <th scope="row" class="w-10">
                 <img src="{{ item.order_product.variantimage_set.first.images.url}}" class="img-fluid rounded-3" style="width: 120px;" alt="Book" />
               </th>
-              <td class="text-center">{{ item.order_product.product }}</td>
-              <td class="text-center">₹ {{ item.order_product.sale_price }}</td>
-              <td class="text-center">{{ item.quantity }}</td>
-              <td class="text-end" style="padding-right: 2vw;">₹ {{ item.order_product.sale_price|mul:item.quantity }}</td>
+              <td colspan="2" class="text-center">{{ item.order_product.product }}
+                <br>{{item.order_product.color}}
+              </td>
+              <td colspan="2" class="text-center">₹ {{ item.order_product.sale_price }}</td>
+              <td colspan="2" class="text-center">{{ item.quantity }}</td>
+              <td colspan="2" class="text-end" style="padding-right: 2vw;">₹ {{ item.order_product.sale_price|mul:item.quantity }}</td>
             </tr>
           {% endfor %}
 
           <tr class="border">
             <th colspan="5" class="text-center">Shipping</th>
-            <td class="text-end" style="padding-right: 2vw;">₹ {{ new_order.order_shipping }}</td>
+            <td colspan="5" class="text-end" style="padding-right: 1vw;">₹ {{ new_order.order_shipping }}</td>
+          </tr>
+          <tr class="border">
+            <th colspan="5" class="text-center">Discount</th>
+            <td colspan="5" class="text-end" style="padding-right: 1vw;">₹ {{ coupon_discount }}</td>
           </tr>
           <tr class="border">
             <th colspan="5" class="text-center">Grand Total</th>
-            <td class="text-end" style="padding-right: 2vw;">₹ {{ new_order.order_total }}</td>
+            <td colspan="5" class="text-end" style="padding-right: 2vw;">₹ {{ new_order.order_total }}</td>
           </tr>
           <tr class="">
             <td colspan="5" class="border">
               <table class="table mb-0">
                 <tr>
-                  <td><center>Delivery Address</center></td>
+                  <td colspan="5"><center>Delivery Address</center></td>
                 </tr>
                 <tr>
-                  <td style="padding-left: 4vw;">
-                    {{ new_order.shipping_address.user|upper}} <br>
-                    {{ new_order.shipping_address.phone_number }} <br>
-                    {{ new_order.shipping_address.address }} <br>
-                    {{ new_order.shipping_address.city }}, {{ new_order.shipping_address.state }}, 
-                    <br>{{ new_order.shipping_address.country }}, {{ new_order.shipping_address.pincode }}
+                  <td colspan="5" style="padding-left: 4vw;">
+                    {{ new_order.shipping_address|upper}}
                   </td>
                 </tr>
               </table>
             </td>
-            <td>
-              <table>
+            <td colspan="5" class="border">
+              <table class="table mb-">
                 <tr>
-                  <td class="text-center align-top">
+                  <td colspan="5" class="text-center align-top">
                   
-                    Cash On Delivery
+                    {{new_order.payment_details.payment_method}}
                     
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-center">
+                  {% if new_order.payment_details.payment_method != 'COD' %}
+                  
+                    <button id="rzp-button1" class="bg-info border-0 rounded-2 py-2 px-3 text-light">Pay with Razorpay</button>
+                  {% endif %}
                   </td>
                 </tr>
                 
@@ -79,6 +89,52 @@
 </main>
 
 
-
-
 {% endblock content %} 
+{% block payment-gateway %}
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+var options = {
+    "key": "rzp_test_yrlRK4RRuxfuVA", // Enter the Key ID generated from the Dashboard
+    "amount": "{{payment.amount}}",  // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+    "currency": "INR",
+    "name": "Acme Corp", //your business name
+    "description": "Test Transaction",
+    "image": "https://example.com/your_logo",
+    "order_id": "{{payment.id}}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+    "handler": function (response){
+      window.location.href = `{{success}}?payment_id=${response.razorpay_payment_id}&razorpay_order_id=${response.razorpay_order_id}&payment_sign=${response.razorpay_signature}`
+        {% comment %} alert(response.razorpay_payment_id);
+        alert(response.razorpay_order_id);
+        alert(response.razorpay_signature) {% endcomment %}
+    },
+    "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
+        "name": "Gaurav Kumar", //your customer's name
+        "email": "gaurav.kumar@example.com", 
+        "contact": "9000090000"  //Provide the customer's phone number for better conversion rates 
+    },
+    "notes": {
+        "address": "Razorpay Corporate Office"
+    },
+    "theme": {
+        "color": "#3399cc"
+    }
+};
+var rzp1 = new Razorpay(options);
+rzp1.on('payment.failed', function (response){
+  window.location.href=`{{failed}}?error_code=${response.error.code}&error_description=${response.error.description}&error_reason=${response.error.reason}&error_payment_id=${response.error.metadata.payment_id}&error_order_id=${response.error.metadata.order_id}&method=COD`
+        {% comment %} alert(response.error.code);
+        alert(response.error.description);
+        alert(response.error.source);
+        alert(response.error.step);
+        alert(response.error.reason);
+        alert(response.error.metadata.order_id);
+        alert(response.error.metadata.payment_id); {% endcomment %}
+});
+document.getElementById('rzp-button1').onclick = function(e){
+    rzp1.open();
+    e.preventDefault();
+}
+</script>
+
+{% endblock payment-gateway %}

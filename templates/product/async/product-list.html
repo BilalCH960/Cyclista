@@ -14,7 +14,9 @@
                 {% comment %} <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> {% endcomment %}
             </div>
             <div class="product-badges product-badges-position product-badges-mrg">
+                {% if  p.sale_price != p.max_price%}
                 <span class="hot">-{{p.get_percentage|floatformat:0}}%</span>
+                {% endif %}
             </div>
         </div>
         <div class="product-content-wrap">
@@ -30,7 +32,9 @@
             </div> {% endcomment %}
             <div class="product-price">
                 <span> Rs.{{ p.sale_price }}</span>
+                {% if  p.sale_price != p.max_price%}
                 <span class="old-price">Rs.{{p.max_price}}</span>
+                {% endif %}
             </div>
             <div class="product-action-1 show">
                 <a aria-label="Add To Cart" class="action-btn hover-up" href="{% url "cart:add_cart" id=p.id %}"><i class="fi-rs-shopping-bag-add"></i></a>

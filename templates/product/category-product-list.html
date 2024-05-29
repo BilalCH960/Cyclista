@@ -4,6 +4,16 @@
 
 {% block content%}
 
+<head>
+    <style>
+        .product-img {
+            display: block;
+            width: 280px; /* Set the desired width */
+            height: 250px; /* Set the desired height */
+            object-fit: cover; /* Crop the image to fit the specified dimensions */
+        }
+    </style>
+</head>
 <div class="mobile-header-active mobile-header-wrapper-style">
   <div class="mobile-header-wrapper-inner">
       <div class="mobile-header-top">
@@ -233,18 +243,20 @@
                             <div class="product-img-action-wrap">
                                 <div class="product-img product-img-zoom">
                                     <a href="{% url "product:product-detail" i.id i.product.product_catg.id  %}">
-                                        <img class="default-img" src="{{ i.variantimage_set.first.images.url }}" alt="">
-                                        <img class="hover-img" src="{{ i.variantimage_set.first.images.url }}" alt="">
+                                        <img class="default-img product-img" src="{{ i.variantimage_set.first.images.url }}" alt="">
+                                        <img class="hover-img product-img" src="{{ i.variantimage_set.first.images.url }}" alt="">
                                     </a>
                                 </div>
                                 <div class="product-action-1">
-                                    <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal">
-                                      <i class="fi-rs-search"></i></a>
-                                    <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                    <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
+                                    {% comment %} <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal">
+                                      <i class="fi-rs-search"></i></a> {% endcomment %}
+                                    <a aria-label="Add To Wishlist" class="action-btn hover-up" href="{% url 'product:add_wishlist' i.id i.product.product_catg.id%}"><i class="fi-rs-heart"></i></a>
+                                    {% comment %} <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> {% endcomment %}
                                 </div>
                                 <div class="product-badges product-badges-position product-badges-mrg">
+                                    {% if not i.sale_price == i.max_price %}
                                     <span class="hot">-{{i.get_percentage|floatformat:0}}%</span>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="product-content-wrap">
@@ -252,15 +264,19 @@
                                     <a href="shop-grid-right.html">{{i.color}}</a>
                                 </div>
                                 <h2><a href="shop-product-right.html">{{i.product}}</a></h2>
-                                <br>
                                 {% comment %} <div class="rating-result" title="90%">
                                     <span>
                                         <span>90%</span>
                                     </span>
                                 </div> {% endcomment %}
+                                <div class="product-category">  
+                                    <a href="#">{{i.product.product_catg}}</a>
+                                </div>
                                 <div class="product-price">
                                     <span> Rs.<span id="current-product-price" class="current-product-price-{{i.id}}">{{ i.sale_price }}</span></span>
-                                    <span class="old-price">Rs.{{i.max_price}}</span>
+                                    {% if not i.sale_price == i.max_price %}
+                                        <span class="old-price">Rs.{{i.max_price}}</span>
+                                    {% endif %}
                                 </div>
                                 <div class="add-cart">
                                     <div class="product-action-1 show"> 
@@ -270,7 +286,11 @@
                                         <input type="hidden" value="{{i.id}}" class="product-id-{{i.id}}">
                                         <input type="hidden" value="{{i.product}}" class="product-title-{{i.id}}">
                                         <span class="action-btn">
-                                            <button aria-label="Add To Cart" data-index="{{ i.id }}" id="add-to-cart-btn" class="add add-to-cart-btn hover-up" href="#" ><i class="fi-rs-shopping-bag-add"></i></button>
+                                            <a href="{% url 'cart:add_cart' id=i.id %}"> <button aria-label="Add To Cart" data-index="{{ i.id }}" id="add-to-cart-btn" class="add add-to-cart-btn hover-up">
+                                                
+                                                    <i class="fi-rs-shopping-bag-add"></i>
+                                                </button>
+                                            </a>
                                         </span>
 
                                     </div>

@@ -1,10 +1,11 @@
 from django.conf import settings
 import uuid
+import razorpay
 from django.http import Http404, JsonResponse
 from django.shortcuts import  get_object_or_404, render, redirect
 from django.contrib import messages
 from product.models import User
-from cart.models import Cart_Item,Cart
+from cart.models import Cart_Item,Cart, Coupon
 from account.models import Address
 from django.db.models import Q
 from decimal import Decimal
@@ -16,15 +17,26 @@ from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.core.paginator import Paginator
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
+from wallet.models import *
 
 
 
 # Create your views here.
 
 def order_view(request):
+    
     cart = Cart.objects.get(user = request.user)
-    cart_item = Cart_Item.objects.filter(cart = cart.id)
+    cart_items = Cart_Item.objects.filter(cart = cart.id)
+    dis = 0
+    for cart_item in cart_items:
+        if cart_item.product.stock < cart_item.quantity:
+            messages.warning(request, "The product doesn't have that many quantities available.")
+            return redirect('cart:view_cart')
+    
+    
+
     myuser =request.user
     print(myuser)
     default_billing = None  
@@ -44,7 +56,8 @@ def order_view(request):
         print(f'the error {e}')
     context = {
         'cart' : cart,  
-        'cart_item': cart_item,
+        'dis' : dis,  
+        'cart_items': cart_items,
         'default_billing' :default_billing if default_billing else None ,
         'default_shipping' :default_shipping if default_shipping else None,
         'billing_address':billing_address if billing_address else None,
@@ -58,91 +71,337 @@ def order_view(request):
 def place_order(request):
     context = {} 
 
-    if request.method == 'POST':
+    if request.method == 'POST':    
 
-        shipping_address_id = request.POST.get('shipping_add')
-        billing_address_id = request.POST.get('billing_add')
-        
+        if 'cod' in request.POST:
+            shipping_address_id = request.POST.get('shipping_add')
+            billing_address_id = request.POST.get('billing_add')
+            
 
-        try:
-            shipping = Address.objects.get(id=shipping_address_id)
-            billing = Address.objects.get(id=billing_address_id)
-        except (Address.DoesNotExist, ValueError):
-            messages.warning(request, 'No address selected')
-            print('not working')
-            return redirect('order:order_view')
-        cart = Cart.objects.get(user = request.user)
-        cart_item = Cart_Item.objects.filter(cart = cart)
-
-        if cart_item.exists():
-            payment_maker = Payment.objects.create(
-            user=request.user,
-            payment_method = "COD",
-            payment_status = 'PENDING',
-            amount_paid = cart.total,
-            )
             try:
-                new_order =Order.objects.create(
+                shipping = Address.objects.get(id=shipping_address_id)
+                billing = Address.objects.get(id=billing_address_id)
+            except (Address.DoesNotExist, ValueError):
+                messages.warning(request, 'No address selected')
+                print('not working')
+                return redirect('order:order_view')
+            
+            shipping_full_address = shipping.FullAddress()
+            billing_full_address = billing.FullAddress()
+            print(shipping_full_address)
+            print(billing_full_address)
+
+            cart = Cart.objects.get(user = request.user)
+            cart_item = Cart_Item.objects.filter(cart = cart)
+
+            if cart_item.exists():
+                payment_maker = Payment.objects.create(
                 user=request.user,
-                payment_details = payment_maker,
-                shipping_address = shipping,
-                billing_address = billing,
-                order_total = cart.total ,
-                order_subtotal = cart.sub_total,
-                order_shipping = cart.shipping,
+                payment_method = "COD",
+                payment_status = 'PENDING',
+                amount_paid = cart.total,
                 )
-                request.session['new_order'] = new_order.pk
-                cart.save()
+                try:
+                    new_order =Order.objects.create(
+                    user=request.user,
+                    payment_details = payment_maker,
+                    shipping_address = shipping_full_address,
+                    billing_address = billing_full_address,
+                    order_total = cart.total ,
+                    order_subtotal = cart.sub_total,
+                    order_shipping = cart.shipping,
+                    )
+                    if 'coupon' in request.session:
+                        print('hi')
+                        coupon = request.session.get('coupon')
+                        print(f'coupon = {coupon}')
+                        coupon = Coupon.objects.get(pk = coupon)
+                        new_order.order_coupon = coupon
+                        new_order.save()
+                        coupon_discount = cart.total * coupon.discount /100
+                        if coupon_discount > coupon.max_discount_amount:
+                            coupon_discount = coupon.max_discount_amount
+                    else:
+                        coupon_discount = 0
+                    request.session['new_order'] = new_order.pk
+                    cart.save()
 
-            except Exception as e:
-                print(f' the error {e}')
+                except Exception as e:
+                    print(f' the error {e}')
 
-        for cart_item in cart_item:
-            product = ProductVariant.objects.get(id=cart_item.product.id)
-            uu_order_id = int(uuid.uuid4().hex[:8],16)
-            uu_order_id = f"#{uu_order_id}"
+            for cart_item in cart_item:
+                product = ProductVariant.objects.get(id=cart_item.product.id)
+                uu_order_id = int(uuid.uuid4().hex[:8],16)
+                uu_order_id = f"#{uu_order_id}"
+                total_product_price = cart_item.product.sale_price * cart_item.quantity
 
-            order_item, _ = OrderItem.objects.get_or_create(
-                user=request.user, 
-                order_product=product,
-                order_item_id = uu_order_id,
-                quantity=cart_item.quantity, 
-                product_price=cart_item.product.sale_price, 
-                payment_details=payment_maker,
-                order = new_order,
-                order_status = 'PROCESSING',
-                )
-            
-            product.stock -= cart_item.quantity
-            product.save()
-            order_item.save()
-            cart_item.delete()
-
-        new_order = None  # Default value if new_order is not defined
-        order_items = []
-        last_order = Order.objects.latest('order_time')
+                order_item, _ = OrderItem.objects.get_or_create(
+                    user=request.user, 
+                    order_product=product,
+                    order_item_id = uu_order_id,
+                    quantity=cart_item.quantity, 
+                    product_price=total_product_price, 
+                    payment_details=payment_maker,
+                    order = new_order,
+                    order_status = 'PLACED',
+                    )
                 
-        if last_order:
-            last_order_id = last_order.order_number
-        else:
-            last_order_id = None 
-        new_order_id = request.session.get('new_order')
-        order_id = new_order_id
-        if order_id:
-            new_order = Order.objects.get(pk=order_id)
-            order_items = OrderItem.objects.filter(order=new_order)
-        else:
-            new_order = Order.objects.get(pk=last_order_id)
-            order_items = OrderItem.objects.filter(order=new_order)
+                product.stock -= cart_item.quantity
+                product.save()
+                order_item.save()
+                cart_item.delete()
+
+            new_order = None  # Default value if new_order is not defined
+            order_items = []
+            last_order = Order.objects.latest('order_time')
+                    
+            if last_order:
+                last_order_id = last_order.order_number
+            else:
+                last_order_id = None 
+            new_order_id = request.session.get('new_order')
+            order_id = new_order_id
+            if order_id:
+                new_order = Order.objects.get(pk=order_id)
+                order_items = OrderItem.objects.filter(order=new_order)
+            else:
+                new_order = Order.objects.get(pk=last_order_id)
+                order_items = OrderItem.objects.filter(order=new_order)
+            print(f'cdis = { coupon_discount }')
+            context = {
+            'new_order': new_order,
+            'order_items': order_items,
+            'coupon_discount': coupon_discount
+            }
             
-        context = {
-        'new_order': new_order,
-        'order_items': order_items,
-        }
+            print("fi")
+            return render(request, 'user/order_summary.html', context)
         
         
-        return render(request, 'user/order_summary.html', context)
+            
+        
+        elif 'coupon_submit' in request.POST:
+            last_order = Order.objects.latest('order_time')
+            code = request.POST.get("user_coupon")
+            coupon = Coupon.objects.filter(code=code, is_active=True).first()
+            cart = Cart.objects.get(user = request.user)
+            cart_item = Cart_Item.objects.filter(cart = cart)
+            if coupon:
+                if cart.coupon and coupon == cart.coupon:
+                    messages.warning(request, 'Coupon already applied')
+                    return redirect("order:order_view")
+                else:
+
+                    discount = cart.total * coupon.discount /100
+                    cart.coupon = coupon
+
+                    if discount > coupon.max_discount_amount:
+                        discount = coupon.max_discount_amount
+                    cart.total = cart.sub_total + cart.shipping
+                    cart.total -= discount
+                    print(f'discount={discount}')
+
+                    request.session['coupon'] = coupon.pk
+
+                    cart.save()
+                    messages.success(request,'Coupon applied')
+                    return redirect("order:order_view")
+            else:
+                messages.warning(request, "Coupon does'nt exist")
+                return redirect("order:order_view")
+            
+
+        elif 'order_pay' in request.POST:
+            shipping_address_id = request.POST.get('shipping_add')
+            billing_address_id = request.POST.get('billing_add')
+            
+
+            try:
+                shipping = Address.objects.get(id=shipping_address_id)
+                billing = Address.objects.get(id=billing_address_id)
+            except (Address.DoesNotExist, ValueError):
+                messages.warning(request, 'No address selected')
+                print('not working')
+                return redirect('order:order_view')
+            
+            shipping_full_address = shipping.FullAddress()
+            billing_full_address = billing.FullAddress()
+            print(shipping_full_address)
+            print(billing_full_address)
+
+            cart = Cart.objects.get(user = request.user)
+            cart_item = Cart_Item.objects.filter(cart = cart)
+
+            
+
+            
+
+            if cart_item.exists():
+                payment_maker = Payment.objects.create(
+                user=request.user,
+                payment_method = "RazorPay",
+                payment_status = 'PENDING',
+                amount_paid = cart.total,
+                )
+                try:
+                    new_order =Order.objects.create(
+                    user=request.user,
+                    payment_details = payment_maker,
+                    shipping_address = shipping_full_address,
+                    billing_address = billing_full_address,
+                    order_total = cart.total ,
+                    order_subtotal = cart.sub_total,
+                    order_shipping = cart.shipping,
+                    )
+                    if 'coupon' in request.session:
+                        print('hi')
+                        coupon = request.session.get('coupon')
+                        print(f'coupon = {coupon}')
+                        coupon = Coupon.objects.get(pk = coupon)
+                        new_order.order_coupon = coupon
+                        new_order.save()
+                        coupon_discount = cart.total * coupon.discount /100
+                        if coupon_discount > coupon.max_discount_amount:
+                            coupon_discount = coupon.max_discount_amount
+                    else:
+                        coupon_discount = 0
+                    request.session['new_order'] = new_order.pk
+                    cart.save()
+
+                
+
+                except Exception as e:
+                    print(f' the error {e}')
+
+            for cart_item in cart_item:
+                product = ProductVariant.objects.get(id=cart_item.product.id)
+                uu_order_id = int(uuid.uuid4().hex[:8],16)
+                uu_order_id = f"#{uu_order_id}"
+                total_product_price = cart_item.product.sale_price * cart_item.quantity
+
+                order_item, _ = OrderItem.objects.get_or_create(
+                    user=request.user, 
+                    order_product=product,
+                    order_item_id = uu_order_id,
+                    quantity=cart_item.quantity, 
+                    product_price=total_product_price, 
+                    payment_details=payment_maker,
+                    order = new_order,
+                    order_status = 'PLACED',
+                    )
+            
+                order_item.save()
+                # cart_item.delete()
+
+            new_order = None  # Default value if new_order is not defined
+            order_items = []
+            last_order = Order.objects.latest('order_time')
+                    
+            if last_order:
+                last_order_id = last_order.order_number
+            else:
+                last_order_id = None 
+            new_order_id = request.session.get('new_order')
+            order_id = new_order_id
+            if order_id:
+                new_order = Order.objects.get(pk=order_id)
+                order_items = OrderItem.objects.filter(order=new_order)
+            else:
+                new_order = Order.objects.get(pk=last_order_id)
+                order_items = OrderItem.objects.filter(order=new_order)
+
+
+            order_total = new_order.order_total
+            
+
+            request.session['new_order_id'] = new_order.pk
+            request.session['payment_maker_id'] = payment_maker.pk
+            request.session['cart_id'] = cart.pk
+
+            print(f'p = {payment_maker.pk}')
+            try:
+                client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_API_SECRET))
+                payment = client.order.create({ "amount": int(order_total), "currency": "INR"})
+            except:
+                payment = False
+
+            print(f'payment = {payment}')
+            success_page_url = request.build_absolute_uri(reverse('order:success'))
+            failed_page_url = request.build_absolute_uri(reverse('order:failed'))
+            context = {
+            'new_order': new_order,
+            'order_items': order_items,
+            'payment': payment,
+            'success_page_url': success_page_url,
+            'success': success_page_url,
+            'failed': failed_page_url,
+            'coupon_discount': coupon_discount,
+            }
+            
+            print("fi")
+            return render(request, 'user/order_summary.html', context)
+    # return redirect("order:failed")
     
+
+
+
+def payment_success(request):
+   
+    order_id = request.session.get('new_order_id')
+    payment_maker_id = request.session.get('payment_maker_id')
+    cart_id = request.session.get('cart_id')
+    payment_sign = request.GET.get('payment_sign')
+    payment_id = request.GET.get('payment_id')
+
+
+    cart = Cart.objects.get(id = cart_id)
+    
+    order = Order.objects.get(pk = order_id)
+    payment_maker = Payment.objects.get(id=payment_maker_id)
+
+    order_items = OrderItem.objects.filter(order = order)
+
+    for items in order_items:
+        items.order_status = "PROCESSING"
+        product = ProductVariant.objects.get(id = items.order_product.pk)
+        product.stock -= items.quantity
+        product.save()
+        items.save()
+    payment_maker.payment_status = 'SUCCESS'
+    payment_maker.payment_signature = payment_sign
+    payment_maker.razorpay_payment_id = payment_id
+    
+    
+    cart.delete()
+    payment_maker.save()
+    messages.success(request,'Order placed and payment successfull')
+    return redirect('product:index')
+
+         
+
+def payment_failed(request):
+
+    order_id = request.session.get('new_order_id')
+    payment_maker_id = request.session.get('payment_maker_id')
+    cart_id = request.session.get('cart_id')
+
+    
+    order = Order.objects.get(pk = order_id)
+    payment_maker = Payment.objects.get(id=payment_maker_id)
+
+    order_items = OrderItem.objects.filter(order = order)
+
+    
+
+    for items in order_items:
+        items.order_status = "CANCELLED"
+        
+        items.save()
+    payment_maker.payment_status = 'FAILED'
+
+    payment_maker.save()
+    messages.success(request,'payment failed')
+    return redirect('cart:view_cart')
 
 
 
@@ -178,8 +437,108 @@ def cancel_order(request,id):
             order_item.cancel_reason = reason
             order_item.order_status = 'CANCELLED'
             Product.stock += int(order_item.quantity)
+            if order.order_coupon:
+                order_item_count = order.orderitem_set.count()
+                coupon = order.order_coupon.pk
+                coupon = Coupon.objects.get(pk = coupon)
+                discount = (order.order_subtotal + order.order_shipping) * coupon.discount /100
+
+                if discount > coupon.max_discount_amount:
+                    discount = coupon.max_discount_amount
+
+                disc_div = discount / order_item_count
+                
+                amount = order_item.product_price - disc_div
+                order_item.order.order_total -= amount
+                order_item.order.save()
+                order_item.save()  
+
+
+            else:
+                amount = (int(order_item.product_price) * int(order_item.quantity))
+                order_item.order.order_total -= amount
+                order_item.order.save()
+                order_item.save()  
+            
+
+            if order.payment_details.payment_status == 'SUCCESS':
+                easypay = EasyPay.objects.get(user = request.user)
+                easypay.balance += amount
+                easypay.save()
+
+                order.payment_details.payment_status = "REFUNDED"
+                order.payment_details.save()
+                order.save()
+
+                wallet = Wallet.objects.create(
+                        user=request.user,
+                        payment=order.payment_details,
+                        order_id=order.order_number,
+                        order_item=order_item,
+                        is_debit=True,
+                        easypay=easypay,
+                        amount=amount
+                    )
+                messages.success(request,' Order Cancelled and Amount has been refunded ')
+
+               
+            if len(finder) <= 1:
+                order_item.order.order_total = 0
+                # order_item.order.save()
+
+                
+            # Product.save()
+
+            context = {
+                'order_item':order_item,
+                'profile':user_details, 
+                'Product':Product,
+            }
+           
+            
+            return redirect('order:view-orders', order_item.order.pk)
+        
+        except Exception as e:
+            return redirect('order:view-orders')
+        
+    return render(request, 'user/order/order_cancel.html')
+
+
+
+def return_order_req(request,id):
+    print(f' ndfk the error {id}')
+    item = OrderItem.objects.get(pk= id)
+
+    context = {
+        "item" : item   
+    }
+    return render(request, 'user/order/order_return_reason.html',context)
+
+
+def return_order(request,id):
+
+    order_item = OrderItem.objects.get(id = id)
+    Product = ProductVariant.objects.get(id = order_item.order_product.id)
+    user_details = get_object_or_404(UserProfile, user = request.user)
+    order = Order.objects.get(pk = order_item.order.pk)
+    finder = OrderItem.objects.filter(order = order)
+    wallet = Wallet.objects.get(user = request.user)
+    amount = None
+
+    if request.method =="POST":
+
+        try:
+
+            reason = request.POST['reason']
+            if reason is None:
+                messages.warning(request,'Reason for cancellation is Must')
+
+            order_item.cancel_reason = reason
+            order_item.order_status = 'RETURNED'
+            Product.stock += int(order_item.quantity)
             amount = (int(order_item.product_price) * int(order_item.quantity))
             order_item.order.order_total -= amount
+            
             order_item.order.save()
             order_item.save()
 
@@ -202,9 +561,7 @@ def cancel_order(request,id):
         except Exception as e:
             return redirect('order:view-orders')
         
-    return render(request, 'user/order/order_cancel.html')
-
-
+    return render(request, 'user/order/order_return.html')
 
 
 
@@ -214,6 +571,13 @@ def cancel_order(request,id):
 def user_orders(request, id ):
     order = get_object_or_404(Order, pk=id)
     order_item = OrderItem.objects.filter(order=order)
+    order_item_queryset = OrderItem.objects.filter(order=order)
+    if order_item_queryset.exists():  # Check if any order items exist
+        order_ite = order_item_queryset.first()  # Get the first order item
+        if order_ite.order_status == "DELIVERED":
+         order_ite.payment_details.payment_status = 'SUCCESS'  # Access the payment_details attribute
+
+
     context = {
         "order_item":order_item,
     }

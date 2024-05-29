@@ -1853,8 +1853,8 @@ label {
 }
 
 .dot-style-1 ul li.slick-active button {
-  background: #088178;
-  border-color: #088178;
+  background: #000000;
+  border-color: #000000;
 }
 
 .dot-style-1.dot-style-1-position-1 ul {
@@ -1886,20 +1886,20 @@ label {
 
 .slider-arrow .slider-btn {
   cursor: pointer;
-  background: #e8f6ea;
+  background: #000000;
   width: 45px;
   height: 45px;
   position: absolute;
   display: block;
   z-index: 100;
   border-radius: 50%;
-  border: 1px solid #cce7d0;
+  border: 1px solid #000000;
   -webkit-transition: all .2s ease-out;
   transition: all .2s ease-out;
   text-align: center;
   line-height: 45px;
   font-size: 14px;
-  color: #088178;
+  color: #ffffff;
 }
 
 .slider-arrow .slider-btn.slider-prev {
@@ -1919,9 +1919,9 @@ label {
 }
 
 .slider-arrow .slider-btn:hover {
-  background-color: #088178;
+  background-color: hsl(0, 3%, 31%);
   color: #fff;
-  border-color: #088178;
+  border-color: #000000;
 }
 
 .slider-arrow.slider-arrow-2 .slider-btn {
@@ -2181,13 +2181,13 @@ label {
 }
 
 .nav-tabs .nav-link.active {
-  color: #088178;
-  background-color: #fde1bd;
+  color: #ffffff;
+  background-color: #000000;
 }
 
 .nav-tabs .nav-link:hover {
-  color: #088178;
-  background-color: #fde1bd;
+  color: #ffffff;
+  background-color: #000000;
   -webkit-transform: translateY(-3px);
           transform: translateY(-3px);
   -webkit-transition: 0.2s;
@@ -3473,7 +3473,8 @@ table .product-thumbnail img {
   height: 40px;
   line-height: 44px;
   border-radius: 50px;
-  background-color: #e8f6ea;
+  background-color: #000000;
+  color: white;
   text-align: center;
   margin-right: 3px;
   position: relative;
@@ -3541,7 +3542,7 @@ table .product-thumbnail img {
 }
 
 .product-cart-wrap .product-action-1 button:hover, .product-cart-wrap .product-action-1 a.action-btn:hover {
-  background-color: #088178;
+  background-color: #556b6a;
   border: 1px solid transparent;
 }
 
@@ -5345,7 +5346,7 @@ h6.post-title {
 }
 
 .logo.logo-width-1 {
-  margin-right: 123px;
+  margin-right: 250px;
 }
 
 .logo.logo-width-1 a img {

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Cart, Cart_Item
+from .models import Cart, Cart_Item, Coupon
 
 class Cart_ItemInline(admin.TabularInline):
     model = Cart_Item
@@ -16,3 +16,4 @@ class Cart_ItemAdmin(admin.ModelAdmin):
 
 admin.site.register(Cart, CartAdmin)
 admin.site.register(Cart_Item, Cart_ItemAdmin)
+admin.site.register(Coupon)

@@ -1,0 +1,57 @@
+{% extends "admin/admin_base.html" %} 
+{% block title %}COUPONS{% endblock title %} 
+{%block content %}
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'admin_assets/main.css' %}">
+
+
+<section class="content-main">
+    <div class="row">
+        <div class="col-9">
+            <div class="content-header">
+                <h2 class="content-title">COUPONS</h2>
+            </div>
+        </div>
+    {% comment %} <div class="content-header">
+        <div class="col-search">
+            <form class="searchform" action="{% url "admin_side:coupon_search" %}" method="POST">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input list="search_terms" type="text" name="search_id" class="form-control" placeholder="Search term">
+                    <button class="btn btn-light bg" type="submit" ><i class="md-material-icons">GO</i></button>
+                </div>
+                <datalist id="search_terms">
+                    <option value="LPTSHOP21">
+                    <option value="2100">
+                    <option value="SLPME200">
+                </datalist>
+            </form>
+        </div>
+    </div> {% endcomment %}
+    {% for message in messages  %}
+    <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+      <strong>{{message}}</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    
+<div class="card-body">
+    <div class="row gx-3">
+        {% for i in coupons %}
+        <div class="col-xl-2 col-lg-3 col-md-4 col-6"style='width:320px'>
+            <figure class="card border-1">
+                <figcaption class="card-body text-center">
+                    <h6 class="card-title m-0">CODE :{{i.code}} : {{i.discount|floatformat:0}}% Off</h6>
+                    <h6 class="card-title m-0">UP TO :Rs {{i.max_discount_amount}}</h6>
+                    <h6 class="card-title m-0">VALID TILL : {{i.valid_to}}</h6>
+                </figcaption>
+            
+                <hr>
+            {% comment %} <a href=""><button style='border: 2px solid red; width:302px  '><img width="40" height="40" src="https://img.icons8.com/color/48/delete-forever.png" alt="delete-forever"/></button></a>  {% endcomment %}
+            </figure>
+        </div> 
+        {% endfor %}
+    </div>
+</div> 
+
+{% endblock content %}

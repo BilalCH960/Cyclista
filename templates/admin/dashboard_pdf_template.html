@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sales Report</title>
+    <style>
+        /* Add your styling for the PDF here */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Cyklista Sales Report</h1>
+    <table>
+        <tr>
+            <th>Overall Sales</th>
+            <td>{{ overall_sales }}</td>
+        </tr>
+        <tr>
+          <th>Total Orders</th>
+          <td>{{ orders }}</td>
+        </tr>
+        <tr>
+        <th>Total Products</th>
+        <td>{{ products }} from {{categ}} categories</td> 
+        </tr>
+        <tr>
+          <th>New Users</th>
+          <td>{{ new_users }}</td>
+        </tr>
+        <tr>
+          <th>Monthly Earnings</th>
+          <td>{{ monthly_earnings }}</td>
+        </tr>    
+        <tr>
+          <th>Total Discount</th>
+          <td>{{ discount }}</td>
+        </tr>    
+    </table>
+    
+
+</body>
+
+</html>

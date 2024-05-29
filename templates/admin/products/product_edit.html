@@ -18,6 +18,18 @@
               <h2 class="content-title">Edit Product</h2>
           </div>
       </div>
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            <strong>{{message}}</strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                <script>
+                    setTimeout (() => {
+                        $(".alert").alert("close")
+                    },5000)
+                </script>
 {% if submitted %}
       <p>it is submitted</p>
       
