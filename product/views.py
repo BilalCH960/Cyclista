@@ -1,18 +1,21 @@
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from ad_product.models import Product, ProductVariant, VariantImage, AttributeValue, Attribute
+from ad_product.models import Product, ProductVariant, VariantImage, AttributeValue, Attribute, Brand
 from django.views.decorators.cache import cache_control
 from category_manage.models import Category
 from django.db.models import Q
 from .models import ProductReview
 from django.db.models import Avg,Sum,Count
 from .forms import ProductReviewForm
+from django.utils.timezone import now
+from datetime import timedelta
 from .models import Wishlist
 from django.contrib import messages
 from order.models import OrderItem
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
+
 
 
 
@@ -36,7 +39,29 @@ def index(request):
     product_variant_quantities = OrderItem.objects.values('order_product').annotate(total_quantity_sold=Sum('quantity'))
     most_sold_variants = product_variant_quantities.order_by('-total_quantity_sold')
     pop = ProductVariant.objects.filter(soft_delete = False, product__soft_delete=False, id__in=most_sold_variants.values_list('order_product', flat=True))
+    brands = Brand.objects.filter(soft_delete = False)
 
+    today = now().date()
+    start_of_month = today.replace(day=1)
+    end_of_month = start_of_month + timedelta(days=31)
+
+    # Get order items for the current month
+    order_items = OrderItem.objects.filter(
+        ordered_time__date__gte=start_of_month,
+        ordered_time__date__lt=end_of_month
+    )
+
+    # Aggregate and annotate the product sales
+    best_selling_products = order_items.values(
+        'order_product__id',
+        'order_product__product__product_name',
+        'order_product__sale_price',
+        'order_product__max_price',
+        'order_product__product__product_catg__category_name',  # Include category name
+        'order_product__variantimage__images'  # Include the first variant image
+    ).annotate(
+        total_quantity_sold=Sum('quantity')
+    ).order_by('-total_quantity_sold')[:10]
 
 
     context = {
@@ -44,6 +69,8 @@ def index(request):
       "new" : new,
       'category' : cat,
       'pop' : pop,
+      'brands' : brands,
+      'best': best_selling_products
 
     }
   except Exception as e:
@@ -60,6 +87,7 @@ def product_list_view(request):
   category = Category.objects.all()
   colors = AttributeValue.objects.filter(is_active=True)
   new = ProductVariant.objects.filter(is_active = True, soft_delete=False,  product__soft_delete=False,).order_by("-updated_at")[:3]
+  brands = Brand.objects.filter(soft_delete = False)
   print(f'category={category}')
   
   page = request.GET.get('page')
@@ -77,127 +105,54 @@ def product_list_view(request):
     "category" : category,
     "colors" : colors,
     "new" : new,
+    "brands" : brands,
   }
   return render(request, 'product/product-list.html', context)
 
 
+def filter_product(request):
+    print(request.GET)
+    categories = request.GET.getlist('category[]')
+    colors = request.GET.getlist('color[]')
+    brands = request.GET.getlist('brand[]')
+    sort_by = request.GET.get('sort_by', '')
+    page = request.GET.get('page', 1)
 
-def sort_featured(request):
-  products_list = ProductVariant.objects.filter(featured = True)
-  paginator = Paginator(products_list, 3)
-  category = Category.objects.all()
-  new = ProductVariant.objects.filter(is_active = True).order_by("-updated_at")[:3]
+    products = ProductVariant.objects.filter(is_active=True, soft_delete=False, product__soft_delete=False).distinct()
 
-  page = request.GET.get('page')
+    if categories:
+        products = products.filter(product__product_catg__id__in=categories).distinct()
 
-  try:
-      products = paginator.page(page)
-  except PageNotAnInteger:
-      products = paginator.page(1)
-  except EmptyPage:
-      products = paginator.page(paginator.num_pages)
+    if colors:
+        products = products.filter(color__id__in=colors).distinct()
 
-  context = { 
-    "products" : products,
-    "category" : category,
-    "new" : new,
-              }
-  return render(request, 'product/product-list.html', context)
+    if brands:
+        products = products.filter(product__product_brand__id__in=brands).distinct()
 
+    if sort_by == 'price_asc':
+        products = products.order_by('sale_price')
+    elif sort_by == 'price_desc':
+        products = products.order_by('-sale_price')
+    elif sort_by == 'name_asc':
+        products = products.order_by('product__product_name')
+    elif sort_by == 'name_desc':
+        products = products.order_by('-product__product_name')
+    else:
+        products = products.order_by('-id')
 
+    paginator = Paginator(products, 3)  # Paginate with 3 items per page
 
-def sort_price_asc(request):
-  products_list = ProductVariant.objects.filter(is_active=True).order_by("sale_price")
-  paginator = Paginator(products_list, 3)
-  category = Category.objects.all()
-  new = ProductVariant.objects.filter(is_active = True).order_by("-updated_at")[:3]
+    try:
+        products = paginator.page(page)
+    except PageNotAnInteger:
+        products = paginator.page(1)
+    except EmptyPage:
+        products = paginator.page(paginator.num_pages)
 
-  page = request.GET.get('page')
+    data = render_to_string('product/async/product-list.html', {'products': products})
+    pagination = render_to_string('product/async/pagination.html', {'products': products})
+    return JsonResponse({'data': data, 'pagination': pagination})
 
-  try:
-      products = paginator.page(page)
-  except PageNotAnInteger:
-      products = paginator.page(1)
-  except EmptyPage:
-      products = paginator.page(paginator.num_pages)
-
-  context = { 
-    "products" : products,
-    "category" : category,
-    "new" : new,
-              }
-  return render(request, 'product/product-list.html', context)
-
-
-
-def sort_price_desc(request):
-  products_list = ProductVariant.objects.filter(is_active=True).order_by("-sale_price")
-  paginator = Paginator(products_list, 3)
-  category = Category.objects.all()
-  new = ProductVariant.objects.filter(is_active = True).order_by("-updated_at")[:3]
-
-  page = request.GET.get('page')
-
-  try:
-      products = paginator.page(page)
-  except PageNotAnInteger:
-      products = paginator.page(1)
-  except EmptyPage:
-      products = paginator.page(paginator.num_pages)
-
-  context = { 
-    "products" : products,
-    "category" : category,
-    "new" : new,
-              }
-  return render(request, 'product/product-list.html', context)
-
-
-def sort_name_asc(request):
-  products_list = ProductVariant.objects.filter(is_active=True).order_by("product")
-  paginator = Paginator(products_list, 3)
-  category = Category.objects.all()
-  new = ProductVariant.objects.filter(is_active = True).order_by("-updated_at")[:3]
-
-  page = request.GET.get('page')
-
-  try:
-      products = paginator.page(page)
-  except PageNotAnInteger:
-      products = paginator.page(1)
-  except EmptyPage:
-      products = paginator.page(paginator.num_pages)
-
-  context = { 
-    "products" : products,
-    "category" : category,
-    "new" : new,
-              }
-  return render(request, 'product/product-list.html', context)
-
-
-
-def sort_name_desc(request):
-  products_list = ProductVariant.objects.filter(is_active=True).order_by("-product")
-  paginator = Paginator(products_list, 3)
-  category = Category.objects.all()
-  new = ProductVariant.objects.filter(is_active = True).order_by("-updated_at")[:3]
-
-  page = request.GET.get('page')
-
-  try:
-      products = paginator.page(page)
-  except PageNotAnInteger:
-      products = paginator.page(1)
-  except EmptyPage:
-      products = paginator.page(paginator.num_pages)
-
-  context = { 
-    "products" : products,
-    "category" : category,
-    "new" : new,
-              }
-  return render(request, 'product/product-list.html', context)
 
 
 
@@ -208,7 +163,6 @@ def product_detail_view(request, pid, cate_id):
   product = ProductVariant.objects.get(id=pid)
   # review of a product
   prod = Product.objects.filter(product_catg = cate_id)
-  print(prod)
   product_colors = AttributeValue.objects.filter(productvariant__product_id=product.product_id, productvariant__soft_delete = False).distinct()
   review = ProductReview.objects.filter(product=product).order_by("-date")
   # average review
@@ -240,16 +194,6 @@ def product_detail_view(request, pid, cate_id):
   return render(request, 'product/product-detail.html', context)
 
 
-def category_list_view(request):
-  categories = Category.objects.all()
-  
-
-  context = {
-    "categories" : categories,
-  }
-  return render(request, 'product/category-list.html', context)
-
-
 def search_view(request):
   query = request.GET.get('q')
 
@@ -262,6 +206,16 @@ def search_view(request):
     "count" : count
   }
   return render(request, 'product/search.html', context)
+
+
+def category_list_view(request):
+  categories = Category.objects.all()
+  
+
+  context = {
+    "categories" : categories,
+  }
+  return render(request, 'product/category-list.html', context)
 
 
 def category_product_list(request, id):
@@ -278,6 +232,32 @@ def category_product_list(request, id):
 
   }
   return render(request, "product/category-product-list.html",context)
+
+
+def brand_list_view(request):
+  brand = Brand.objects.filter(soft_delete = False)
+  
+
+  context = {
+    "brand" : brand,
+  }
+  return render(request, 'product/brand_list.html', context)
+
+
+def brand_product_list(request, id):
+
+  brand = Brand.objects.get(id=id)
+  products = ProductVariant.objects.filter(
+    Q(product_status="published") | Q(product__product_brand=brand),
+    soft_delete=False,  product__soft_delete=False,
+)
+
+  context = {
+    "brand" :   brand,
+    "products" :   products,
+
+  }
+  return render(request, "product/brand_product_list.html",context)
 
 
 def ajax_add_review(request, id):
@@ -311,20 +291,6 @@ def ajax_add_review(request, id):
     )
 
 
-def filter_product(request):
-    categories = request.GET.getlist('category[]')
-    colors = request.GET.getlist('color[]')
-
-    products = ProductVariant.objects.filter(is_active=True).order_by("-id").distinct()
-
-    if len(categories) > 0:
-      products = products.filter(product__product_catg__id__in=categories).distinct()
-
-    if len(colors) > 0:
-      products = products.filter(color__id__in=colors).distinct()
-
-    data = render_to_string("product/async/product-list.html", {"products":products})
-    return JsonResponse({"data" : data})
 
 
 def varnts(request, pid, avid):

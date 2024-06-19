@@ -79,18 +79,18 @@ def product_edit(request, id):
 
 
 @cache_control(no_cache=True, must_revalidate=True, max_age=0,no_store = True)
-@login_required(login_url='userauths:sign-in')
+# @login_required(login_url='userauths:sign-in')
 def product_delete(request, id):
-    if not request.user.is_authenticated:
-        if not request.user.is_superuser:
-            return redirect('admin_side:login')
-        return redirect('product:index')
+    # if not request.user.is_authenticated:
+    #     if not request.user.is_superuser:
+    #         return redirect('admin_side:login')
+    #     return redirect('product:index')
     
     product = get_object_or_404(Product, id=id)
     product.soft_delete_instance()
     messages.info(request, f"The product has been deleted: {product.product_name}")
 
-    return redirect("ad_product:product_delete")
+    return redirect("ad_product:view_product")
 
 
 

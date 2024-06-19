@@ -11,15 +11,12 @@ urlpatterns = [
     path("products/<int:pid>/<int:cate_id>/", product_detail_view, name="product-detail"),
     path("category/", category_list_view, name="category-list"),
     path("category/<id>/", category_product_list, name="category-product-list"),
+    path("brand/", brand_list_view, name="brand-list"),
+    path("brand/<id>/", brand_product_list, name="brand-product-list"),
     path("search/", search_view, name="search"),
     path("varnts/<int:pid>/<int:avid>/", varnts, name="varnts"),
 
     ### sort and filter
-    path("featured/", sort_featured, name="featured"),
-    path("price_asc/", sort_price_asc, name="price_asc"),
-    path("price_desc/", sort_price_desc, name="price_desc"),
-    path("name_asc/", sort_name_asc, name="name_asc"),
-    path("name_desc/", sort_name_desc, name="name_desc"),
     path("add-review/<int:id>/", ajax_add_review, name="add-review"),
     path("filter-product/", filter_product, name="filter-product"),
 

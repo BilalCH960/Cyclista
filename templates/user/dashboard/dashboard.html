@@ -61,13 +61,13 @@
                                             <p>Username :<strong> {{request.user}}</strong></p>
                                             {% comment %} <p>PH :<strong> {{myuser.phone_number}}</strong></p> {% endcomment %}
                                             <p>Email :<strong> {{request.user.email}}</strong></p>
-                                            <p>Referral :<strong> {{referral_code.referral_code}}</strong></p>
+                                            <p>Referral :<strong> {{ref}}</strong></p>
                                             {% else %}
                                             <p>Name :<strong> No name Yet</strong></p>
                                             <p>Username :<strong> {{request.user}}</strong></p>
                                             {% comment %} <p>PH :<strong> {{myuser.phone_number}}</strong></p> {% endcomment %}
                                             <p>Email :<strong> {{request.user.email}}</strong></p>
-                                            <p>Referral :<strong> {{referral_code.referral_code}}</strong></p>
+                                            <p>Referral :<strong> {{ref}}</strong></p>
                                             {% endif %}
                                         </div>
                                         <h5 class="mb-0">Hello {{myuser.full_name}}! </h5>
@@ -149,6 +149,7 @@
                                                     <thead>
                                                         <tr>
                                                             {% comment %} <th>Orders</th> {% endcomment %}
+                                                            <th>Products</th>
                                                             <th>Date</th>
                                                             <th>Paid</th>
                                                             <th>Total</th>
@@ -160,9 +161,13 @@
                                                         
                                                             <tr>
                                                                 {% comment %} <td>INV.NO.{{o.order_number}}</td> {% endcomment %}
+                                                                <td>
+                                                                    {% for item in o.orderitem_set.all %}
+                                                                        {{ item.order_product.product }}
+                                                                    {% endfor %}
+                                                                </td>
                                                                 <td>{{o.order_time|date:"D d M Y"}}
                                                                     {% for item in o.orderitem_set.all %}
-                                                                        <li>{{ item.order_product.product }} </li>
                                                                     {% endfor %}
                                                                 </td>
                                                                 

@@ -20,7 +20,12 @@ from django.core.paginator import Paginator
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from wallet.models import *
-
+from wallet.views import credit, easypay
+from xhtml2pdf import pisa
+from django.http import HttpResponse
+from django.template.loader import get_template
+from io import BytesIO
+from django.utils.dateparse import parse_date
 
 
 # Create your views here.
@@ -36,9 +41,7 @@ def order_view(request):
             return redirect('cart:view_cart')
     
     
-
     myuser =request.user
-    print(myuser)
     default_billing = None  
     default_shipping = None
     billing_address = None
@@ -48,12 +51,9 @@ def order_view(request):
         default_billing = Address.objects.filter(Q(is_billing = True) & Q(is_default = True) & Q( user = request.user))
         billing_address = Address.objects.filter(Q(is_billing = True) & Q(is_default = False) & Q( user = request.user))
         shipping_address = Address.objects.filter(Q(is_shipping = True) & Q(is_default = False) & Q( user = request.user))
-        print(f' the shipping address{shipping_address}')
-        print(f'the billing address{billing_address}')
-        print(f'the default shipping address{default_shipping}')
-        print(f'the default billing address{default_billing}')
+        
     except Exception as e:
-        print(f'the error {e}')
+        print(f'exception = {e}')
     context = {
         'cart' : cart,  
         'dis' : dis,  
@@ -112,9 +112,7 @@ def place_order(request):
                     order_shipping = cart.shipping,
                     )
                     if 'coupon' in request.session:
-                        print('hi')
                         coupon = request.session.get('coupon')
-                        print(f'coupon = {coupon}')
                         coupon = Coupon.objects.get(pk = coupon)
                         new_order.order_coupon = coupon
                         new_order.save()
@@ -167,14 +165,12 @@ def place_order(request):
             else:
                 new_order = Order.objects.get(pk=last_order_id)
                 order_items = OrderItem.objects.filter(order=new_order)
-            print(f'cdis = { coupon_discount }')
             context = {
             'new_order': new_order,
             'order_items': order_items,
             'coupon_discount': coupon_discount
             }
             
-            print("fi")
             return render(request, 'user/order_summary.html', context)
         
         
@@ -209,6 +205,60 @@ def place_order(request):
             else:
                 messages.warning(request, "Coupon does'nt exist")
                 return redirect("order:order_view")
+            
+
+        # elif 'wallet_pay' in request.POST:
+        #     shipping_address_id = request.POST.get('shipping_add')
+        #     billing_address_id = request.POST.get('billing_add')
+
+        #     try:
+        #         shipping = Address.objects.get(id=shipping_address_id)
+        #         billing = Address.objects.get(id=billing_address_id)
+        #     except (Address.DoesNotExist, ValueError):
+        #         messages.warning(request, 'No address selected')
+        #         print('not working')
+        #         return redirect('order:order_view')
+
+        #     shipping_full_address = shipping.FullAddress()
+        #     billing_full_address = billing.FullAddress()
+
+        #     cart = Cart.objects.get(user=request.user)
+        #     cart_item = Cart_Item.objects.filter(cart=cart)
+
+        #     # Check wallet balance before proceeding
+        #     user_wallet = EasyPay.objects.get(user=request.user)
+        #     if cart.total <= user_wallet.balance:
+        #         payment_maker = Payment.objects.create(
+        #             user=request.user,
+        #             payment_method="Wallet",
+        #             payment_status='SUCCESS',
+        #             amount_paid=cart.total,
+        #         )
+        #         try:
+        #             new_order = Order.objects.create(
+        #                 user=request.user,
+        #                 payment_details=payment_maker,
+        #                 shipping_address=shipping_full_address,
+        #                 billing_address=billing_full_address,
+        #                 order_total=cart.total,
+        #                 order_subtotal=cart.sub_total,
+        #                 order_shipping=cart.shipping,
+        #             )
+        #             # ... rest of your order creation logic using new_order (similar to COD)
+
+        #             # Update wallet balance after successful order creation
+        #             user_wallet.balance -= cart.total
+        #             user_wallet.save()
+
+        #             # ... rest of your success logic
+
+        #         except Exception as e:
+        #             print(f' the error {e}')
+        #     else:
+        #         messages.warning(request, 'Insufficient funds in wallet')
+        #         return redirect('order:order_view')
+
+
             
 
         elif 'order_pay' in request.POST:
@@ -401,7 +451,13 @@ def payment_failed(request):
 
     payment_maker.save()
     messages.success(request,'payment failed')
-    return redirect('cart:view_cart')
+    return redirect('order:order_view')
+
+
+
+def invoice_download(request):
+    
+    ...
 
 
 
@@ -470,15 +526,9 @@ def cancel_order(request,id):
                 order.payment_details.save()
                 order.save()
 
-                wallet = Wallet.objects.create(
-                        user=request.user,
-                        payment=order.payment_details,
-                        order_id=order.order_number,
-                        order_item=order_item,
-                        is_debit=True,
-                        easypay=easypay,
-                        amount=amount
-                    )
+                user = request.user
+
+                credit(amount, order_item, user)
                 messages.success(request,' Order Cancelled and Amount has been refunded ')
 
                
@@ -576,10 +626,12 @@ def user_orders(request, id ):
         order_ite = order_item_queryset.first()  # Get the first order item
         if order_ite.order_status == "DELIVERED":
          order_ite.payment_details.payment_status = 'SUCCESS'  # Access the payment_details attribute
-
+    discount = order.get_actual_discount()
 
     context = {
         "order_item":order_item,
+        "order":order,
+        "discount" : discount
     }
     return render(request, 'user/dashboard/order-detail.html',context)
 
@@ -599,18 +651,22 @@ def order_details(request):
 
         new_order = request.session.get('new_order')
 
-        order = Order.objects.get_ob(order_number = new_order)
+        order = Order.objects.get(order_number = new_order)
         order_item = OrderItem.objects.filter(order = order)
         user_details = UserProfile.objects.get(user = request.user)
         shipping = Address.objects.get(id=order.shipping_address.id)
         billing = Address.objects.get(id=order.billing_address.id)
 
+        for o in order_item:
+            order_no = o.order.order_number
+        print(f'or = {order_item}')
     except Exception as e:
         print(f'the error is in {e}')
 
     context = {
         'order_item':order_item,
         'order':order,
+        'order_no':order_no,
         'profile':user_details,
         'billing':billing,
         'shipping':shipping,
@@ -618,6 +674,53 @@ def order_details(request):
     messages.success(request, 'Hooray the order have been placed')
 
     return render(request, 'user/order-detail.html',context)
+
+
+
+def render_to_pdf(template_src, context_dict={}):
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return None
+
+def download_invoice(request, order_number):
+    try:
+        order = Order.objects.get(order_number=order_number)
+        order_item = OrderItem.objects.filter(order=order)
+        user_details = UserProfile.objects.get(user=request.user)
+        shipping = order.shipping_address
+        billing = order.billing_address
+        total = 0
+        for i in order_item:
+            total += i.product_price
+        discount = total - order.order_total
+        context = {
+            'order_item': order_item,
+            'order': order,
+            'profile': user_details,
+            'billing': billing,
+            'shipping': shipping,
+            'discount':discount,
+            'total':total,
+        }
+
+        pdf = render_to_pdf('user/order/invoice.html', context)
+        if pdf:
+            response = HttpResponse(pdf, content_type='application/pdf')
+            filename = f"Invoice_{order.order_number}.pdf"
+            content = f"inline; filename={filename}"
+            download = request.GET.get("download")
+            if download:
+                content = f"attachment; filename={filename}"
+            response['Content-Disposition'] = content
+            return response
+        return HttpResponse("Not found")
+
+    except Exception as e:
+        return HttpResponse(f"Error generating PDF: {e}")
 
 
 
@@ -648,6 +751,34 @@ def admin_order_view(request):
         'order':order,
     }
     return render(request, 'admin/order/orders.html',context)
+
+
+def filter_orders_by_date(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    if start_date and end_date:
+        start_date = parse_date(start_date)
+        end_date = parse_date(end_date)
+
+        orders = Order.objects.filter(order_time__range=[start_date, end_date]).order_by('-order_time')
+    else:
+        orders = Order.objects.all().order_by('-order_time')
+
+    orders_data = [
+        {
+            'order_number': order.order_number,
+            'username': order.user.username if order.user else 'N/A',
+            'email': order.user.email if order.user else 'N/A',
+            'order_subtotal': order.order_subtotal,
+            'payment_status': order.payment_details.payment_status if order.payment_details else 'N/A',
+            'order_time': order.order_time.strftime('%Y-%m-%d %H:%M:%S')
+        }
+        for order in orders
+    ]
+
+    return JsonResponse({'orders': orders_data})
+
 
 
 def admin_order_item_view(request, id):

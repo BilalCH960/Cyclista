@@ -1,6 +1,107 @@
 {% extends "admin/admin_base.html" %}
 {% load static %}
 
+{% block content %}
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Order List </h2>
+            <p>Edit user orders.</p>
+        </div>
+        
+    </div>
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h2 class="content-title card-title">Orders</h2>
+                    </div>
+                    <div class="d-flex">
+                        <input type="date" id="start_date" class="form-control bg-white me-2">
+                        <input type="date" id="end_date" class="form-control bg-white me-2">
+                        <button id="filter_button" class="btn btn-primary">Filter</button>
+                    </div>
+                </div>
+                <table class="table table-hover" id="orders_table">
+                    <thead>
+                        <tr>
+                            <th>#ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">Payment status</th>
+                            <th scope="col">Date and Time</th>
+                            <th scope="col" class="text-end">Order Detail</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for o in order %}
+                        <tr>
+                            <td>{{ o.order_number }}</td>
+                            <td><b>{{ o.user.username }}</b></td>
+                            <td>{{ o.user.email }}</td>
+                            <td>{{ o.order_subtotal }}</td>
+                            <td><span class="badge rounded-pill alert-{% if o.payment_details.payment_status == 'SUCCESS' %}success{% elif o.payment_details.payment_status == 'FAILED' %}danger{% else %}warning{% endif %}">{{ o.payment_details.payment_status }}</span></td>
+                            <td>{{ o.order_time }}</td>
+                            <td class="text-end">
+                                <a href="{% url 'order:admin_order_item_view' o.order_number %}" class="btn btn-md rounded font-sm">Detail</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div> <!-- table-responsive //end -->
+        </div> <!-- card-body end// -->
+    </div> <!-- card end// -->
+    
+</section> <!-- content-main end// -->
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#filter_button').click(function() {
+            var startDate = $('#start_date').val();
+            var endDate = $('#end_date').val();
+
+            $.ajax({
+                url: "{% url 'order:filter_orders_by_date' %}",
+                data: {
+                    'start_date': startDate,
+                    'end_date': endDate
+                },
+                success: function(data) {
+                    var tbody = $('#orders_table tbody');
+                    tbody.empty();
+
+                    $.each(data.orders, function(index, order) {
+                        var row = '<tr>' +
+                            '<td>' + order.order_number + '</td>' +
+                            '<td><b>' + order.username + '</b></td>' +
+                            '<td>' + order.email + '</td>' +
+                            '<td>' + order.order_subtotal + '</td>' +
+                            '<td><span class="badge rounded-pill alert-' + (order.payment_status == 'SUCCESS' ? 'success' : (order.payment_status == 'FAILED' ? 'danger' : 'warning')) + '">' + order.payment_status + '</span></td>' +
+                            '<td>' + order.order_time + '</td>' +
+                            '<td class="text-end"><a href="#" class="btn btn-md rounded font-sm">Detail</a></td>' +
+                            '</tr>';
+
+                        tbody.append(row);
+                    });
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock content %}
+
+
+
+
+{% comment %} {% extends "admin/admin_base.html" %}
+{% load static %}
+
 {% block content%}
 
 
@@ -16,28 +117,7 @@
                 </div>
             </div>
             <div class="card mb-4">
-                {% comment %} <header class="card-header">
-                    <div class="row gx-3">
-                        <div class="col-lg-4 col-md-6 me-auto">
-                            <input type="text" placeholder="Search..." class="form-control">
-                        </div>
-                        <div class="col-lg-2 col-6 col-md-3">
-                            <select class="form-select">
-                                <option>Status</option>
-                                <option>Active</option>
-                                <option>Disabled</option>
-                                <option>Show all</option>
-                            </select>
-                        </div>
-                        <div class="col-lg-2 col-6 col-md-3">
-                            <select class="form-select">
-                                <option>Show 20</option>
-                                <option>Show 30</option>
-                                <option>Show 40</option>
-                            </select>
-                        </div>
-                    </div>
-                </header> <!-- card-header end// --> {% endcomment %}
+              
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-hover">
@@ -58,9 +138,7 @@
                                     <td>{{o.order_number}}</td>
                                     <td><b>{{o.user.username}}</b></td>
                                     <td>
-                                        {% comment %} <template class="__cf_email__" data-cfemail="aec3cfdcd8c7c0eecbd6cfc3dec2cb80cdc1c3"> {% endcomment %}
                                             {{o.user.email}}
-                                        {% comment %} </template> {% endcomment %}
                                     </td>
                                     <td>{{o.order_subtotal}}</td>
                                     <td><span class="badge rounded-pill alert-{% if o.payment_details.payment_status == 'SUCCESS' %}success{% elif o.payment_details.payment_status == 'FAILED' %}danger{% else %}warning{% endif %}">{{o.payment_details.payment_status}}</span></td>
@@ -76,20 +154,9 @@
                     </div> <!-- table-responsive //end -->
                 </div> <!-- card-body end// -->
             </div> <!-- card end// -->
-            {% comment %} <div class="pagination-area mt-15 mb-50">
-                <nav aria-label="Page navigation example">
-                    <ul class="pagination justify-content-start">
-                        <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                        <li class="page-item"><a class="page-link" href="#">02</a></li>
-                        <li class="page-item"><a class="page-link" href="#">03</a></li>
-                        <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                        <li class="page-item"><a class="page-link" href="#">16</a></li>
-                        <li class="page-item"><a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a></li>
-                    </ul>
-                </nav>
-            </div> {% endcomment %}
+            
         </section> <!-- content-main end// -->
  
 
 
-{% endblock content%}
+{% endblock content%} {% endcomment %}

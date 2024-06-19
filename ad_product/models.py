@@ -20,6 +20,16 @@ STATUS = (
 
 
 
+class Brand(models.Model):
+    brand_name = models.CharField(max_length=30)
+    brand_img = models.ImageField(upload_to='brand_logo/', default="")
+    is_active = models.BooleanField(default=True)
+    soft_delete = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.brand_name
+
+
 
 class Product(models.Model):
     product_name = models.CharField(max_length=49,unique=False, null=False)
@@ -30,6 +40,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
+    product_brand = models.ForeignKey(Brand,on_delete=models.CASCADE, null = True)
     soft_delete = models.BooleanField(default=False)
     # color = ColorField(default='black', blank = True)
 
@@ -60,10 +71,7 @@ class Product(models.Model):
 
     def is_soft_deleted(self):
         return self.soft_delete
-    
-    # def get_percentage(self):
-    #     new_price = 100 - (self.offer_price / self.price) * 100
-    #     return new_price
+
     
     
 class ProductImages(models.Model):
@@ -168,7 +176,7 @@ class ProductVariant(models.Model):
     
     def get_variant_name(self):
 
-        return f"{self.product.product_name} (COLOR : {self.color}, PRICE: {self.sale_price})"
+        return f"{self.product.product_name} (Color : {self.color.Attribute_value}, PRICE: {self.sale_price})"
     
     
 class VariantImage(models.Model):

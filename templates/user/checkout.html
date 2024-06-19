@@ -28,6 +28,7 @@
               <span></span> Cart
               <span></span> Checkout
           </div>
+          
       </div>
 
   </div>
@@ -291,20 +292,35 @@
                           </div>
                           <div class="payment_option">
                             <div class="custome-radio">
-                                <input class="form-check-input"  type="radio"  name="payment_option" id="exampleRadios6" >
-                                <label class="form-check-label" for="exampleRadios6" data-bs-toggle="collapse" data-target="#cod" aria-controls="cod">Cash On Delivery</label>
-                                <div class="form-group collapse in" id="cod">
-                                    <p class="text-muted mt-5">Cash on delivery.</p>
-                                </div>
+                                {% if cart.total < 30000 %}
+                                    <div class="form-group" data-total="{{ cart.total }}">
+                                        <input class="form-check-input" type="radio" name="payment_option" id="exampleRadios6">
+                                        <label class="form-check-label" for="exampleRadios6" data-bs-toggle="collapse" data-bs-target="#cod" aria-controls="cod">Cash On Delivery</label>
+                                        {% comment %} <div class="collapse" id="cod">
+                                            <p class="text-muted mt-5">Cash on delivery.</p>
+                                        </div> {% endcomment %}
+                                    </div>
+                                {% else %}
+                                    <div class="form-group" data-total="{{ cart.total }}">
+                                        <input class="form-check-input" type="radio" name="payment_option" id="exampleRadios6" disabled>
+                                        <label class="form-check-label" for="exampleRadios6">Cash On Delivery (Unavailable for orders over 30,000)</label>
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="custome-radio">
                                 <input class="form-check-input"  type="radio"  name="payment_option" id="exampleRadios3" checked>
                                 <label class="form-check-label" for="exampleRadios3" data-bs-toggle="collapse" data-target="#razor" aria-controls="razor">Razorpay</label>
-                                <div class="form-group collapse in" id="cod">
+                                <div class="form-group collapse in" id="razor">
                                     <p class="text-muted mt-5">Razorpay.</p>
                                 </div>
                             </div>
-                            
+                            {% comment %} <div class="custome-radio">
+                                <input class="form-check-input"  type="radio"  name="payment_option" id="exampleRadios9">
+                                <label class="form-check-label" for="exampleRadios9" data-bs-toggle="collapse" data-target="#wallet" aria-controls="wallet">Wallet</label>
+                                <div class="form-group collapse in" id="wallet">
+                                    <p class="text-muted mt-5">Wallet.</p>
+                                </div>
+                            </div> {% endcomment %}
                         </div>
                         
                     </form>
@@ -318,6 +334,7 @@
                             <input name="billing_add"  type="hidden">
                             <button type="submit" name="cod" id="codbtn">Place Order</button>
                             <button type="submit" name="order_pay" id="paybtn">Pay</button>
+                            <button type="submit" name="wallet_pay" id="wallbtn">Pay</button>
                             
                         </form>
                         {% else %}
@@ -355,24 +372,71 @@
 <script src="{% static "js/my_chekout.js" %}" ></script>
 <script>
     $(document).ready(function() {
-        // Listen for changes on the radio buttons
-        $('input[name="payment_option"]').change(function() {
-            // If Razorpay is selected, show the Pay button
+        // Function to toggle buttons based on the selected payment option
+        function togglePaymentButtons() {
             if ($('#exampleRadios3').is(':checked')) {
+                // If Razorpay is selected, show the Pay button
                 $('#paybtn').show();
                 $('#codbtn').hide();
-            } else {
+                $('#wallbtn').hide();
+            } else if ($('#exampleRadios6').is(':checked')) {
                 // If COD is selected, show the Place Order button
                 $('#codbtn').show();
-                // Hide the Pay button
                 $('#paybtn').hide();
+                $('#wallbtn').hide();
+            } else if ($('#exampleRadios9').is(':checked')) {
+                // If Wallet is selected, show the Wallet Pay button
+                $('#wallbtn').show();
+                $('#paybtn').hide();
+                $('#codbtn').hide();
+            }
+        }
+    
+        // Initially show the Pay button (Razorpay) and hide the others
+        $('#paybtn').show();
+        $('#codbtn').hide();
+        $('#wallbtn').hide();
+    
+        // Listen for changes on the radio buttons
+        $('input[name="payment_option"]').change(togglePaymentButtons);
+    
+        // Disable COD button and show message if cart total is more than 30000
+        var cartTotal = $('.form-group').data('total');
+        if (cartTotal > 30000) {
+            $('#codbtn').prop('disabled', true).text('Place Order (Unavailable for orders over 30,000)');
+        }
+    
+        // Run the function to set the initial state of buttons based on the default selected option
+        togglePaymentButtons();
+    });
+    
+   
+    {% comment %} $(document).ready(function() {
+        // Listen for changes on the radio buttons
+        $('input[name="payment_option"]').change(function() {
+            if ($('#exampleRadios3').is(':checked')) {
+                // If Razorpay is selected, show the Pay button
+                $('#paybtn').show();
+                $('#codbtn').hide();
+                $('#wallbtn').hide();
+            } else if ($('#exampleRadios6').is(':checked')) {
+                // If COD is selected, show the Place Order button
+                $('#codbtn').show();
+                $('#paybtn').hide();
+                $('#wallbtn').hide();
+            } else if ($('#exampleRadios9').is(':checked')) {
+                // If Wallet is selected, show the Wallet Pay button
+                $('#wallbtn').show();
+                $('#paybtn').hide();
+                $('#codbtn').hide();
             }
         });
-
-        // Initially hide the Pay button and show the Place Order button
+    
+        // Initially show the Pay button (Razorpay) and hide the others
         $('#paybtn').show();
-        $('#codbtn').hide(); 
-    });
+        $('#codbtn').hide();
+        $('#wallbtn').hide();
+    }); {% endcomment %}
 </script>
 
 

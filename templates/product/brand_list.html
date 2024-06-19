@@ -1,0 +1,76 @@
+
+{% extends "partials/base.html" %}
+{% load static %}
+
+{% block content%}
+<head>
+    <style>
+        .category-img {
+            display: block;
+            width: 300px; /* Set the desired width */
+            height: 250px; /* Set the desired height */
+            object-fit: cover; /* Crop the image to fit the specified dimensions */
+        }
+    </style>
+</head>
+<main class="main">
+  <div class="page-header breadcrumb-wrap">
+      <div class="container">
+          <div class="breadcrumb">
+              <a href="{% url "product:index" %}" rel="nofollow">Home</a>
+              <span></span>Category
+          </div>
+      </div>
+  </div>
+  <section class="mt-50 mb-50">
+      <div class="container custom">
+          <div class="row">
+              <div class="col-lg-12">
+                  <div class="single-header mb-50 text-center">
+                      <h1 class="text-brand">Brands</h1>
+                      <div class="entry-meta meta-1 font-xs mt-15 mb-15">
+                          <span class="post-by">{{brand.count}} Brands</span>
+                      </div>
+                  </div>
+                  <div class="loop-grid pr-30">
+                      <div class="row">
+                        {% for i in brand %}
+
+                        <div class="col-lg-3">
+                            <article class="wow fadeIn animated hover-up mb-30">
+                                <div class="post-thumb img-hover-scale">
+                                    <a href="{% url "product:brand-product-list" i.id %}">
+                                        <img class="border-radius-15 category-img" src="{{ i.brand_img.url }}" alt="">
+                                    </a>
+                                    {% comment %} <div class="entry-meta">
+                                        <a class="entry-meta meta-2" href="blog-category-grid.html">Global</a>
+                                    </div> {% endcomment %}
+                                </div>
+                                <div class="entry-content-2">
+                                    <h4 class="post-title mb-15">
+                                        <a href="blog-post-right.html">{{i.category_name}}</a></h4>
+                                    <p class="post-exerpt mb-30 font-sm">{{i.description|truncatechars:100}}</p>
+                                    {% comment %} <div class="entry-meta font-xs color-grey mt-10 pb-10">
+                                      <div>
+                                        <span class="hit-count mt-10">{{ i.product_count }} Products</span>
+                                      </div>
+                                    </div> {% endcomment %}
+                                    <div class="entry-meta meta-1 font-xs color-grey mt-10 pb-10">
+                                        <a href="blog-post-right.html" class="text-brand">Browse <i class="fi-rs-arrow-right"></i></a>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+
+                        {% endfor %}
+                      </div>
+                  </div>
+                  <!--post-grid-->
+                  
+              </div>
+          </div>
+      </div>
+  </section>
+</main>
+   
+{% endblock content %}

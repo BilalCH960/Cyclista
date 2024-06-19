@@ -54,37 +54,111 @@ $("#commentForm").submit(function(e){
 })
 
 
-$(document).ready(function (){
-      $(".filter-checkbox").on("click", function(){
-        console.log("Checkbox clicked");
 
-        let filter_object = {}
+// $(document).ready(function (){
+//   function filterProducts() {
+//       let filter_object = {}
 
-        $(".filter-checkbox").each(function(){
-          let filter_value = $(this).val()
-          let filter_key = $(this).data("filter") //color, category
-    
+//       $(".filter-checkbox").each(function(){
+//           let filter_key = $(this).data("filter");
+//           filter_object[filter_key] = Array.from(document.querySelectorAll('input[data-filter='+ filter_key +']:checked')).map(function(element){
+//               return element.value;
+//           });
+//       });
 
-          filter_object[filter_key] = Array.from(document.querySelectorAll('input[data-filter='+ filter_key +']:checked')).map(function(element){
-            return element.value
-          })
-        })
-        console.log("filter object is:",filter_object);
-        $.ajax({
-            url: '/filter-product',
-            data: filter_object,
-            dataType: 'json',
-            beforeSend: function(){
-              console.log("filtering products");
-            },
-            success: function(response){
-              console.log(response);
-              console.log("Data filtered successfully");
-              $("#filtered-product").html(response.data)
+//       filter_object['sort_by'] = $('input[name="sort_by"]:checked').val();
+//       filter_object['page'] = $('.pagination .active a').data('page');
+      
 
-            }
-        })
-      })
-    
-    
-})
+//       $.ajax({
+//           url: '/filter-product',
+//           data: filter_object,
+//           dataType: 'json',
+//           beforeSend: function(){
+//               console.log("filtering products");
+//           },
+//           success: function(response){
+//               console.log(response);
+//               console.log("Data filtered successfully");
+//               $("#filtered-product").html(response.data);
+//           }
+//       });
+//   }
+
+//   $(".filter-checkbox").on("click", function(){
+//       filterProducts();
+//   });
+
+//   $(document).on("click", ".pagination a", function(e) {
+//       e.preventDefault();
+//       let page = $(this).attr('href').split('page=')[1];
+//       filterProducts(page);
+//   });
+
+//   $('input[name="sort_by"]').on("change", function() {
+//       filterProducts();
+//   });
+
+
+//   function updatePaginationLinks() {
+//     $(document).on("click", ".pagination a", function(e) {
+//         e.preventDefault();
+//         let page = $(this).attr('href').split('page=')[1];
+//         filterProducts(page);
+//     });
+//   }
+
+  
+  
+// })
+;$(document).ready(function (){
+  function filterProducts(page = 1) {
+    let filter_object = {}
+
+    $(".filter-checkbox").each(function(){
+        let filter_key = $(this).data("filter");
+        filter_object[filter_key] = Array.from(document.querySelectorAll('input[data-filter='+ filter_key +']:checked')).map(function(element){
+            return element.value;
+        });
+    });
+
+    filter_object['sort_by'] = $('input[name="sort_by"]:checked').val();
+    filter_object['page'] = page;
+
+    $.ajax({
+        url: '/filter-product',
+        data: filter_object,
+        dataType: 'json',
+        beforeSend: function(){
+            console.log("filtering products");
+        },
+        success: function(response){
+            console.log(response);
+            console.log("Data filtered successfully");
+            $("#filtered-product").html(response.data);
+            $("#pagination").html(response.pagination);
+            updatePaginationLinks(); // Reinitialize pagination links
+        }
+    });
+}
+
+$(".filter-checkbox").on("click", function(){
+    filterProducts();
+});
+
+$('input[name="sort_by"]').on("change", function() {
+    filterProducts();
+});
+
+function updatePaginationLinks() {
+  $(document).off("click", ".pagination a"); // Remove previous event handlers
+  $(document).on("click", ".pagination a", function(e) {
+      e.preventDefault();
+      let page = $(this).attr('href').split('page=')[1];
+      filterProducts(page);
+  });
+}
+
+updatePaginationLinks();
+});
+

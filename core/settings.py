@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'cart',
     'order',
     'wallet',
+    'brands',
     'sweetify',
 
 ]

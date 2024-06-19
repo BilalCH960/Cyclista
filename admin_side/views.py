@@ -153,9 +153,32 @@ def dashboard(request):
     # Calculate total coupon deduction
     orders = Order.objects.all()
     total_coupon_deduction = sum(order.get_actual_discount() for order in orders)
+
+    # Get top 10 selling products
+    top_selling_products = (OrderItem.objects
+                            .values(product_name=F('order_product__product__product_name'),
+                                    product_img=F('order_product__product__product_img'),
+                                    product_catg=F('order_product__product__product_catg__category_name'),
+                                    created_at=F('order_product__product__created_at'),
+                                    stock_count=F('order_product__stock'),
+                                    product_status=F('order_product__product_status'),
+                                    is_active=F('order_product__is_active'))
+                            .annotate(total_quantity=Sum('quantity'))
+                            .order_by('-total_quantity')[:10])
+    
+    # Get top 2 selling categories
+
+
+    top_selling_categories = (OrderItem.objects
+                            .values(category_name=F('order_product__product__product_catg__category_name'),
+                                    category_img=F('order_product__product__product_catg__category_img'))
+                            .annotate(total_quantity=Sum('quantity'))
+                            .order_by('-total_quantity')[:2])
+
+
+
     
     
-    print(f' co = { total_coupon_deduction }')
 
 
 
@@ -174,6 +197,8 @@ def dashboard(request):
         'monthly_sales_data': monthly_sales_str,
         'yearly_sales_data': yearly_sales_str,
         'coupon_deduction': total_coupon_deduction,
+        'top_selling_products':top_selling_products,
+        'top_selling_categories':top_selling_categories,
     }
     return render(request, 'admin/dashboard.html', context)
 
@@ -467,4 +492,9 @@ def coupon(request):
 
 
 def delete_coupon(request, id):
-    ...
+    coupon = get_object_or_404(Coupon, id=id)
+    if request.method == 'POST':
+        coupon.delete()
+        messages.success(request, 'Coupon deleted successfully.')
+        return redirect('admin_side:coupon')  # Redirect to the coupon list view
+    return render(request, 'admin/products/confirm_delete_coupon.html', {'coupon': coupon})

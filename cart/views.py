@@ -11,8 +11,6 @@ from django.template.loader import render_to_string
 
 
 
-
-
 def view_cart(request):
     if not request.user.is_authenticated:
         if request.user.is_superuser:

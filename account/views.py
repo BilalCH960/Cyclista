@@ -49,15 +49,15 @@ def my_dashboard(request):
             referral_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))  # Generate a random code
             referral = Referral.objects.create(user=request.user, referral_self=referral_code)
         
-        easywallet = EasyPay.objects.filter(user = request.user)
+        easywallet = EasyPay.objects.get_or_create(user = request.user)
 
-
+        print(f'easy = {easywallet}')
         context = {
             'shipping': shipping,
             'orders': orders,
             'billing': billing,
             'ref': referral.referral_self,
-            'easy': easywallet[len(easywallet)-1],
+            'easy': easywallet,
             # 'total':total,
             'myuser': UserProfile.objects.get(user=request.user),
         }
@@ -176,11 +176,6 @@ def edit_address(request,id):
     address = get_object_or_404(Address, (Q(user = request.user) & Q(id=id)))
     if request.method == "POST":
         user = request.user
-        print("Attempting to create Address with the following data:")
-        print(f"User: {user}")
-        print(f"Name: {request.POST.get('name')}")
-        print(f"country: {request.POST.get('country')}")
-        print(f"house_address: {request.POST.get('house_address')}")
     try:
         address.name =request.POST['name']
         if address.name.strip() == '':

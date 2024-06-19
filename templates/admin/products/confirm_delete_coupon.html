@@ -1,0 +1,11 @@
+<!-- admin/products/confirm_delete_coupon.html -->
+{% extends "admin/admin_base.html" %}
+{% block content %}
+<h2>Delete Coupon</h2>
+<p>Are you sure you want to delete the coupon "{{ coupon.code }}"?</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, delete</button>
+    <a href="{% url 'admin_side:coupon' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

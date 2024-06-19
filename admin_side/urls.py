@@ -13,6 +13,7 @@ urlpatterns = [
     path('adsignout/', views.logout_view, name='adsign-out'),
     path('create_coupon/', views.create_coupon, name='create_coupon'),
     path('coupon/', views.coupon, name='coupon'),
+    path('delete-coupon/<int:id>/', views.delete_coupon, name='delete_coupon'),
     path('custom-date-range-data/', views.custom_date_range_data, name='custom_date_range_data'),
     path('download-sales-report/', views.download_sales_report, name='download_sales_report'),
 ]

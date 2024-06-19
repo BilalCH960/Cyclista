@@ -49,3 +49,28 @@ def credit(amount, order_item, user):
 
     except Exception as e:
         print(f'the error is that which is {e}')
+
+
+
+def easypay(total, order, user):
+    easy = get_object_or_404(EasyPay, user=user)
+    if easy.balance < total:
+        return False  # Not enough balance
+
+    easy.balance -= total
+    easy.save()
+
+    Wallet.objects.get_or_create(
+        user=user,
+        easypay=easy,
+        payment=order.payment_details,
+        order_id=order.order_number,
+        amount=total,
+        is_debit=True,
+    )
+    return True
+
+
+            
+
+        

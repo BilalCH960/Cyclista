@@ -30,6 +30,7 @@ class ProductForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields['product_brand'].queryset = Brand.objects.filter(soft_delete=False)
 
         if self.instance.product_img:
             # If an image exists, remove the 'required' attribute for the product_img field
@@ -44,7 +45,7 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model=Product
         fields = '__all__'
-        exclude = ['product_slug']
+        exclude = ['product_slug','soft_delete']
         widgets ={
            'product_img': forms.ClearableFileInput(),
         }
