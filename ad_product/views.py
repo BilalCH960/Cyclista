@@ -301,7 +301,6 @@ def product_variant(request):
             else:
                 images = request.FILES.getlist('images')
                 color = get_object_or_404(AttributeValue, id=request.POST['color'])
-                # size = get_object_or_404(AttributeValue, id=request.POST['size'])
                 description =  request.POST['description']
                 if not description:
                     messages.warning(request,'cant add empty description')
@@ -315,7 +314,6 @@ def product_variant(request):
                     product = get_object_or_404(Product, id=request.POST['product']),
                     model_id = model_id,
                     color = get_object_or_404(AttributeValue, id=request.POST['color']),
-                    # size = size.Attribute_value,
                     max_price = max_price,
                     sale_price = sale_price,
                     stock = stock,
@@ -333,15 +331,13 @@ def product_variant(request):
         return redirect('ad_product:product_variant')
     
     print(request.POST)
-    product = Product.objects.filter(is_active = True)
+    product = Product.objects.filter(is_active = True, soft_delete = False)
     print(product)
     color = AttributeValue.objects.filter(Q(Attribute_id =1) & Q(is_active = True))
-    # size = AttributeValue.objects.filter(Q(Attribute_id =2) & Q(is_active = True))
 
     context = {
         'product' : product,
         'color' : color,
-        # 'size' : size,
             }
 
     return render(request, 'admin/products/product_varient.html',context)

@@ -24,10 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-7z#t!gxli57i$th*i%34r3j4)(p6a=bdso5^wym6z@#r2ww9'
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG")
 
 ALLOWED_HOSTS = []
 
@@ -97,11 +97,11 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'project',
-        'USER' : 'postgres',
-        'PASSWORD' : 'pass1234',
-        'HOST' : 'localhost',
-        'PORT' : '5432',
+        'NAME': os.getenv("NAME"),
+        'USER' : os.getenv("USER"),
+        'PASSWORD' : os.getenv("PASSWORD"),
+        'HOST' : os.getenv("HOST"),
+        'PORT' : os.getenv("PORT"),
     }
 }
 
@@ -157,18 +157,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
-EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST='smtp.gmail.com'
-EMAIL_USE_SSL = True
-EMAIL_USE_TLS = False
-EMAIL_PORT = 465
-EMAIL_HOST_USER='mrtrooper023@gmail.com'
-EMAIL_HOST_PASSWORD='zhbcnnowolnrujjf'
+EMAIL_BACKEND=os.getenv("EMAIL_BACKEND")
+EMAIL_HOST=os.getenv("EMAIL_HOST")
+EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL")
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS")
+EMAIL_PORT = os.getenv("EMAIL_PORT")
+EMAIL_HOST_USER=os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD=os.getenv("EMAIL_HOST_PASSWORD")
 
 
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '143906622382-am71phg35dgkkie7pvcaee196vdb0kc7.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET")
 
 
 
@@ -192,7 +192,7 @@ AUTH_USER_MODEL = 'userauths.User'
 
 #############
 
-RAZORPAY_API_KEY = 'rzp_test_yrlRK4RRuxfuVA'
-RAZORPAY_API_SECRET = 'SoesNojTf6BIKcjnYbN3eaq4'
+RAZORPAY_API_KEY = os.getenv("RAZORPAY_API_KEY")
+RAZORPAY_API_SECRET = os.getenv("RAZORPAY_API_SECRET")
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
