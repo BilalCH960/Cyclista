@@ -41,7 +41,9 @@ def order_view(request):
             return redirect('cart:view_cart')
     
     
+
     myuser =request.user
+    print(myuser)
     default_billing = None  
     default_shipping = None
     billing_address = None

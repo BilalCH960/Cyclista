@@ -423,7 +423,7 @@
                                             <strong class='text-success' id="review-res"></strong>
                                             <div class="row">
                                                 <div class="col-lg-8 col-md-12">
-                                                    <form class="form-contact comment_form hide-comment-form" action="{% url 'product:add-review' p.id %}" id="commentForm" method="post">
+                                                    <form class="" action="{% url 'product:add-review' p.id %}" id="commentForm" method="POST">
                                                         {% csrf_token %}
                                                         <div class="row">
 

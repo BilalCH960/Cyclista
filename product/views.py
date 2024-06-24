@@ -15,6 +15,7 @@ from order.models import OrderItem
 from django.template.loader import render_to_string
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
+from account.models import UserProfile
 
 
 
@@ -160,7 +161,7 @@ def filter_product(request):
 def product_detail_view(request, pid, cate_id):
 
   user_review_count = 0
-  product = ProductVariant.objects.get(id=pid)
+  product = ProductVariant.objects.get(id=pid, soft_delete = False)
   # review of a product
   prod = Product.objects.filter(product_catg = cate_id)
   product_colors = AttributeValue.objects.filter(productvariant__product_id=product.product_id, productvariant__soft_delete = False).distinct()
@@ -170,8 +171,7 @@ def product_detail_view(request, pid, cate_id):
   # Product Review Form
   review_form = ProductReviewForm()
   product_ids = [product.id for product in prod]
-  prodvariants = ProductVariant.objects.filter(product__id__in=product_ids).exclude(id=pid)
-  print(prodvariants)
+  prodvariants = ProductVariant.objects.filter(product__id__in=product_ids, soft_delete = False).exclude(id=pid)
   make_review = True
 
   if request.user.is_authenticated:
@@ -192,6 +192,41 @@ def product_detail_view(request, pid, cate_id):
   }
 
   return render(request, 'product/product-detail.html', context)
+
+
+
+def ajax_add_review(request, id):
+    product = ProductVariant.objects.get(pk = id)
+    user = request.user
+    userp = UserProfile.objects.get(user = user)
+
+    rating = request.POST.get('rating')
+    print(f'the reivceiwsdjlkfadh    {request.POST.get("review")}')
+    review = ProductReview.objects.create(
+        user = user,
+        product = product,
+        review=request.POST.get('review'),
+        rating=int(rating),
+    )
+
+    # context = {
+    #     'user' : request.user.username,
+    #     'review' : request.POST['review'],
+    #     'rating' : rating,
+    #     'img' : userp.profile_pic
+    # }
+    return redirect('product:product-detail', product.id, product.product.product_catg.id)
+
+    # average_reviews = ProductReview.objects.filter(product= product).aggregate(rating=Avg('rating'))
+
+#     return JsonResponse(
+#         {
+#             'bool' : True,
+#             'context' : context,
+#             'avg_reviews' : average_reviews,
+# }
+#     )
+
 
 
 def search_view(request):
@@ -259,36 +294,6 @@ def brand_product_list(request, id):
   }
   return render(request, "product/brand_product_list.html",context)
 
-
-def ajax_add_review(request, id):
-    product = ProductVariant.objects.get(pk = id)
-    user = request.user
-
-    rating = request.POST.get('rating')
-
-    review = ProductReview.objects.create(
-        user = user,
-        product = product,
-        review=request.POST.get('review'),
-        rating=rating,
-    )
-
-    context = {
-        'user' : request.user.username,
-        'review' : request.POST['review'],
-        'rating' : rating,
-        'img' : request.user.userprofile.profile_pic.url
-    }
-
-    average_reviews = ProductReview.objects.filter(product= product).aggregate(rating=Avg('rating'))
-
-    return JsonResponse(
-        {
-            'bool' : True,
-            'context' : context,
-            'avg_reviews' : average_reviews,
-}
-    )
 
 
 

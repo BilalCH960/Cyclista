@@ -68,9 +68,9 @@ def view_cart(request):
 
 
 def add_cart(request, id=None):
-    if request.user.is_superuser:
-        return JsonResponse({'error': 'User not authorized'}, status=403)
-
+    if not request.user.is_authenticated:
+        return redirect('userauths:sign-in')
+    
     product_quantity = int(request.POST.get('prod_qty')) if request.POST.get('prod_qty') else 1
     product_id = int(request.POST.get('prod_id')) if request.POST.get('prod_id') else id
     product = get_object_or_404(ProductVariant, id = product_id)
@@ -79,11 +79,11 @@ def add_cart(request, id=None):
         item_check = Cart_Item.objects.get(cart=cart, product=product)
         print(f'helooo{item_check}')
         if product_quantity > product.stock :
-            messages.warning(request, "can't add that many due to stock insufficient")
+            messages.success(request, "can't add that many due to stock insufficient")
             return redirect('cart:view_cart')
         elif item_check.quantity + product_quantity > product.stock:
              
-            messages.warning(request, 'cant add that many due to stock insufficient')
+            messages.success(request, 'cant add that many due to stock insufficient')
             return redirect('cart:view_cart')
         else:
             
