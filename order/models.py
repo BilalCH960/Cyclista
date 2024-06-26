@@ -93,6 +93,7 @@ class OrderItem(models.Model):
     quantity = models.IntegerField(default= 1)
     payment_details = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True, blank=True)
     product_price = models.DecimalField(decimal_places=2, max_digits=10,default=0, null=True)
+    single_price = models.DecimalField(decimal_places=2, max_digits=10,default=0, null=True)
     ordered_time = models.DateTimeField(auto_now_add=True)
     order_updated_time = models.DateTimeField(auto_now=True)
     cancel_reason = models.TextField(max_length=200, null=True, blank=True)

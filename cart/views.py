@@ -68,8 +68,8 @@ def view_cart(request):
 
 
 def add_cart(request, id=None):
-    if request.user.is_superuser:
-        return JsonResponse({'error': 'User not authorized'}, status=403)
+    if not request.user.is_authenticated:
+        return redirect('userauths:sign-in')
 
     product_quantity = int(request.POST.get('prod_qty')) if request.POST.get('prod_qty') else 1
     product_id = int(request.POST.get('prod_id')) if request.POST.get('prod_id') else id

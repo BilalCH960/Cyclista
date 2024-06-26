@@ -21,8 +21,10 @@
                     <div class="d-flex">
                         <input type="date" id="start_date" class="form-control bg-white me-2">
                         <input type="date" id="end_date" class="form-control bg-white me-2">
-                        <button id="filter_button" class="btn btn-primary">Filter</button>
+                        <button id="filter_button" class="btn btn-primary me-2">Filter</button>
+                        <a id="download_pdf" href="#" class="btn btn-secondary">Download PDF</a>
                     </div>
+                    
                 </div>
                 <table class="table table-hover" id="orders_table">
                     <thead>
@@ -64,7 +66,7 @@
         $('#filter_button').click(function() {
             var startDate = $('#start_date').val();
             var endDate = $('#end_date').val();
-
+    
             $.ajax({
                 url: "{% url 'order:filter_orders_by_date' %}",
                 data: {
@@ -74,7 +76,7 @@
                 success: function(data) {
                     var tbody = $('#orders_table tbody');
                     tbody.empty();
-
+    
                     $.each(data.orders, function(index, order) {
                         var row = '<tr>' +
                             '<td>' + order.order_number + '</td>' +
@@ -85,78 +87,18 @@
                             '<td>' + order.order_time + '</td>' +
                             '<td class="text-end"><a href="#" class="btn btn-md rounded font-sm">Detail</a></td>' +
                             '</tr>';
-
+    
                         tbody.append(row);
                     });
+    
+                    $('#download_pdf').attr('href', "{% url 'order:filter_orders_pdf' %}?start_date=" + startDate + "&end_date=" + endDate);
                 }
             });
         });
     });
+    
+  
 </script>
 
 {% endblock content %}
 
-
-
-
-{% comment %} {% extends "admin/admin_base.html" %}
-{% load static %}
-
-{% block content%}
-
-
- 
-        <section class="content-main">
-            <div class="content-header">
-                <div>
-                    <h2 class="content-title card-title">Order List </h2>
-                    <p>Edit user orders.</p>
-                </div>
-                <div>
-                    <input type="text" placeholder="Search order ID" class="form-control bg-white">
-                </div>
-            </div>
-            <div class="card mb-4">
-              
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>#ID</th>
-                                    <th scope="col">Name</th>
-                                    <th scope="col">Email</th>
-                                    <th scope="col">Total</th>
-                                    <th scope="col">Payment status</th>
-                                    <th scope="col">Date and Time</th>
-                                    <th scope="col" class="text-end"> Order Detail </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                              {% for o in order %}
-                                <tr>
-                                    <td>{{o.order_number}}</td>
-                                    <td><b>{{o.user.username}}</b></td>
-                                    <td>
-                                            {{o.user.email}}
-                                    </td>
-                                    <td>{{o.order_subtotal}}</td>
-                                    <td><span class="badge rounded-pill alert-{% if o.payment_details.payment_status == 'SUCCESS' %}success{% elif o.payment_details.payment_status == 'FAILED' %}danger{% else %}warning{% endif %}">{{o.payment_details.payment_status}}</span></td>
-                                    <td>{{o.order_time}}</td>
-                                    <td class="text-end">
-                                        <a href="{% url 'order:admin_order_item_view' o.order_number %}" class="btn btn-md rounded font-sm">Detail</a>
-                                        
-                                    </td>
-                                </tr>
-                              {% endfor %}
-                            </tbody>
-                        </table>
-                    </div> <!-- table-responsive //end -->
-                </div> <!-- card-body end// -->
-            </div> <!-- card end// -->
-            
-        </section> <!-- content-main end// -->
- 
-
-
-{% endblock content%} {% endcomment %}

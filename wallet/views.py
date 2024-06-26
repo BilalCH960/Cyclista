@@ -22,7 +22,7 @@ def wallet_view(request):
         wallet = None
     context = {
         'wallet': wallet,
-        # 'easy':easy,
+        'easy':easy,
     }
     return render(request, 'user/dashboard/wallet.html', context)
 

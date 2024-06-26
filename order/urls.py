@@ -18,6 +18,7 @@ urlpatterns = [
     path('view-return_order_request/<int:id>/', views.return_order, name="return_order"),
     path('view-admin_order', views.admin_order_view, name="admin_order_view"),
     path('admin/orders/filter/', views.filter_orders_by_date, name='filter_orders_by_date'),
+    path('admin/orders/filter/pdf/', views.filter_orders_pdf, name='filter_orders_pdf'),
     path('admin_order_item_details/<int:id>/', views.admin_order_item_details, name="admin_order_item_details"),
     path('admin_order_item_view/<int:id>/', views.admin_order_item_view, name="admin_order_item_view"),
     path('admin_order_status/', views.admin_order_status, name="admin_order_status"), 

@@ -338,31 +338,6 @@ def get_weekly_sales():
 
 
 
-
-# def get_weekly_sales():
-#     today = timezone.now().date()
-#     start_of_week = today - timedelta(days=today.weekday())
-#     end_of_week = start_of_week + timedelta(days=6)
-#     print(start_of_week, '\n', end_of_week)
-    
-#     weekly_sales = Payment.objects.filter(
-#         payment_time__date__range=[start_of_week, end_of_week],
-#         payment_status="SUCCESS"
-#     ).annotate(day_of_week=ExtractWeekDay('payment_time')).values('day_of_week').annotate(weekly_total=Sum('amount_paid')).order_by('day_of_week')
-    
-#     print(f'week = {weekly_sales}')
-    
-#     weekly_sales_values = [0] * 7
-#     for entry in weekly_sales:
-#         adjusted_index = entry['day_of_week'] - 1  # Adjust to get a 0-based index
-#         weekly_sales_values[adjusted_index] = entry['weekly_total']
-#         print(f'weekly = {weekly_sales_values}')
-
-#     return weekly_sales_values
-
-
-
-
 @login_required
 def custom_date_range_data(request):
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -387,30 +362,12 @@ def custom_date_range_data(request):
         results_dict = {entry['payment_time__date']: entry['daily_total'] for entry in custom_date_range_data}
 
         data = {
-            # 'labels': [entry['payment_time__date'].strftime('%Y-%m-%d') for entry in custom_date_range_data],
-            # 'values': [entry['daily_total'] for entry in custom_date_range_data]
             'labels': [date.strftime('%Y-%m-%d') for date in all_dates],
             'values': [results_dict.get(date.date(), 0) for date in all_dates]
         }
         return JsonResponse(data)
     else:
         return JsonResponse({'error': 'Invalid request'})
-
-
-# def get_yearly_sales():
-#     yearly_sales = Payment.objects.filter(
-#        payment_time__year=timezone.now().year,
-#         payment_status="SUCCESS"
-#     ).annotate(year=ExtractYear('payment_time')).values('year').annotate(yearly_total=Sum('amount_paid')).order_by('year')
-
-#     yearly_sales_values = [0] * 12  # Assuming you want data for each month in a year
-#     for entry in yearly_sales:
-#         year_index = entry['year'] - timezone.now().year 
-#         print(f'year = {timezone.now().year}') # Adjust to get a 0-based index
-#         yearly_sales_values[year_index] = entry['yearly_total']
-
-#     return yearly_sales_values
-
 
 
 def dashboard_view(request):

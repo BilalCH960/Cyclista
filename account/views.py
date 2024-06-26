@@ -49,7 +49,7 @@ def my_dashboard(request):
             referral_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))  # Generate a random code
             referral = Referral.objects.create(user=request.user, referral_self=referral_code)
         
-        easywallet = EasyPay.objects.get_or_create(user = request.user)
+        easywallet, _ = EasyPay.objects.get_or_create(user = request.user)
 
         print(f'easy = {easywallet}')
         context = {
