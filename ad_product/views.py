@@ -191,38 +191,6 @@ def delete_productoffer(request, id):
 
 
 
-# def edit_productoffer(request, id):
-#     prod = ProductOffer.objects.get(pk=id)
-#     if request.method == "POST":
-#         try:
-#             amount = Decimal(request.POST.get('amount'))
-#             dis = prod.discount
-#             prod.discount = amount
-#             prod.is_active = False
-#             prod.save()
-
-#             products = Product.objects.filter(id = prod.product_name)
-#             for product in products:
-#                 variants = ProductVariant.objects.filter(product=product)
-#                 for variant in variants:
-#                     # Update the sale_price to reflect the new discount
-#                     variant.sale_price = variant.sale_price + dis
-#                     variant.sale_price = variant.sale_price - amount
-#                     variant.save()  # Save each variant after adjusting price
-                    
-#             messages.info(request, 'The changes have been saved.')
-#             return redirect('ad_product:product_offer')
-#         except Exception as e:
-#             print(f'The error is {e}')
-#             messages.error(request, f"An error occurred: {str(e)}")
-#     else:
-#         # Render the template with the existing category offer details
-#         return render(request, 'admin/products/edit_product_offer.html', {'prod': prod})
-
-
-
-
-# Import other necessary modules
 
 def edit_productoffer(request, id):
     prod = ProductOffer.objects.get(pk=id)

@@ -79,11 +79,11 @@ def add_cart(request, id=None):
         item_check = Cart_Item.objects.get(cart=cart, product=product)
         print(f'helooo{item_check}')
         if product_quantity > product.stock :
-            messages.success(request, "can't add that many due to stock insufficient")
+            messages.warning(request, "can't add that many due to stock insufficient")
             return redirect('cart:view_cart')
         elif item_check.quantity + product_quantity > product.stock:
              
-            messages.success(request, 'cant add that many due to stock insufficient')
+            messages.warning(request, 'cant add that many due to stock insufficient')
             return redirect('cart:view_cart')
         else:
             
