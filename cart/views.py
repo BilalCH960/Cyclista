@@ -70,7 +70,7 @@ def view_cart(request):
 def add_cart(request, id=None):
     if not request.user.is_authenticated:
         return redirect('userauths:sign-in')
-    
+
     product_quantity = int(request.POST.get('prod_qty')) if request.POST.get('prod_qty') else 1
     product_id = int(request.POST.get('prod_id')) if request.POST.get('prod_id') else id
     product = get_object_or_404(ProductVariant, id = product_id)

@@ -34,11 +34,8 @@
                           <h6 class="mb-1">Customer</h6>
                           <p class="mb-1">
                               {{order.user.username}}<br>
-                               {% comment %} <template class="__cf_email__" data-cfemail="e2838e879aa2879a838f928e87cc818d8f"> {% endcomment %}
                                 {{order.user.email}}
-                              {% comment %} </template> {% endcomment %}
                           </p>
-                          {% comment %} <a href="#">View profile</a> {% endcomment %}
                       </div>
                   </article>
               </div> <!-- col// -->
@@ -52,7 +49,6 @@
                           <p class="mb-1">
                               Payment: {{order.payment_details.payment_method}} <br> Status: {{order.payment_details.payment_status}}
                           </p>
-                          {% comment %} <a href="#">Download info</a> {% endcomment %}
                       </div>
                   </article>
               </div> <!-- col// -->
@@ -64,9 +60,8 @@
                       <div class="text">
                           <h6 class="mb-1">Deliver to</h6>
                           <p class="mb-1">
-                              City: {{order.shipping_address.city}}<br>{{order.shipping_address.address_one}} <br> Po Box {{order.shipping_address.pincode}} 
+                              City: {{order.shipping_address}}
                           </p>
-                          {% comment %} <a href="#">View profile</a> {% endcomment %}
                       </div>
                   </article>
               </div> <!-- col// -->
@@ -95,7 +90,7 @@
                                           <div class="info"><h6> {{o.order_product.product}}</h6>{{o.order_product.color.Attribute_value}}   </div>
                                       </a>
                                   </td>
-                                  <td> Rs.{{o.product_price}} </td>
+                                  <td> Rs.{{o.single_price}} </td>
                                   <td> {{o.quantity}} </td>
                                   <td>
                                     <form class="update-status-form">
@@ -109,7 +104,7 @@
                                     </form>
                                 </td>
                                 
-                                  <td class="text-end"> {{ o.product_price|mul:o.quantity }} </td>
+                                  <td class="text-end"> {{ o.product_price }} </td>
                             </tr>                              
                             {% endfor %}
                             <br><br>

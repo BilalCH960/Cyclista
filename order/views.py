@@ -392,7 +392,6 @@ def place_order(request):
             
             print("fi")
             return render(request, 'user/order_summary.html', context)
-    # return redirect("order:failed")
     
 
 
@@ -427,7 +426,7 @@ def payment_success(request):
     cart.delete()
     payment_maker.save()
     messages.success(request,'Order placed and payment successfull')
-    return redirect('product:index')
+    return redirect('order:view-orders', order_id)
 
          
 
@@ -454,12 +453,6 @@ def payment_failed(request):
     payment_maker.save()
     messages.success(request,'payment failed')
     return redirect('order:order_view')
-
-
-
-def invoice_download(request):
-    
-    ...
 
 
 
@@ -623,13 +616,13 @@ def return_order(request,id):
 def user_orders(request, id ):
     order = get_object_or_404(Order, pk=id)
     order_item = OrderItem.objects.filter(order=order)
-    order_item_queryset = OrderItem.objects.filter(order=order)
-    if order_item_queryset.exists():  # Check if any order items exist
-        order_ite = order_item_queryset.first()  # Get the first order item
-        if order_ite.order_status == "DELIVERED":
-         order_ite.payment_details.payment_status = 'SUCCESS'  # Access the payment_details attribute
-    discount = order.get_actual_discount()
+    for i in order_item:
+        i.single_price = i.product_price / i.quantity
+        if i.order_status == "DELIVERED":
+            i.payment_details.payment_status = 'SUCCESS'  # Access the payment_details attribute
+    i.save()
 
+    discount = order.get_actual_discount()
     context = {
         "order_item":order_item,
         "order":order,
@@ -783,9 +776,54 @@ def filter_orders_by_date(request):
 
 
 
+def filter_orders_pdf(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    if start_date and end_date:
+        start_date = parse_date(start_date)
+        end_date = parse_date(end_date)
+        orders = Order.objects.filter(order_time__range=[start_date, end_date]).order_by('-order_time')
+    else:
+        orders = Order.objects.all().order_by('-order_time')
+
+    orders_data = [
+        {
+            'order_number': order.order_number,
+            'username': order.user.username if order.user else 'N/A',
+            'email': order.user.email if order.user else 'N/A',
+            'order_subtotal': order.order_subtotal,
+            'payment_status': order.payment_details.payment_status if order.payment_details else 'N/A',
+            'order_time': order.order_time.strftime('%Y-%m-%d %H:%M:%S')
+        }
+        for order in orders
+    ]
+
+    total_orders = sum(order['order_subtotal'] for order in orders_data)
+
+    template_path = 'admin/order/orders_pdf.html'
+    context = {'orders': orders_data, 'total_orders': total_orders}
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="filtered_orders.pdf"'
+
+    template = get_template(template_path)
+    html = template.render(context)
+    pisa_status = pisa.CreatePDF(
+        html, dest=response
+    )
+    if pisa_status.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+
+
+
 def admin_order_item_view(request, id):
     order = Order.objects.get(order_number=id)
     order_item = OrderItem.objects.filter(order=order)
+    for i in order_item:
+        i.single_price = i.product_price / i.quantity
+        i.save()
     
     context={
         'order_item':order_item,
