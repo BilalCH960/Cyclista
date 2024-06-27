@@ -33,6 +33,8 @@ def render_to_pdf(template_src, context_dict):
     return None
 
 def download_sales_report(request):
+    if not request.user.is_superuser:
+        return redirect('product:index')
     # Retrieve data for the sales report
     total_sales = Order.objects.aggregate(total_sales=Sum('order_total'))['total_sales']
     total_shipping = Order.objects.aggregate(total_shipping=Sum('order_shipping'))['total_shipping']
@@ -111,7 +113,8 @@ def superuser_login(request):
 @cache_control(no_cache=True, must_revalidate=True, max_age=0,no_store = True)
 @login_required
 def dashboard(request):
-
+    if not request.user.is_superuser:
+        return redirect('product:index')
     
     # Calculate total sales
     total_sales = Order.objects.aggregate(total_sales=Sum('order_total'))['total_sales']
@@ -225,6 +228,8 @@ def render_to_pdf(template_src, context_dict):
     return None
 
 def download_sales_report(request):
+    if not request.user.is_superuser:
+        return redirect('product:index')
     # Retrieve data for the sales report
     total_sales = Order.objects.aggregate(total_sales=Sum('order_total'))['total_sales']
     total_shipping = Order.objects.aggregate(total_shipping=Sum('order_shipping'))['total_shipping']
@@ -352,6 +357,8 @@ def get_weekly_sales():
 
 @login_required
 def custom_date_range_data(request):
+    if not request.user.is_superuser:
+        return redirect('product:index')
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')
@@ -383,6 +390,8 @@ def custom_date_range_data(request):
 
 
 def dashboard_view(request):
+    if not request.user.is_superuser:
+        return redirect('product:index')
     dashboard_url = reverse('admin_side:dashboard')
     return render(request, 'admin/dashboard.html', {'dashboard_url': dashboard_url})
 
@@ -441,6 +450,8 @@ def logout_view(request):
     return redirect('userauths:sign-in')
 
 def create_coupon(request):
+    if not request.user.is_superuser:
+        return redirect('product:index')
     if request.method == 'POST':
         form = CouponForm(request.POST)
         if form.is_valid():
@@ -452,6 +463,8 @@ def create_coupon(request):
 
 
 def coupon(request):
+    if not request.user.is_superuser:
+        return redirect('product:index')
     # Fetch all active coupons from the database
     coupons = Coupon.objects.all()
 
@@ -461,6 +474,8 @@ def coupon(request):
 
 
 def delete_coupon(request, id):
+    if not request.user.is_superuser:
+        return redirect('product:index')
     coupon = get_object_or_404(Coupon, id=id)
     if request.method == 'POST':
         coupon.delete()

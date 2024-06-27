@@ -6,25 +6,56 @@
     <style>
         .product-img {
             display: block;
-            width: 280px; /* Set the desired width */
-            height: 250px; /* Set the desired height */
-            object-fit: cover; /* Crop the image to fit the specified dimensions */
+            width: 280px;
+            height: 250px; 
+            object-fit: cover;
         
         }
     
         .product-imgg {
-            width: 200px;
-            height: 200px;
+            
             position: relative;
             overflow: hidden;
         }
         
-        .product-img img {
+        .product-imgg {
+            position: relative;
+            overflow: hidden;
             width: 100%;
-            {% comment %} height: 100%; {% endcomment %}
-            object-fit: cover;
+            padding-top: 75%; /* Aspect ratio 4:3 (adjust as needed) */
         }
         
+        .product-imgg img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .product-imgg:hover img {
+            transform: scale(1.1);
+        }
+        
+        .product-cart-wrap {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+        
+        .product-content-wrap {
+            padding: 10px;
+        }
+        
+        .fixed-size-img {
+            width: 100%;
+            height: auto;
+        }
+        
+      
     </style>
 </head>
 <main class="main">
@@ -309,31 +340,32 @@
                     <div class="product-cart-wrap small hover-up">
                         <div class="product-img-action-wrap">
                             <div class="product-imgg product-img-zoom">
-                                <a href="{% url "product:product-detail" n.id n.product.product_catg.id %}">
+                                <a href="{% url 'product:product-detail' n.id n.product.product_catg.id %}">
                                     <img class="default-img fixed-size-img" src="{{ n.variantimage_set.first.images.url }}" alt="">
-                                    <img class="hover-img fixed-size-img" src="{{ n.variantimage_set.first.images.url }}" alt="">
                                 </a>
                             </div>
                             <div class="product-action-1">
-                                <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="{% url 'product:add_wishlist' n.id n.product.product_catg.id%}" tabindex="0"><i class="fi-rs-heart"></i></a>
+                                <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="{% url 'product:add_wishlist' n.id n.product.product_catg.id %}" tabindex="0">
+                                    <i class="fi-rs-heart"></i>
+                                </a>
                             </div>
                             <div class="product-badges product-badges-position product-badges-mrg">
-                                {% if  n.sale_price != n.max_price%}
-                                <span class="hot">-{{n.get_percentage|floatformat:0}}%</span>
+                                {% if n.sale_price != n.max_price %}
+                                <span class="hot">-{{ n.get_percentage|floatformat:0 }}%</span>
                                 {% endif %}
                             </div>
                         </div>
                         <div class="product-content-wrap">
-                            <h2><a href="">{{n.product|truncatechars:19}}</a></h2>
-                           
+                            <h2><a href="">{{ n.product|truncatechars:19 }}</a></h2>
                             <div class="product-price">
                                 <span>Rs.<span>{{ n.sale_price }}</span></span>
-                                {% if  n.sale_price != n.max_price%}
-                                <span class="old-price">Rs.{{n.max_price}}</span>
+                                {% if n.sale_price != n.max_price %}
+                                <span class="old-price">Rs.{{ n.max_price }}</span>
                                 {% endif %}
                             </div>
                         </div>
                     </div>
+                    
                     {% endfor %}
                     <!--End product-cart-wrap-2-->
                 </div>
@@ -357,68 +389,7 @@
             </div>
         </div>
     </section>
-    <section class="bg-grey-9 section-padding">
-        <div class="container pt-15 pb-25">
-            <div class="heading-tab d-flex">
-                <div class="heading-tab-left wow fadeIn animated">
-                    <h3 class="section-title mb-20"><span>Monthly</span> Best Sell</h3>
-                </div>
-                
-            </div>
-            <div class="row">
-             \  
-                <div class="col-lg-12 col-md-12">
-                    <div class="tab-content wow fadeIn animated" id="myTabContent-1">
-                        <div class="tab-pane fade show active" id="tab-one-1" role="tabpanel" aria-labelledby="tab-one-1">
-                            <div class="carausel-4-columns-cover arrow-center position-relative">
-                                <div class="slider-arrow slider-arrow-2 carausel-4-columns-arrow" id="carausel-4-columns-arrows"></div>
-                                <div class="carausel-4-columns carausel-arrow-center" id="carausel-4-columns">
-                                    {% for b in best %}
-                                        <div class="product-cart-wrap">
-                                            <div class="product-img-action-wrap">
-                                                <div class="product-img product-img-zoom">
-                                                    <a href="shop-product-right.html">
-                                                        <img class="default-img" src="{{ b.order_product__variantimage__images   }}" alt="{{ b.order_product__product__product_name }}">
-                                                        <img class="hover-img" src="{{ b.order_product__variant_images__images }}" alt="{{ b.order_product__product__product_name }}">
-                                                    </a>
-                                                </div>
-                                                <div class="product-action-1">
-                                                    <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                                </div>
-                                                <div class="product-badges product-badges-position product-badges-mrg">
-                                                    <span class="hot">Hot</span>
-                                                </div>
-                                            </div>
-                                            <div class="product-content-wrap">
-                                                <div class="product-category">
-                                                    {{ b.order_product__product__category__category_name }}
-                                                </div>
-                                                <h2><a href="shop-product-right.html">{{ b.order_product__product__product_name }}</a></h2>
-                                                <div class="product-price">
-                                                    <span>${{ b.order_product__sale_price }} </span>
-                                                    <span class="old-price">${{ b.order_product__max_price }}</span>
-                                                </div>
-                                                <div class="product-action-1 show">
-                                                    <a aria-label="Add To Cart" class="action-btn hover-up" href="shop-cart.html"><i class="fi-rs-shopping-bag-add"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-
-                                    
-
-
-                                </div>
-                            </div>
-                        </div>
-                        <!--End tab-pane-->
-                        
-                    <!--End tab-content-->
-                </div>
-                <!--End Col-lg-9-->
-            </div>
-        </div>
-    </section>
+ 
  
 
 

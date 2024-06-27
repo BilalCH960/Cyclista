@@ -177,8 +177,13 @@ def product_detail_view(request, pid, cate_id):
   if request.user.is_authenticated:
      user_review_count = ProductReview.objects.filter(user = request.user, product=product).count()
 
-  if user_review_count > 0:
-     make_review = False
+     if user_review_count > 0:
+      make_review = False
+
+
+     wishlist = Wishlist.objects.filter(user=request.user, wish_item=product).exists()
+  else:
+     wishlist = False
 
   context = {
     "make_review" : make_review,
@@ -188,6 +193,7 @@ def product_detail_view(request, pid, cate_id):
     "rproducts" : prodvariants,
     "review" : review,
     "review_form" : review_form,
+    "in_wishlist": wishlist,
 
   }
 
@@ -329,7 +335,7 @@ def add_wishlist(request,prid, cid):
     else:
         Wishlist.objects.create(user = request.user, wish_item = product)
         messages.success(request, "the product added to Wishlist successfully")
-        return redirect('product:product-list')
+      
     return redirect('product:product-detail', pid=prid , cate_id=cid) 
 
 
