@@ -116,10 +116,12 @@ def dashboard(request):
     # Calculate total sales
     total_sales = Order.objects.aggregate(total_sales=Sum('order_total'))['total_sales']
     total_shipping = Order.objects.aggregate(total_shipping=Sum('order_shipping'))['total_shipping']
-    if total_sales == 0:
-        total_sales_amount = 0
-    else:
+
+    try:
         total_sales_amount = total_sales - total_shipping
+    except:
+        total_sales_amount = 0
+
 
     # Count total orders
     no_of_order = Order.objects.count()
