@@ -112,10 +112,14 @@ def superuser_login(request):
 @login_required
 def dashboard(request):
 
+    
     # Calculate total sales
     total_sales = Order.objects.aggregate(total_sales=Sum('order_total'))['total_sales']
     total_shipping = Order.objects.aggregate(total_shipping=Sum('order_shipping'))['total_shipping']
-    total_sales_amount = total_sales - total_shipping
+    if total_sales == 0:
+        total_sales_amount = 0
+    else:
+        total_sales_amount = total_sales - total_shipping
 
     # Count total orders
     no_of_order = Order.objects.count()
