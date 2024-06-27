@@ -514,8 +514,7 @@ def cancel_order(request,id):
 
             if order.payment_details.payment_status == 'SUCCESS':
                 easypay = EasyPay.objects.get(user = request.user)
-                easypay.balance += amount
-                easypay.save()
+                
 
                 order.payment_details.payment_status = "REFUNDED"
                 order.payment_details.save()
