@@ -147,10 +147,13 @@ def dashboard(request):
     # Calculate overall discount
     overall_subtotal = Order.objects.aggregate(overall_subtotal=Sum('order_subtotal'))['overall_subtotal']
     try:
-        overall_discount = overall_subtotal - total_sales
+        if overall_discount < 0:
+            overall_discount = 0
+        else:
+            overall_discount = overall_subtotal - total_sales
     except:
         overall_discount = 0
-        
+
     # Get weekly, monthly, and yearly sales data
     weekly_sales_data = get_weekly_sales()
     monthly_sales_data = get_monthly_sales()
