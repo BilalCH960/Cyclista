@@ -20,7 +20,6 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-from decouple import config
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -104,11 +103,11 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config("NAME"),
-        'USER' : config("USER"),
-        'PASSWORD' : config("PASSWORD"),
-        'HOST' : config("HOST"),
-        'PORT' : config("PORT"),
+        'NAME': os.getenv("NAME"),
+        'USER' : os.getenv("USER"),
+        'PASSWORD' : os.getenv("PASSWORD"),
+        'HOST' : os.getenv("HOST"),
+        'PORT' : os.getenv("PORT"),
     }
 }
 
