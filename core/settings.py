@@ -13,12 +13,10 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
-# import environ
-# env = environ.Env()
-# environ.Env.read_env()
+from decouple import config
 
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 
 
@@ -30,10 +28,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = config("SECRET_KEY")
 print(SECRET_KEY)
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG")
+DEBUG = config("DEBUG")
 
 ALLOWED_HOSTS = ["*"]
 
@@ -103,11 +101,11 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv("NAME"),
-        'USER' : os.getenv("USER"),
-        'PASSWORD' : os.getenv("PASSWORD"),
-        'HOST' : os.getenv("HOST"),
-        'PORT' : os.getenv("PORT"),
+        'NAME': config("NAME"),
+        'USER' : config("USER"),
+        'PASSWORD' : config("PASSWORD"),
+        'HOST' : config("HOST"),
+        'PORT' : config("PORT"),
     }
 }
 
@@ -163,18 +161,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
-EMAIL_BACKEND=os.getenv("EMAIL_BACKEND")
-EMAIL_HOST=os.getenv("EMAIL_HOST")
-EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL")
-EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS")
-EMAIL_PORT = os.getenv("EMAIL_PORT")
-EMAIL_HOST_USER=os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD=os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_BACKEND=config("EMAIL_BACKEND")
+EMAIL_HOST=config("EMAIL_HOST")
+EMAIL_USE_SSL = config("EMAIL_USE_SSL")
+EMAIL_USE_TLS = config("EMAIL_USE_TLS")
+EMAIL_PORT = config("EMAIL_PORT")
+EMAIL_HOST_USER=config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD=config("EMAIL_HOST_PASSWORD")
 
 
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY")
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET")
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET")
 
 
 
@@ -198,7 +196,7 @@ AUTH_USER_MODEL = 'userauths.User'
 
 #############
 
-RAZORPAY_API_KEY = os.getenv("RAZORPAY_API_KEY")
-RAZORPAY_API_SECRET = os.getenv("RAZORPAY_API_SECRET")
+RAZORPAY_API_KEY = config("RAZORPAY_API_KEY")
+RAZORPAY_API_SECRET = config("RAZORPAY_API_SECRET")
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
