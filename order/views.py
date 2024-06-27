@@ -567,7 +567,7 @@ def return_order(request,id):
     user_details = get_object_or_404(UserProfile, user = request.user)
     order = Order.objects.get(pk = order_item.order.pk)
     finder = OrderItem.objects.filter(order = order)
-    wallet = Wallet.objects.get(user = request.user)
+    wallet, _ = Wallet.objects.get_or_create(user = request.user)
     amount = None
 
     if request.method =="POST":
