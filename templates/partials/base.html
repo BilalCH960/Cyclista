@@ -263,6 +263,10 @@
                                     <a href="{% url 'product:wishlist'%}">
                                         <img class="svgInject" alt="Evara" src="{% static 'assets/imgs/theme/icons/icon-heart.svg' %}">
                                     </a>
+                                    {% else %}
+                                    <a href="{% url 'userauths:sign-in'%}">
+                                        <img class="svgInject" alt="Evara" src="{% static 'assets/imgs/theme/icons/icon-heart.svg' %}">
+                                    </a>
                                     {% endif %}
                                 </div>
                                 <div class="header-action-icon-2">
@@ -274,7 +278,6 @@
                                 <div class="header-action-icon-2">
                                     <a href="{% url "account:my_dashboard" %}">
                                         <i class="fi-rs-user" style="font-size: 26px;"></i>
-                                        {% comment %} <span class="pro-count blue ">4</span> {% endcomment %}
                                     </a>
                                 </div>
                                 {% endif %}
