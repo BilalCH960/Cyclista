@@ -183,7 +183,7 @@ def edit_address(request,id):
         if address.name.strip() == '':
                 messages.warning(request, 'Name is required')
                 return redirect('account:edit_address')
-        elif not address.name.strip().isalpha() :
+        elif not re.match(r'^[a-zA-Z\s]+$', address.name.strip()) :
             messages.warning(request, 'Name must be alphabets')
             return redirect('account:edit_address')
         address.phone_number = request.POST['phone_number']
