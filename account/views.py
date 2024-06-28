@@ -66,6 +66,8 @@ def my_dashboard(request):
 
 
 def order_detail(request, id):
+    if not request.is_authenticated:
+         return redirect('userauths:sign-in')
     order = Order.objects.get(user = request.user, id=id)
     order_items = OrderItem.objects.filter(order=order)
 
@@ -249,6 +251,8 @@ def del_address(request,id):
 
 @login_required
 def account_edit(request):
+    if not request.is_authenticated:
+         return redirect('userauths:sign-in')
     if request.method =="POST":
         acc_user, check = UserProfile.objects.get_or_create(user = request.user)
         acc_user.full_name = request.POST.get('name')
@@ -288,12 +292,6 @@ def account_edit(request):
 
     return render(request, 'user/dashboard/edit_account.html', context)
 
-
-
-
-# class PasswordChangeView(PasswordChangeView):
-#     form_class = PasswordChangeForm
-#     success_url = reverse_lazy('account:account_edit')
 
 
 

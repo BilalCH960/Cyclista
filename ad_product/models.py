@@ -42,7 +42,6 @@ class Product(models.Model):
     is_active = models.BooleanField(default=True)
     product_brand = models.ForeignKey(Brand,on_delete=models.CASCADE, null = True)
     soft_delete = models.BooleanField(default=False)
-    # color = ColorField(default='black', blank = True)
 
 
     def product_image(self):

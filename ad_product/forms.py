@@ -25,7 +25,6 @@ class ProductOfferForm(forms.ModelForm):
 
 class ProductForm(forms.ModelForm):
 
-    # color = forms.CharField(widget=forms.TextInput(attrs={'type': 'color'}))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
