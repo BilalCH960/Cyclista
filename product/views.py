@@ -215,23 +215,8 @@ def ajax_add_review(request, id):
         rating=int(rating),
     )
 
-    # context = {
-    #     'user' : request.user.username,
-    #     'review' : request.POST['review'],
-    #     'rating' : rating,
-    #     'img' : userp.profile_pic
-    # }
+
     return redirect('product:product-detail', product.id, product.product.product_catg.id)
-
-    # average_reviews = ProductReview.objects.filter(product= product).aggregate(rating=Avg('rating'))
-
-#     return JsonResponse(
-#         {
-#             'bool' : True,
-#             'context' : context,
-#             'avg_reviews' : average_reviews,
-# }
-#     )
 
 
 
@@ -328,7 +313,8 @@ def varnts(request, pid, avid):
 @login_required
 def add_wishlist(request,prid, cid):
     if not request.user.is_authenticated:
-      return redirect('product:login')
+      return redirect('userauths:sign-in')
+    
     product = ProductVariant.objects.get(id = prid)
     if Wishlist.objects.filter(user = request.user, wish_item = product).exists():
         messages.info(request,"This item is already in your wish list")
@@ -342,7 +328,7 @@ def add_wishlist(request,prid, cid):
 @login_required
 def view_wishlist(request):
     if not request.user.is_authenticated:
-      return redirect('product:login')
+      return redirect('userauths:sign-in')
     wishlist = Wishlist.objects.filter(user = request.user)
     user_wishlist = [item.wish_item for item in wishlist]
     

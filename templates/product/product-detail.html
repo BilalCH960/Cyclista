@@ -2,8 +2,37 @@
 {% block title %}PRODUCT DETAILS{% endblock title %} 
 {% load static %}
 {% block content %}
+
 {% comment %} <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}"> {% endcomment %}
 <style>
+    .tooltip {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+    }
+    
+    .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 120px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%; /* Position the tooltip above the text */
+        left: 50%;
+        margin-left: -60px;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    
+    .tooltip:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+    }
+    
     .scrollable-div {
       height: 200px; /* Set the height of the div */
       overflow: auto; /* Add a scrollbar when content overflows */
@@ -165,7 +194,13 @@
         color: #088178; /* Change this to your desired active color */
     }
     
-    
+    .wishlist-icon-deactive .action-btn {
+        color: grey; /* Change this to your desired active color */
+    }
+
+    .action-btnn:hover {
+        color: grey; /* Change this to your desired hover color */
+    }
     
 </style>
 <div class="page-header breadcrumb-wrap">
@@ -282,6 +317,7 @@
                                             <input type="hidden" id="quantityInput" class='item_quantity' name="quantity" value="1">
                                             <a class="qty-up" onclick="increaseQuantity()"><i class="fi-rs-angle-small-up"></i></a>
                                         </div>
+                                         {% if user.is_authenticated %}
                                         <div id="cwb" class="product-extra-link2">
                                             <div class="product-action-1 show {% if in_wishlist %}wishlist-icon-active{% endif %}">
                                                 <a aria-label="Add To Wishlist" class="action-btn hover" href="{% url 'product:add_wishlist' p.id p.product.product_catg.id %}">
@@ -289,6 +325,16 @@
                                                 </a>
                                             </div>
                                         </div>
+                                        {% else %}
+                                        <div id="cwb" class="product-extra-link2">
+                                            <div class="product-action-1 show {% if in_wishlist %}wishlist-icon-deactive{% endif %} tooltip" data-info="Please login to use wishlist.">
+                                                <a aria-label="Add To Wishlist" class="action-btnn hover">
+                                                    <i class="fi-rs-heart"></i>
+                                                    <span class="tooltiptext">Please login to use wishlist.</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        {% endif %}
                                         
                                                 
                                                 
@@ -491,6 +537,13 @@
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
 <script>
+    var tooltips = document.querySelectorAll('.tooltip');
+    tooltips.forEach(function(tooltip) {
+        var info = tooltip.getAttribute('data-info');
+        tooltip.querySelector('.tooltiptext').textContent = info;
+    });
+
+
         function decreaseQuantity() {
             var quantityElement = document.getElementById('quantitySpan');
             var quantityInput = document.getElementById('quantityInput');
