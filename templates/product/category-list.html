@@ -42,21 +42,15 @@
                                     <a href="{% url "product:category-product-list" i.id %}">
                                         <img class="border-radius-15 category-img" src="{{ i.category_img.url }}" alt="">
                                     </a>
-                                    {% comment %} <div class="entry-meta">
-                                        <a class="entry-meta meta-2" href="blog-category-grid.html">Global</a>
-                                    </div> {% endcomment %}
+                                    
                                 </div>
                                 <div class="entry-content-2">
                                     <h4 class="post-title mb-15">
-                                        <a href="blog-post-right.html">{{i.category_name}}</a></h4>
+                                        <a href="{% url "product:category-product-list" i.id %}">{{i.category_name}}</a></h4>
                                     <p class="post-exerpt mb-30 font-sm">{{i.description|truncatechars:100}}</p>
-                                    {% comment %} <div class="entry-meta font-xs color-grey mt-10 pb-10">
-                                      <div>
-                                        <span class="hit-count mt-10">{{ i.product_count }} Products</span>
-                                      </div>
-                                    </div> {% endcomment %}
+                                   
                                     <div class="entry-meta meta-1 font-xs color-grey mt-10 pb-10">
-                                        <a href="blog-post-right.html" class="text-brand">Browse <i class="fi-rs-arrow-right"></i></a>
+                                        <a href="{% url "product:category-product-list" i.id %}" class="text-brand">Browse <i class="fi-rs-arrow-right"></i></a>
                                     </div>
                                 </div>
                             </article>

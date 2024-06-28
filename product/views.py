@@ -83,7 +83,7 @@ def index(request):
 def product_list_view(request):
   # products = ProductVariant.objects.filter(product_status='published')
   products_list = ProductVariant.objects.filter(is_active = True, soft_delete = False, product__soft_delete=False)
-  paginator = Paginator(products_list, 3)
+  paginator = Paginator(products_list, 9)
   count = ProductVariant.objects.filter(is_active = True, soft_delete = False, product__soft_delete=False).count()
   category = Category.objects.all()
   colors = AttributeValue.objects.filter(is_active=True)
@@ -141,7 +141,7 @@ def filter_product(request):
     else:
         products = products.order_by('-id')
 
-    paginator = Paginator(products, 3)  # Paginate with 3 items per page
+    paginator = Paginator(products, 9)  # Paginate with 3 items per page
 
     try:
         products = paginator.page(page)
