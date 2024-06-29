@@ -61,9 +61,9 @@
                             </div>
                             <div class="product-content-wrap">
                                 <div class="product-category">
-                                    <a href="shop-grid-right.html">{{i.color}}</a>
+                                    <a href="#">{{i.color}}</a>
                                 </div>
-                                <h2><a href="shop-product-right.html">{{i.product}}</a></h2>
+                                <h2><a href="{% url "product:product-detail" i.id i.product.product_catg.id  %}">{{i.product}}</a></h2>
                                
                                 <div class="product-category">  
                                     <a href="#">{{i.product.product_catg}}</a>

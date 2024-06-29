@@ -50,10 +50,7 @@
                                     </a>
                                 </div>
                                 <div class="product-action-1">
-                                    {% comment %} <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal">
-                                      <i class="fi-rs-search"></i></a> {% endcomment %}
                                     <a aria-label="Add To Wishlist" class="action-btn hover-up" href="{% url 'product:add_wishlist' i.id i.product.product_catg.id%}"><i class="fi-rs-heart"></i></a>
-                                    {% comment %} <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> {% endcomment %}
                                 </div>
                                 <div class="product-badges product-badges-position product-badges-mrg">
                                     {% if not i.sale_price == i.max_price %}
@@ -63,14 +60,9 @@
                             </div>
                             <div class="product-content-wrap">
                                 <div class="product-category">
-                                    <a href="shop-grid-right.html">{{i.color}}</a>
+                                    <a href="#">{{i.color}}</a>
                                 </div>
-                                <h2><a href="shop-product-right.html">{{i.product}}</a></h2>
-                                {% comment %} <div class="rating-result" title="90%">
-                                    <span>
-                                        <span>90%</span>
-                                    </span>
-                                </div> {% endcomment %}
+                                <h2><a href="{% url "product:product-detail" i.id i.product.product_catg.id  %}">{{i.product}}</a></h2>
                                 <div class="product-category">  
                                     <a href="#">{{i.product.product_catg}}</a>
                                 </div>
