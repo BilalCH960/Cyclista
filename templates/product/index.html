@@ -204,9 +204,11 @@
                                                         <img class="hover-img product-img" src="{{ po.variantimage_set.first.images.url }}" alt="">
                                                     </a>
                                                 </div>
+                                               
                                                 <div class="product-action-1">
                                                     <a aria-label="Add To Wishlist" class="action-btn hover-up" href="{% url 'product:add_wishlist' po.id po.product.product_catg.id%}"><i class="fi-rs-heart"></i></a>
                                                 </div>
+                                              
                                                 <div class="product-badges product-badges-position product-badges-mrg">
                                                     {% if  po.sale_price != po.max_price%}
                                                     <span class="hot">-{{po.get_percentage|floatformat:0}}%</span>
@@ -345,9 +347,11 @@
                                 </a>
                             </div>
                             <div class="product-action-1">
-                                <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="{% url 'product:add_wishlist' n.id n.product.product_catg.id %}" tabindex="0">
-                                    <i class="fi-rs-heart"></i>
-                                </a>
+                                {% if user.is_authenticated %}
+                                    <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="{% url 'product:add_wishlist' n.id n.product.product_catg.id %}" tabindex="0">
+                                        <i class="fi-rs-heart"></i>
+                                    </a>
+                                {% endif %}
                             </div>
                             <div class="product-badges product-badges-position product-badges-mrg">
                                 {% if n.sale_price != n.max_price %}
