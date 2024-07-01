@@ -129,9 +129,13 @@
                             
                         </div>
                         <!--pagination-->
+                        {% if has_products %}
                         <div id="pagination">
                             {% include 'product/async/pagination.html' %}
                         </div>
+                        {% else %}
+                        <p>No  found.</p>
+                      {% endif %}
                     </div>
                     <div class="col-lg-3 primary-sidebar sticky-sidebar">
                 

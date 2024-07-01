@@ -81,7 +81,6 @@ def index(request):
 
 @cache_control(no_cache=True, must_revalidate=True, max_age=0,no_store = True)
 def product_list_view(request):
-  # products = ProductVariant.objects.filter(product_status='published')
   products_list = ProductVariant.objects.filter(is_active = True, soft_delete = False, product__soft_delete=False)
   paginator = Paginator(products_list, 9)
   count = ProductVariant.objects.filter(is_active = True, soft_delete = False, product__soft_delete=False).count()
@@ -100,6 +99,8 @@ def product_list_view(request):
   except EmptyPage:
       products = paginator.page(paginator.num_pages)
 
+  
+
   context = {
     "products":products,
     "count":count, 
@@ -107,6 +108,8 @@ def product_list_view(request):
     "colors" : colors,
     "new" : new,
     "brands" : brands,
+    "has_products": products_list.exists()
+    
   }
   return render(request, 'product/product-list.html', context)
 
@@ -149,6 +152,9 @@ def filter_product(request):
         products = paginator.page(1)
     except EmptyPage:
         products = paginator.page(paginator.num_pages)
+
+    if not products:
+        return JsonResponse({'data': '', 'pagination': '<p>No products found.</p>'})
 
     data = render_to_string('product/async/product-list.html', {'products': products})
     pagination = render_to_string('product/async/pagination.html', {'products': products})
@@ -312,8 +318,7 @@ def varnts(request, pid, avid):
 #### Wishlist ####8989
 @login_required(login_url='userauths:sign-in')
 def add_wishlist(request,prid, cid):
-    # if not request.user.is_authenticated:
-    #   return redirect('userauths:sign-in')
+   
     
     product = ProductVariant.objects.get(id = prid)
     if Wishlist.objects.filter(user = request.user, wish_item = product).exists():
