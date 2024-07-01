@@ -33,7 +33,7 @@ from django.core.exceptions import ObjectDoesNotExist
 def my_dashboard(request):
         if not request.user.is_authenticated:
             if request.user.is_superuser:
-                return redirect('admin_side:login')
+                return redirect('admin_side:dashboard')
             messages.warning(request,'Account Blocked, Please use another account')
             return redirect('userauths:sign-in')
 
@@ -68,6 +68,8 @@ def my_dashboard(request):
 def order_detail(request, id):
     if not request.is_authenticated:
          return redirect('userauths:sign-in')
+    if request.user.is_authenticated:
+         return redirect('admin_side:dashboard')
     order = Order.objects.get(user = request.user, id=id)
     order_items = OrderItem.objects.filter(order=order)
 

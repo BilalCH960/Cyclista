@@ -9,7 +9,6 @@ urlpatterns = [
     path('signin/', views.login_view, name='sign-in'),
     path('signout/', views.logout_view, name='sign-out'),
     path('otp-verify/',views.otp_verify, name='otp_verify'),
-    path('dummy/', views.dummy_view, name='dummy_view'),
 ]
 
 

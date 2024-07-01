@@ -25,8 +25,8 @@ from account.models import UserProfile
 def index(request):
   
 
-  # if request.user.is_superuser:
-  #       return redirect('admin_side:admin_dash_handler')
+  if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
   products = ProductVariant.objects.all()
   for product in products:
     if product.stock <  1:
@@ -81,6 +81,8 @@ def index(request):
 
 @cache_control(no_cache=True, must_revalidate=True, max_age=0,no_store = True)
 def product_list_view(request):
+  if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
   products_list = ProductVariant.objects.filter(is_active = True, soft_delete = False, product__soft_delete=False)
   paginator = Paginator(products_list, 9)
   count = ProductVariant.objects.filter(is_active = True, soft_delete = False, product__soft_delete=False).count()
@@ -115,7 +117,8 @@ def product_list_view(request):
 
 
 def filter_product(request):
-    print(request.GET)
+    if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
     categories = request.GET.getlist('category[]')
     colors = request.GET.getlist('color[]')
     brands = request.GET.getlist('brand[]')
@@ -165,7 +168,8 @@ def filter_product(request):
 
 @cache_control(no_cache=True, must_revalidate=True, max_age=0,no_store = True)
 def product_detail_view(request, pid, cate_id):
-
+  if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
   user_review_count = 0
   product = ProductVariant.objects.get(id=pid, soft_delete = False)
   # review of a product
@@ -206,8 +210,10 @@ def product_detail_view(request, pid, cate_id):
   return render(request, 'product/product-detail.html', context)
 
 
-
+@login_required(login_url='userauths:sign-in')
 def ajax_add_review(request, id):
+    if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
     product = ProductVariant.objects.get(pk = id)
     user = request.user
     userp = UserProfile.objects.get(user = user)
@@ -227,6 +233,8 @@ def ajax_add_review(request, id):
 
 
 def search_view(request):
+  if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
   query = request.GET.get('q')
 
   products = ProductVariant.objects.filter(product__product_name__icontains=query).order_by("-created_at")
@@ -241,6 +249,8 @@ def search_view(request):
 
 
 def category_list_view(request):
+  if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
   categories = Category.objects.all()
   
 
@@ -251,7 +261,8 @@ def category_list_view(request):
 
 
 def category_product_list(request, id):
-
+  if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
   category = Category.objects.get(id=id)
   products = ProductVariant.objects.filter(
     Q(product_status="published") | Q(product__product_catg=category),
@@ -267,6 +278,8 @@ def category_product_list(request, id):
 
 
 def brand_list_view(request):
+  if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
   brand = Brand.objects.filter(soft_delete = False)
   
 
@@ -277,7 +290,8 @@ def brand_list_view(request):
 
 
 def brand_product_list(request, id):
-
+  if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
   brand = Brand.objects.get(id=id)
   products = ProductVariant.objects.filter(
     Q(product_status="published") | Q(product__product_brand=brand),
@@ -296,6 +310,8 @@ def brand_product_list(request, id):
 
 
 def varnts(request, pid, avid):
+    if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
     product = get_object_or_404(Product, id = pid)
     attribute_value = get_object_or_404(AttributeValue, id=avid)
     
@@ -318,7 +334,8 @@ def varnts(request, pid, avid):
 #### Wishlist ####8989
 @login_required(login_url='userauths:sign-in')
 def add_wishlist(request,prid, cid):
-   
+    if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
     
     product = ProductVariant.objects.get(id = prid)
     if Wishlist.objects.filter(user = request.user, wish_item = product).exists():
@@ -330,10 +347,10 @@ def add_wishlist(request,prid, cid):
     return redirect('product:product-detail', pid=prid , cate_id=cid) 
 
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def view_wishlist(request):
-    if not request.user.is_authenticated:
-      return redirect('userauths:sign-in')
+    if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
     wishlist = Wishlist.objects.filter(user = request.user)
     user_wishlist = [item.wish_item for item in wishlist]
     
@@ -345,8 +362,10 @@ def view_wishlist(request):
     return render(request, 'user/wishlist.html' ,context)
 
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def delete_wishlist(request,prid):
+    if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
     product = Wishlist.objects.get(user = request.user, wish_item_id= prid)
     messages.warning(request,"item has been removed from wishlist")
     product.delete()

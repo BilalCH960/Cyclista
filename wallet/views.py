@@ -14,6 +14,8 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 def wallet_view(request):
+    if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
     try:
         easy = EasyPay.objects.get(user=request.user)
         wallet = Wallet.objects.filter(user=request.user, easypay=easy).order_by('-created_at')

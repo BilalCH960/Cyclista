@@ -29,9 +29,10 @@ from django.utils.dateparse import parse_date
 
 
 # Create your views here.
-
+@login_required(login_url='userauths:sign-in')
 def order_view(request):
-    
+    if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
     cart = Cart.objects.get(user = request.user)
     cart_items = Cart_Item.objects.filter(cart = cart.id)
     dis = 0
@@ -69,8 +70,10 @@ def order_view(request):
 
 
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def place_order(request):
+    if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
     context = {} 
 
     if request.method == 'POST':    
@@ -207,60 +210,6 @@ def place_order(request):
             else:
                 messages.warning(request, "Coupon does'nt exist")
                 return redirect("order:order_view")
-            
-
-        # elif 'wallet_pay' in request.POST:
-        #     shipping_address_id = request.POST.get('shipping_add')
-        #     billing_address_id = request.POST.get('billing_add')
-
-        #     try:
-        #         shipping = Address.objects.get(id=shipping_address_id)
-        #         billing = Address.objects.get(id=billing_address_id)
-        #     except (Address.DoesNotExist, ValueError):
-        #         messages.warning(request, 'No address selected')
-        #         print('not working')
-        #         return redirect('order:order_view')
-
-        #     shipping_full_address = shipping.FullAddress()
-        #     billing_full_address = billing.FullAddress()
-
-        #     cart = Cart.objects.get(user=request.user)
-        #     cart_item = Cart_Item.objects.filter(cart=cart)
-
-        #     # Check wallet balance before proceeding
-        #     user_wallet = EasyPay.objects.get(user=request.user)
-        #     if cart.total <= user_wallet.balance:
-        #         payment_maker = Payment.objects.create(
-        #             user=request.user,
-        #             payment_method="Wallet",
-        #             payment_status='SUCCESS',
-        #             amount_paid=cart.total,
-        #         )
-        #         try:
-        #             new_order = Order.objects.create(
-        #                 user=request.user,
-        #                 payment_details=payment_maker,
-        #                 shipping_address=shipping_full_address,
-        #                 billing_address=billing_full_address,
-        #                 order_total=cart.total,
-        #                 order_subtotal=cart.sub_total,
-        #                 order_shipping=cart.shipping,
-        #             )
-        #             # ... rest of your order creation logic using new_order (similar to COD)
-
-        #             # Update wallet balance after successful order creation
-        #             user_wallet.balance -= cart.total
-        #             user_wallet.save()
-
-        #             # ... rest of your success logic
-
-        #         except Exception as e:
-        #             print(f' the error {e}')
-        #     else:
-        #         messages.warning(request, 'Insufficient funds in wallet')
-        #         return redirect('order:order_view')
-
-
             
 
         elif 'order_pay' in request.POST:
@@ -458,7 +407,8 @@ def payment_failed(request):
 
 
 def cancel_order_req(request,id):
-    print(f' ndfk the error {id}')
+    if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
     item = OrderItem.objects.get(pk= id)
 
     context = {
@@ -469,7 +419,8 @@ def cancel_order_req(request,id):
 
 
 def cancel_order(request,id):
-
+    if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
     order_item = OrderItem.objects.get(id = id)
     Product = ProductVariant.objects.get(id = order_item.order_product.id)
     user_details = get_object_or_404(UserProfile, user = request.user)
@@ -550,6 +501,8 @@ def cancel_order(request,id):
 
 
 def return_order_req(request,id):
+    if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
     print(f' ndfk the error {id}')
     item = OrderItem.objects.get(pk= id)
 
@@ -560,7 +513,8 @@ def return_order_req(request,id):
 
 
 def return_order(request,id):
-
+    if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
     order_item = OrderItem.objects.get(id = id)
     Product = ProductVariant.objects.get(id = order_item.order_product.id)
     user_details = get_object_or_404(UserProfile, user = request.user)
@@ -611,7 +565,7 @@ def return_order(request,id):
 
 
 @cache_control(no_cache=True, must_revalidate=True, max_age=0,no_store = True)
-@login_required()
+@login_required(login_url='userauths:sign-in')
 def user_orders(request, id ):
     order = get_object_or_404(Order, pk=id)
     order_item = OrderItem.objects.filter(order=order)
@@ -632,8 +586,11 @@ def user_orders(request, id ):
     
 
 
-
+@login_required(login_url='userauths:sign-in')
 def order_details(request):
+    if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
+
 
     shipping=None
     billing=None
@@ -718,8 +675,11 @@ def download_invoice(request, order_number):
 
 
 
-
-def order_listing(request,id):  
+@login_required(login_url='userauths:sign-in')
+def order_listing(request,id): 
+    if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
+ 
     order = Order.objects.get(order_number = id)
     order_item = OrderItem.objects.filter(order = order)
     user_details = UserProfile.objects.get(user = request.user)

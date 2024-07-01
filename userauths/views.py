@@ -183,9 +183,12 @@ def register_view(request):
 
 @cache_control(no_cache=True, must_revalidate=True, max_age=0,no_store = True)
 def login_view(request):
+    if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
     if request.user.is_authenticated:
         messages.warning(request, f'You are already logged in')
         return redirect("product:index")
+    
     
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -226,9 +229,6 @@ def logout_view(request):
 
 
 
-def dummy_view(request):
-    
-    return render(request, 'dummy_template.html')
 
 
 
