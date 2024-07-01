@@ -310,10 +310,10 @@ def varnts(request, pid, avid):
 
 
 #### Wishlist ####8989
-@login_required
+@login_required(login_url='userauths:sign-in')
 def add_wishlist(request,prid, cid):
-    if not request.user.is_authenticated:
-      return redirect('userauths:sign-in')
+    # if not request.user.is_authenticated:
+    #   return redirect('userauths:sign-in')
     
     product = ProductVariant.objects.get(id = prid)
     if Wishlist.objects.filter(user = request.user, wish_item = product).exists():
