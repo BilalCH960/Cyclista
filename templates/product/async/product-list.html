@@ -9,9 +9,7 @@
                 </a>
             </div>
             <div class="product-action-1">
-                {% comment %} <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a> {% endcomment %}
-                <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                {% comment %} <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> {% endcomment %}
+                <a aria-label="Add To Wishlist" class="action-btn hover-up" href="{% url 'product:add_wishlist' n.id n.product.product_catg.id%}"><i class="fi-rs-heart"></i></a>
             </div>
             <div class="product-badges product-badges-position product-badges-mrg">
                 {% if  p.sale_price != p.max_price%}
@@ -25,11 +23,6 @@
             </div>
             <h2><a href="shop-product-right.html">{{p.product}}</a></h2>
             <br>
-            {% comment %} <div class="rating-result" title="90%">
-                <span>
-                    <span>90%</span>
-                </span>
-            </div> {% endcomment %}
             <div class="product-price">
                 <span> Rs.{{ p.sale_price }}</span>
                 {% if  p.sale_price != p.max_price%}
