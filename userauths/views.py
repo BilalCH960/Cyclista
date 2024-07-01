@@ -173,9 +173,6 @@ def register_view(request):
         except User.DoesNotExist:
             pass
 
-        # referral_code = str(uuid.uuid4())[:8]  # Generate a unique referral code
-        # Referral.objects.create(user=request.user, referral_code=referral_code)
-       
         login_otp = random.randint(100000, 999999)
         print(login_otp)
         request.session['otp_key'] = str(login_otp)

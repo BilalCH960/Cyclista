@@ -120,29 +120,28 @@
                                             <button type="submit" class="btn btn-fill-out btn-block hover-up" name="login">Submit &amp; Register</button>
                                         </div>
                                       </form> {% endcomment %}
-                                        <form method="post" onsubmit = "(e)=>e.preventDefault()">
-                                            {% csrf_token %}
-                                            <div class="form-group">
-                                                <input required="" type='username' name="username" placeholder="Username">
-                                            </div>
-                                            <div class="form-group">
-                                                <input type="text" required="" name="email" placeholder="Email">
-                                            </div>
-                                            <div class="form-group">
-                                                <input required="" type="password" name="password" placeholder="Password">
-                                            </div>
-                                            <div class="form-group">
-                                                <input required="" type="password" name="pass2" placeholder="Confirm password">
-                                            </div>
-                                            <div class="text-muted">Do you have a referral code?</div>
-                                            <div class="form-group">
-                                                <input type="text" name="referral_code" placeholder="Referral code">
-                                            </div>
-                                          
-                                            <div class="form-group">
-                                                <button type="submit" class="btn btn-fill-out btn-block hover-up" name="login">Submit &amp; Register</button>
-                                            </div>
-                                        </form>
+                                      <form method="post">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <input required="" type="text" name="username" placeholder="Username" value="{{ request.session.username }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="text" required="" name="email" placeholder="Email" value="{{ request.session.email }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <input required="" type="password" name="password" placeholder="Password">
+                                        </div>
+                                        <div class="form-group">
+                                            <input required="" type="password" name="pass2" placeholder="Confirm password">
+                                        </div>
+                                        <div class="text-muted">Do you have a referral code?</div>
+                                        <div class="form-group">
+                                            <input type="text" name="referral_code" placeholder="Referral code" value="{{ request.session.code }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <button type="submit" class="btn btn-fill-out btn-block hover-up" name="login">Submit &amp; Register</button>
+                                        </div>
+                                    </form>
                                      
                                         <div class="text-muted text-center">Already have an account? <a href="{% url 'userauths:sign-in' %}">Sign in now</a></div>
                                     </div>
