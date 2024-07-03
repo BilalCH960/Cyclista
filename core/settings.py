@@ -31,8 +31,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config("DEBUG", cast=bool)
-print(type(DEBUG))
+DEBUG = config("DEBUG",cast = bool)
+
 ALLOWED_HOSTS = ["*"]
 
 
@@ -70,8 +70,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'product.Errormiddleware.CustomErrorMiddleware',
-    'account.middleware.authenticate_myuser',
+    'account.middleware.authenticate_myuser'
 ]
 
 ROOT_URLCONF = 'core.urls'
