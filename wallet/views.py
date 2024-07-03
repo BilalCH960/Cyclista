@@ -3,7 +3,7 @@ from wallet.models import Wallet, EasyPay, Referral
 from django.db.models import Q
 from django.contrib import messages
 import shortuuid
-
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 
 # Create your views here.
@@ -12,7 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 
-
+@login_required(login_url='userauths:sign-in')
 def wallet_view(request):
     if request.user.is_superuser:
          return redirect('admin_side:dashboard')
@@ -29,7 +29,7 @@ def wallet_view(request):
     return render(request, 'user/dashboard/wallet.html', context)
 
 
-
+@login_required(login_url='userauths:sign-in')
 def credit(amount, order_item, user):
     print('hi')
     try:
@@ -53,7 +53,7 @@ def credit(amount, order_item, user):
         print(f'the error is that which is {e}')
 
 
-
+@login_required(login_url='userauths:sign-in')
 def easypay(total, order, user):
     easy = get_object_or_404(EasyPay, user=user)
     if easy.balance < total:
