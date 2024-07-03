@@ -360,7 +360,7 @@
                             </div>
                         </div>
                         <div class="product-content-wrap">
-                            <h2><a href="">{{ n.product|truncatechars:19 }}</a></h2>
+                            <h2><a href="{% url 'product:product-detail' n.id n.product.product_catg.id %}">{{ n.product|truncatechars:19 }}</a></h2>
                             <div class="product-price">
                                 <span>Rs.<span>{{ n.sale_price }}</span></span>
                                 {% if n.sale_price != n.max_price %}
