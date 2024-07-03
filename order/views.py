@@ -544,7 +544,8 @@ def return_order(request,id):
                 order_item.order.order_total = 0
                 order_item.order.save()
 
-                
+            credit(amount, order_item, request.user)
+            messages.success(request,' Order Returned and Amount has been refunded ')
             Product.save()
 
             context = {
