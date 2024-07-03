@@ -328,7 +328,7 @@
                                         {% else %}
                                         <div id="cwb" class="product-extra-link2">
                                             <div class="product-action-1 show {% if in_wishlist %}wishlist-icon-deactive{% endif %} tooltip" data-info="Please login to use wishlist.">
-                                                <a aria-label="Add To Wishlist" class="action-btnn hover">
+                                                <a href="{% url 'product:add_wishlist' p.id p.product.product_catg.id %}" aria-label="Add To Wishlist" class="action-btnn hover">
                                                     <i class="fi-rs-heart"></i>
                                                     <span class="tooltiptext">Please login to use wishlist.</span>
                                                 </a>
@@ -503,16 +503,14 @@
                                                         </a>
                                                     </div>
                                                     <div class="product-action-1">
-                                                        <a aria-label="Quick view" class="action-btn small hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-search"></i></a>
-                                                        <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="shop-wishlist.html" tabindex="0"><i class="fi-rs-heart"></i></a>
-                                                        <a aria-label="Compare" class="action-btn small hover-up" href="shop-compare.html" tabindex="0"><i class="fi-rs-shuffle"></i></a>
+                                                        <a aria-label="Add To Wishlist" class="action-btn small hover-up" href="{% url 'product:add_wishlist' re.id re.product.product_catg.id%}" tabindex="0"><i class="fi-rs-heart"></i></a>
                                                     </div>
                                                     <div class="product-badges product-badges-position product-badges-mrg">
                                                         <span class="hot">-{{re.get_percentage|floatformat:0}}</span>
                                                     </div>
                                                 </div>
                                                 <div class="product-content-wrap">
-                                                    <h2><a href="shop-product-right.html" tabindex="0">{{re.product}}</a></h2>
+                                                    <h2><a href="{% url "product:product-detail" re.id re.product.product_catg.id  %}" tabindex="0">{{re.product}}</a></h2>
                                                    
                                                     <div class="product-price">
                                                         <span>Rs.{{re.sale_price}}</span>
