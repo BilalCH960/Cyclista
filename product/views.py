@@ -81,7 +81,8 @@ def index(request):
 
 @cache_control(no_cache=True, must_revalidate=True, max_age=0,no_store = True)
 def product_list_view(request):
-
+  if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
   products_list = ProductVariant.objects.filter(is_active = True, soft_delete = False, product__soft_delete=False)
   paginator = Paginator(products_list, 9)
   count = ProductVariant.objects.filter(is_active = True, soft_delete = False, product__soft_delete=False).count()
@@ -116,7 +117,8 @@ def product_list_view(request):
 
 
 def filter_product(request):
-
+    if request.user.is_superuser:
+         return redirect('admin_side:dashboard')
     categories = request.GET.getlist('category[]')
     colors = request.GET.getlist('color[]')
     brands = request.GET.getlist('brand[]')
