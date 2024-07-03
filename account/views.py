@@ -68,7 +68,7 @@ def my_dashboard(request):
 def order_detail(request, id):
     if not request.is_authenticated:
          return redirect('userauths:sign-in')
-    if request.user.is_authenticated:
+    if request.user.is_superuser:
          return redirect('admin_side:dashboard')
     order = Order.objects.get(user = request.user, id=id)
     order_items = OrderItem.objects.filter(order=order)
@@ -80,13 +80,13 @@ def order_detail(request, id):
     return render(request, 'user/dashboard/order-detail.html', context)
 
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 @cache_control(no_cache=True, must_revalidate=True, max_age=0,no_store = True)
 def add_address(request):
-    if not request.user.is_authenticated:
-        if not request.user.is_superuser:
-            return redirect('admin_side:login')
-        return redirect('product:index')
+
+    if request.user.is_superuser:
+        return redirect('admin_side:login')
+
     
     if request.method=="POST":
         try:
@@ -148,12 +148,10 @@ def add_address(request):
     return render(request, 'user/dashboard/address.html')
 
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def manage_address(request):
-    if not request.user.is_authenticated:
-        if not request.user.is_superuser:
-            return redirect('admin_side:login')
-        return redirect('product:index')
+    if request.user.is_superuser:
+        return redirect('admin_side:login')
     
     try:
         context = {
@@ -169,14 +167,11 @@ def manage_address(request):
     return render(request, 'user/dashboard/manage_address.html',context)
 
 
-
-@login_required
+@login_required(login_url='userauths:sign-in')
 @cache_control(no_cache=True, must_revalidate=True, max_age=0,no_store = True)
 def edit_address(request,id):
-    if not request.user.is_authenticated:
-        if not request.user.is_superuser:
-            return redirect('admin_side:login')
-        return redirect('product:index')
+    if not request.user.is_superuser:
+        return redirect('admin_side:login')
     address = get_object_or_404(Address, (Q(user = request.user) & Q(id=id)))
     if request.method == "POST":
         user = request.user
@@ -243,7 +238,7 @@ def edit_address(request,id):
     }
     return render(request, 'user/dashboard/address_edit.html', context)
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def del_address(request,id):
     address = get_object_or_404(Address, user = request.user, id=id)
     messages.info(request,f'the address {address} has been deleted')
@@ -251,10 +246,9 @@ def del_address(request,id):
     return redirect('account:manage_address')
 
 
-@login_required
+@login_required(login_url='userauths:sign-in')
 def account_edit(request):
-    if not request.is_authenticated:
-         return redirect('userauths:sign-in')
+
     if request.method =="POST":
         acc_user, check = UserProfile.objects.get_or_create(user = request.user)
         acc_user.full_name = request.POST.get('name')
