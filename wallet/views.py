@@ -29,7 +29,7 @@ def wallet_view(request):
     return render(request, 'user/dashboard/wallet.html', context)
 
 
-@login_required(login_url='userauths:sign-in')
+
 def credit(amount, order_item, user):
     print('hi')
     try:
