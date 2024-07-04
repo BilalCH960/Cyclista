@@ -369,13 +369,7 @@ def variant_edit(request,id):
     cl = var.color.id
     clr = get_object_or_404(AttributeValue, id = cl)
 
-    
-    
-    
-
-    print(var.color.Attribute_value)
     if request.method =="POST":
-        # var.size = request.POST['size']
         var.max_price = request.POST['max_price']
         var.sale_price = request.POST['sale_price']
         if var.max_price < var.sale_price:

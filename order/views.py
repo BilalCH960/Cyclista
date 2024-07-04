@@ -423,7 +423,7 @@ def cancel_order(request,id):
          return redirect('admin_side:dashboard')
     order_item = OrderItem.objects.get(id = id)
     Product = ProductVariant.objects.get(id = order_item.order_product.id)
-    user_details = get_object_or_404(UserProfile, user = request.user)
+    user_details, _ = UserProfile.objects.get_or_create(user = request.user)
     order = Order.objects.get(pk = order_item.order.pk)
     finder = OrderItem.objects.filter(order = order)
     amount = None
@@ -464,7 +464,7 @@ def cancel_order(request,id):
             
 
             if order.payment_details.payment_status == 'SUCCESS':
-                easypay = EasyPay.objects.get(user = request.user)
+                easypay, _ = EasyPay.objects.get_or_create(user = request.user)
                 
 
                 order.payment_details.payment_status = "REFUNDED"
@@ -517,10 +517,10 @@ def return_order(request,id):
          return redirect('admin_side:dashboard')
     order_item = OrderItem.objects.get(id = id)
     Product = ProductVariant.objects.get(id = order_item.order_product.id)
-    user_details = get_object_or_404(UserProfile, user = request.user)
+    user_details, _ = UserProfile.objects.get_or_create( user = request.user)
     order = Order.objects.get(pk = order_item.order.pk)
     finder = OrderItem.objects.filter(order = order)
-    wallet, _ = Wallet.objects.get_or_create(user = request.user)
+    # wallet, _ = Wallet.objects.get_or_create(user = request.user)
     amount = None
 
     if request.method =="POST":
@@ -543,6 +543,15 @@ def return_order(request,id):
             if len(finder) <= 1:
                 order_item.order.order_total = 0
                 order_item.order.save()
+
+
+            if order.payment_details.payment_status == 'SUCCESS':
+                easypay, _ = EasyPay.objects.get_or_create(user = request.user)
+                
+
+                order.payment_details.payment_status = "REFUNDED"
+                order.payment_details.save()
+                order.save()
 
             credit(amount, order_item, request.user)
             messages.success(request,' Order Returned and Amount has been refunded ')
