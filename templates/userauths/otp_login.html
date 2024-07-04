@@ -147,40 +147,72 @@
         const otpForm = document.querySelector('#otp form');
         const otpInputs = otpForm.querySelectorAll('input[name="otp"]');
         const resendLink = document.getElementById('re');
-
-
-        var storedCountdownValue = localStorage.getItem('countdownValue');
-        var countdownValue = storedCountdownValue ? parseInt(storedCountdownValue) : 30;
-
+    
+        var countdownValue = 60;
         var countdownInterval;
-
-        window.onload = function () {
-            resendOTP();
-        };
-
+    
         function resendOTP() {
             console.log('Resend OTP button clicked');
             resendLink.style.pointerEvents = 'none'; // Disable link
             resendLink.style.color = 'gray'; // Change link color
-
+    
+            // Reset countdown variables
             clearInterval(countdownInterval);
+            countdownValue = 60;
+    
+            // Update UI with new countdown
             countdownInterval = setInterval(function() {
                 countdownValue--;
-
+    
                 if (countdownValue <= 0) {
                     clearInterval(countdownInterval);
                     resendLink.style.pointerEvents = 'auto'; // Enable link when countdown ends
                     resendLink.style.color = 'white'; // Restore original link color
                     $("#otp-expiry-time").text('');
-                    countdownValue = 60;
+                    disableVerifyButton(true); // Disable Verify OTP button
                 } else {
                     $("#otp-expiry-time").text('Resend in ' + countdownValue + ' seconds');
+                    disableVerifyButton(false); // Enable Verify OTP button
                 }
-
+    
                 localStorage.setItem('countdownValue', countdownValue.toString());
             }, 1000);
+    
+            // Send AJAX request to resend OTP
+            $.ajax({
+                url: '{% url 'userauths:otp_verify' %}',
+                type: 'POST',
+                data: {
+                    'resend': true,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(data) {
+                    // Handle success message or update UI as needed
+                    console.log('OTP Resent Successfully');
+                },
+                error: function(xhr, errmsg, err) {
+                    // Handle errors if any
+                    console.log('Error Resending OTP');
+                }
+            });
         }
+    
+        function disableVerifyButton(disable) {
+            const verifyButton = otpForm.querySelector('button[type="submit"]');
+            if (disable) {
+                verifyButton.setAttribute('disabled', 'disabled');
+                verifyButton.classList.add('disabled');
+            } else {
+                verifyButton.removeAttribute('disabled');
+                verifyButton.classList.remove('disabled');
+            }
+        }
+    
+        // Automatically trigger resend OTP on page load
+        resendOTP();
     });
+    
+ 
 </script>
 
 <script src="js/vendor/modernizr-3.6.0.min.js"></script>

@@ -372,6 +372,13 @@ def variant_edit(request,id):
     if request.method =="POST":
         var.max_price = request.POST['max_price']
         var.sale_price = request.POST['sale_price']
+        if '-' in str(var.max_price) or  '-' in str(var.sale_price) or  '-' in str(var.stock):
+            messages.warning(request,'cant add negative values')
+            return redirect('ad_product:product_variant')
+        
+        if  str(var.max_price) == '0' or  str(var.sale_price)=='0' or  str(var.stock)=='0' :
+            messages.warning(request,'cant add only 0 as values ')
+            return redirect('ad_product:product_variant')
         if var.max_price < var.sale_price:
             messages.warning(request,'Max price must be higher than Sale price')
             return redirect('ad_product:product_variant')

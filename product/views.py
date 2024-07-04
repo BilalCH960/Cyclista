@@ -34,7 +34,7 @@ def index(request):
         product.save()
 
   try:
-    products = ProductVariant.objects.filter(is_active = True, featured = True, soft_delete = False, product__soft_delete=False)
+    products = ProductVariant.objects.filter(is_active = True, featured = True, soft_delete = False, product__soft_delete=False, stock__gt = 0)
     new = ProductVariant.objects.filter(Q(is_active = True)&Q(soft_delete = False, product__soft_delete=False)).order_by("-updated_at")[:10]
     cat = Category.objects.filter(is_available = True) 
     product_variant_quantities = OrderItem.objects.values('order_product').annotate(total_quantity_sold=Sum('quantity'))
@@ -83,7 +83,7 @@ def index(request):
 def product_list_view(request):
   if request.user.is_superuser:
          return redirect('admin_side:dashboard')
-  products_list = ProductVariant.objects.filter(is_active = True, soft_delete = False, product__soft_delete=False)
+  products_list = ProductVariant.objects.filter(is_active = True, soft_delete = False, product__soft_delete=False, stock__gt = 0)
   paginator = Paginator(products_list, 9)
   count = ProductVariant.objects.filter(is_active = True, soft_delete = False, product__soft_delete=False).count()
   category = Category.objects.all()
@@ -125,7 +125,7 @@ def filter_product(request):
     sort_by = request.GET.get('sort_by', '')
     page = request.GET.get('page', 1)
 
-    products = ProductVariant.objects.filter(is_active=True, soft_delete=False, product__soft_delete=False).distinct()
+    products = ProductVariant.objects.filter(is_active=True, soft_delete=False, product__soft_delete=False, stock__gt = 0).distinct()
 
     if categories:
         products = products.filter(product__product_catg__id__in=categories).distinct()
@@ -237,7 +237,7 @@ def search_view(request):
          return redirect('admin_side:dashboard')
   query = request.GET.get('q')
 
-  products = ProductVariant.objects.filter(product__product_name__icontains=query).order_by("-created_at")
+  products = ProductVariant.objects.filter(product__product_name__icontains=query, stock__gt=0, is_active=True).order_by("-created_at")
   count = products.count()
 
   context = {

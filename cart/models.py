@@ -1,6 +1,7 @@
 from django.db import models
 from product.models import User
 from ad_product.models import ProductVariant
+from django.utils import timezone
 
 
 class Coupon(models.Model):
@@ -20,6 +21,11 @@ class Coupon(models.Model):
     
     def coupon_name(self):
         return f"{self.code}"
+    
+    def save(self, *args, **kwargs):
+        if self.valid_to and self.valid_to < timezone.now():
+            self.is_active = False
+        super().save(*args, **kwargs)
     
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

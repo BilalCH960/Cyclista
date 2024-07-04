@@ -16,6 +16,7 @@ urlpatterns = [
     path('view-cancel_order_request/<int:id>/', views.cancel_order, name="cancel_order"),
     path('return_order_req/<int:id>/', views.return_order_req, name="return_order_req"),
     path('view-return_order_request/<int:id>/', views.return_order, name="return_order"),
+
     path('view-admin_order', views.admin_order_view, name="admin_order_view"),
     path('admin/orders/filter/', views.filter_orders_by_date, name='filter_orders_by_date'),
     path('admin/orders/filter/pdf/', views.filter_orders_pdf, name='filter_orders_pdf'),
@@ -23,7 +24,9 @@ urlpatterns = [
     path('admin_order_item_view/<int:id>/', views.admin_order_item_view, name="admin_order_item_view"),
     path('admin_order_status/', views.admin_order_status, name="admin_order_status"), 
     path('admin_order_status_all/', views.admin_order_status_all, name="admin_order_status_all"), 
+    
     path('user_details_views/<int:id>', views.user_details_views, name="user_details_views"),
+    path('remove_coupon/', views.remove_coupon, name="remove_coupon"),
    
     path('payment/success',views.payment_success,name='success'),
     path('payment/failed',views.payment_failed,name='failed'),

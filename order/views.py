@@ -69,6 +69,34 @@ def order_view(request):
     return render(request, 'user/checkout.html',context)
 
 
+def remove_coupon(request):
+    last_order = Order.objects.latest('order_time')
+    cart = Cart.objects.get(user = request.user)
+    code = cart.coupon
+    coupon = Coupon.objects.filter(code=code, is_active=True).first()
+    cart_item = Cart_Item.objects.filter(cart = cart)
+    print(coupon)
+    if coupon:
+        discount = cart.total * coupon.discount /100
+        cart.coupon = coupon
+
+        if discount > coupon.max_discount_amount:
+            discount = coupon.max_discount_amount
+        cart.total = cart.sub_total + cart.shipping
+        
+        print(f'discount={discount}')
+
+        del request.session['coupon']
+        cart.coupon = None
+
+        cart.save()
+        messages.success(request,'Coupon removed')
+        return redirect("order:order_view")
+    else:
+        messages.warning(request, "Coupon does'nt exist")
+        return redirect("order:order_view")
+
+
 
 @login_required(login_url='userauths:sign-in')
 def place_order(request):
@@ -187,6 +215,7 @@ def place_order(request):
             coupon = Coupon.objects.filter(code=code, is_active=True).first()
             cart = Cart.objects.get(user = request.user)
             cart_item = Cart_Item.objects.filter(cart = cart)
+            
             if coupon:
                 if cart.coupon and coupon == cart.coupon:
                     messages.warning(request, 'Coupon already applied')
@@ -823,16 +852,35 @@ def admin_order_status(request):
             order_id = request.POST.get('order_id')
             select_status = request.POST.get('status')
             order_item = get_object_or_404(OrderItem, order_item_id = order_id)
+            order = order_item.order.pk
+            print(order)
+            order = Order.objects.get(pk = order)
             order_item.order_status = select_status
+            amount = (int(order_item.product_price) * int(order_item.quantity))
 
             if select_status == "CANCELLED":
-                order_item.order.order_total -= (int(order_item.product_price) * int(order_item.quantity))
+                order_item.order.order_total -= amount
 
                 if order_item.order.order_total < 0:
                     order_item.order.order_total = 0
 
                 order_item.order.save()
             order_item.save()
+
+            if order.payment_details.payment_status == 'SUCCESS':
+                print("hello")
+                easypay, _ = EasyPay.objects.get_or_create(user = order.user)
+                
+
+                order.payment_details.payment_status = "REFUNDED"
+                order.payment_details.save()
+                order.save()
+
+                user = order.user
+
+                credit(amount, order_item, user)
+                messages.success(request,' Order Cancelled and Amount has been refunded ')
+
             data = {'success': True}
             return JsonResponse(data)
         

@@ -97,11 +97,16 @@
                                         <input type="hidden" class="order-id" value="{{ o.order_item_id }}">
                                         <select class="form-select status-select d-inline-block mb-lg-0 mb-15 mw-200">
                                             {% for status_code, status_label in o.ORDER_STATUS %}
-                                                <option value="{{ status_code }}" {% if status_code == o.order_status %} selected {% endif %}>{{ status_label }}</option>
+                                                <option value="{{ status_code }}" {% if status_code == o.order_status %} selected {% endif %}
+                                                    {% if status_code == 'RETURNED' %} disabled {% endif %}>
+                                                    {{ status_label }}
+                                                </option>
                                             {% endfor %}
                                         </select>
-                                        <button type="submit" class="btn btn-primary save-btn" {% if o.order_status == "CANCELLED" or o.order_status == "RETURNED" %}disabled{% endif %}>Save</button>
+                                        <button type="submit" class="btn btn-primary save-btn" {% if o.order_status == "CANCELLED" or o.order_status == "RETURNED" %} disabled {% endif %}>Save</button>
                                     </form>
+                                    
+                                    
                                 </td>
                                 
                                   <td class="text-end"> {{ o.product_price }} </td>
