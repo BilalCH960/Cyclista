@@ -372,21 +372,25 @@ def variant_edit(request,id):
     if request.method =="POST":
         var.max_price = request.POST['max_price']
         var.sale_price = request.POST['sale_price']
+        var.stock = request.POST['stock']
+        color = request.POST['color']
+        color = AttributeValue.objects.get(Attribute_value = color)
+        var.color = color
         if '-' in str(var.max_price) or  '-' in str(var.sale_price) or  '-' in str(var.stock):
             messages.warning(request,'cant add negative values')
-            return redirect('ad_product:product_variant')
+            return redirect('ad_product:variant_edit', id)
         
         if  str(var.max_price) == '0' or  str(var.sale_price)=='0' or  str(var.stock)=='0' :
             messages.warning(request,'cant add only 0 as values ')
-            return redirect('ad_product:product_variant')
+            return redirect('ad_product:variant_edit', id)
         if var.max_price < var.sale_price:
             messages.warning(request,'Max price must be higher than Sale price')
-            return redirect('ad_product:product_variant')
+            return redirect('ad_product:variant_edit', id)
         var.stock = request.POST['stock']
         var.description = request.POST['description']
         if var.description.strip() == '':
             messages.warning(request,'cant add empty description')
-            return redirect('ad_product:product_variant')
+            return redirect('ad_product:variant_edit', id)
         var.featured = request.POST.get('featured') == 'on'
         try: 
             var.save()

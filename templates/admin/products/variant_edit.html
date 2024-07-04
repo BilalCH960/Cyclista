@@ -83,7 +83,7 @@
                     <option style="background-color:black; color:white;" value="{{ clr.Attribute_value }}">{{ clr.Attribute_value }}</option>
                         {% for i in color %}
                         {% if clr.Attribute_value != i.Attribute_value %}
-                        <option value="{{ i.Attribute_value }}" {% if clr.Attribute_value == i.Attribute_value %} selected {% endif %}>{{ i.Attribute_value}}</option>
+                        <option value="{{ i.Attribute_value }}" {% if clr.Attribute_value == i.Attribute_value %} selected {% endif %} name="color">{{ i.Attribute_value}}</option>
                         {% endif %}
                         {% endfor %}
                 </select>
